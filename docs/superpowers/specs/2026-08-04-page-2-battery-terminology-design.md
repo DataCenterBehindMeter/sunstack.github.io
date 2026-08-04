@@ -27,6 +27,8 @@ On page 4, card 01 retains its solar-only meaning and uses the exact title `Most
 
 On the node slide, replace `Its own internet.` with the exact sentence `Home Internet.`
 
+On the network slide, follow the weather-shifting example with `Home batteries smooth those gaps even further.` to emphasize that storage reduces intermittency without claiming to eliminate it.
+
 ## Verification
 
 Automated checks will assert the exact page-2 sentence, the updated SunStack power-source phrases, the retained solar-only factual phrases, and the presence of the battery requirement in the `value-flow.png` generation prompt. Existing browser checks will confirm the regenerated image preserves its native 3:2 ratio, page-2 text contrast remains readable, and page 2 does not overflow at desktop, tablet, or mobile widths.

@@ -44,6 +44,9 @@ class BatteryTerminologyTests(unittest.TestCase):
         self.assertIn("Home Internet.", self.html)
         self.assertNotIn("Its own internet.", self.html)
 
+    def test_network_explains_battery_mitigation(self):
+        self.assertIn("Home batteries smooth those gaps even further.", self.html)
+
     def test_value_flow_prompt_requires_a_home_battery(self):
         self.assertIn("compact wall-mounted home battery", self.generator)
         self.assertIn("beside the house", self.generator)

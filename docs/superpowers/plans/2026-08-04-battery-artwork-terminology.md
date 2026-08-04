@@ -81,6 +81,9 @@ class BatteryTerminologyTests(unittest.TestCase):
         self.assertIn("Home Internet.", self.html)
         self.assertNotIn("Its own internet.", self.html)
 
+    def test_network_explains_battery_mitigation(self):
+        self.assertIn("Home batteries smooth those gaps even further.", self.html)
+
     def test_value_flow_prompt_requires_a_home_battery(self):
         self.assertIn("compact wall-mounted home battery", self.generator)
         self.assertIn("beside the house", self.generator)
@@ -125,6 +128,7 @@ Make these semantic replacements in `index.html`:
 - `Solar-aware scheduling` → `Solar/battery-aware scheduling`
 - page-4 card-01 title → the exact text `Most solar homes % on Earth`
 - node-slide sentence `Its own internet.` → the exact text `Home Internet.`
+- network-slide weather example → append `Home batteries smooth those gaps even further.`
 
 Keep the identified solar-only facts and visual descriptions unchanged. Update the one-line README description to `rooftop-solar/battery surplus`.
 
