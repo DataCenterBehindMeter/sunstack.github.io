@@ -198,12 +198,12 @@
     probe.src = "assets/img/cover-hero.png";
   }
 
-  /* ---- video lightbox ---- */
-  var demo = document.getElementById("demoVideo");
+  /* ---- video lightbox (works for every .videowrap) ---- */
   var lightbox = document.getElementById("lightbox");
   var lbVideo = document.getElementById("lightboxVideo");
-  function openLightbox() {
+  function openLightbox(src) {
     if (!lightbox) return;
+    if (lbVideo && src && lbVideo.getAttribute("src") !== src) lbVideo.setAttribute("src", src);
     lightbox.classList.add("open");
     lightbox.setAttribute("aria-hidden", "false");
     if (lbVideo) { try { lbVideo.currentTime = 0; lbVideo.play(); } catch (e) {} }
@@ -214,12 +214,14 @@
     lightbox.setAttribute("aria-hidden", "true");
     if (lbVideo) { try { lbVideo.pause(); } catch (e) {} }
   }
-  if (demo) {
-    demo.addEventListener("click", openLightbox);
-    demo.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLightbox(); }
+  Array.prototype.forEach.call(document.querySelectorAll(".videowrap"), function (vw) {
+    var v = vw.querySelector("video");
+    var src = v ? v.getAttribute("src") : null;
+    vw.addEventListener("click", function () { openLightbox(src); });
+    vw.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLightbox(src); }
     });
-  }
+  });
   if (lightbox) lightbox.addEventListener("click", closeLightbox);
 
   /* ---- init ---- */

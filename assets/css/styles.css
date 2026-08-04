@@ -152,6 +152,10 @@ code { font-family: "JetBrains Mono", ui-monospace, monospace; }
 .media .figure img, .media .frame img, .media .videowrap video { max-height: 72vh; object-fit: contain; }
 #tile-2 .figure { margin-inline: auto; }
 #tile-2 .figure img { max-height: 30vh; }
+/* tile 8: two stacked demo videos */
+.media-videos { display: flex; flex-direction: column; gap: 14px; }
+#tile-8 .videowrap video { max-height: 30vh; object-fit: cover; }
+@media (max-width: 900px) { #tile-8 .videowrap video { max-height: none; object-fit: contain; } }
 .tile-inner { width: 100%; max-width: var(--maxw); }
 .tile-inner.wide { max-width: 1280px; }
 .tile-inner.narrow { max-width: 860px; }

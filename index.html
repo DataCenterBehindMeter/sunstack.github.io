@@ -254,12 +254,15 @@ resp = client.chat.completions.create(
           </div>
           <p data-anim style="--i:4;margin-top:12px;color:var(--muted);font-size:13.5px">The same API you already use.</p>
         </div>
-        <div class="media">
-          <div class="videowrap" id="demoVideo" data-anim style="--i:2" role="button" tabindex="0" aria-label="Play the live demo full screen">
-            <video src="assets/video/text-image.mp4" poster="assets/video/poster.jpg" muted loop playsinline autoplay preload="metadata"></video>
-            <div class="tag"><span class="live"></span> Live: real text + image on a real GPU node</div>
+        <div class="media media-videos">
+          <div class="videowrap" data-anim style="--i:2" role="button" tabindex="0" aria-label="Play the streaming-text demo full screen">
+            <video src="assets/video/text-only.mp4" poster="assets/video/text-only-poster.jpg" muted loop playsinline autoplay preload="metadata"></video>
+            <div class="tag"><span class="live"></span> Live: streaming text</div>
           </div>
-          <p class="stat" style="margin-top:12px;color:var(--muted);font-size:13.5px">Recording of the served model generating text and an image.</p>
+          <div class="videowrap" data-anim style="--i:3" role="button" tabindex="0" aria-label="Play the text-and-image demo full screen">
+            <video src="assets/video/text-image.mp4" poster="assets/video/poster.jpg" muted loop playsinline autoplay preload="metadata"></video>
+            <div class="tag"><span class="live"></span> Live: text + image</div>
+          </div>
         </div>
       </div>
     </div>
