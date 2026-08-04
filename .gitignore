@@ -1,7 +1,9 @@
 .env
 .DS_Store
 **/.DS_Store
-tools/__pycache__/
+**/__pycache__/
+.playwright-cli/
+output/playwright/
 *.log
 # heavy source video — the transcoded assets/video/text-image.mp4 is what ships
 text-image.mov
