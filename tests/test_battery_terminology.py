@@ -40,6 +40,10 @@ class BatteryTerminologyTests(unittest.TestCase):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, self.html)
 
+    def test_node_uses_home_internet_copy(self):
+        self.assertIn("Home Internet.", self.html)
+        self.assertNotIn("Its own internet.", self.html)
+
     def test_value_flow_prompt_requires_a_home_battery(self):
         self.assertIn("compact wall-mounted home battery", self.generator)
         self.assertIn("beside the house", self.generator)

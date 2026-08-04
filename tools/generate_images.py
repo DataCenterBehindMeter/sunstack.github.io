@@ -81,7 +81,8 @@ FIGURES = [
         "value-flow.png",
         "A clean flat editorial illustration on a warm off-white parchment "
         "background, read left to right as a gentle four-step journey: (1) a "
-        "small sunny pitched roof with solar panels, (2) a small matte rounded "
+        "small sunny pitched-roof house with solar panels and a recognizable "
+        "compact wall-mounted home battery installed beside the house, (2) a small matte rounded "
         "compute box, (3) a soft cluster of little houses joined as a small "
         "network, (4) an open laptop. The four are linked by smooth flowing "
         "amber lines that suggest sunlight turning into intelligence. Simple "

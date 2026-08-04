@@ -1,7 +1,7 @@
 # SunStack — pitch-deck website
 
 A single-page, scroll-snap slide deck introducing **SunStack**: an Australian marketplace
-that turns rooftop-solar surplus into sovereign AI compute. Built for a university
+that turns rooftop-solar/battery surplus into sovereign AI compute. Built for a university
 senior-management panel. Zero-build, vanilla HTML/CSS/JS — nothing to compile.
 
 ## View locally

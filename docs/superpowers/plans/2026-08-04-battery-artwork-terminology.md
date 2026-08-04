@@ -77,6 +77,10 @@ class BatteryTerminologyTests(unittest.TestCase):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, self.html)
 
+    def test_node_uses_home_internet_copy(self):
+        self.assertIn("Home Internet.", self.html)
+        self.assertNotIn("Its own internet.", self.html)
+
     def test_value_flow_prompt_requires_a_home_battery(self):
         self.assertIn("compact wall-mounted home battery", self.generator)
         self.assertIn("beside the house", self.generator)
@@ -120,6 +124,7 @@ Make these semantic replacements in `index.html`:
 - `spare rooftop solar` in the income description → `spare rooftop solar/battery energy`
 - `Solar-aware scheduling` → `Solar/battery-aware scheduling`
 - page-4 card-01 title → the exact text `Most solar homes % on Earth`
+- node-slide sentence `Its own internet.` → the exact text `Home Internet.`
 
 Keep the identified solar-only facts and visual descriptions unchanged. Update the one-line README description to `rooftop-solar/battery surplus`.
 
