@@ -1,0 +1,7 @@
+.env
+.DS_Store
+**/.DS_Store
+tools/__pycache__/
+*.log
+# heavy source video — the transcoded assets/video/text-image.mp4 is what ships
+text-image.mov

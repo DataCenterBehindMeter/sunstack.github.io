@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SunStack — turning sunshine into intelligence</title>
+<meta name="description" content="An Australian marketplace that turns rooftop-solar surplus into sovereign AI compute. Homeowners host solar-powered GPUs; buyers get cheaper, Australia-based AI." />
+<meta name="theme-color" content="#161410" />
+<meta property="og:title" content="SunStack — turning sunshine into intelligence" />
+<meta property="og:description" content="Australia wastes its midday sun and overpays for AI. SunStack connects the two: solar-powered home GPUs serving sovereign AI compute." />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+<link rel="preload" href="assets/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+<a class="skip" href="#tile-1">Skip to content</a>
+
+<div class="progressbar" id="progressbar" aria-hidden="true"></div>
+<header class="topbar" id="topbar" aria-label="Section navigation">
+  <a class="wordmark" href="#tile-1" aria-label="SunStack — back to start">
+    <svg class="sm" viewBox="0 0 100 100" aria-hidden="true">
+      <circle class="core" cx="50" cy="50" r="20"></circle>
+      <g>
+        <line class="ray" x1="50" y1="8" x2="50" y2="22"></line>
+        <line class="ray" x1="50" y1="78" x2="50" y2="92"></line>
+        <line class="ray" x1="8" y1="50" x2="22" y2="50"></line>
+        <line class="ray" x1="78" y1="50" x2="92" y2="50"></line>
+        <line class="ray" x1="21" y1="21" x2="31" y2="31"></line>
+        <line class="ray" x1="69" y1="69" x2="79" y2="79"></line>
+        <line class="ray" x1="79" y1="21" x2="69" y2="31"></line>
+        <line class="ray" x1="31" y1="69" x2="21" y2="79"></line>
+      </g>
+    </svg>
+    SunStack
+  </a>
+  <nav class="chapters" id="chapters" aria-label="Sections"></nav>
+</header>
+<div class="counter" id="counter" aria-hidden="true"><b>01</b> / 15</div>
+<div class="kbdhint" id="kbdhint"><kbd>↓</kbd> or <kbd>Space</kbd> to advance</div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <video id="lightboxVideo" src="assets/video/text-image.mp4" controls loop playsinline></video>
+</div>
+
+<main id="deck">
+
+  <!-- 1 · COVER ============================================= -->
+  <section class="tile t-dark cover" id="tile-1" data-surface="dark" aria-label="SunStack — cover">
+    <div class="bg" id="coverBg"></div>
+    <div class="scrim"></div>
+    <div class="tile-inner">
+      <div class="cover-head" data-anim style="--i:0">
+        <svg class="sunmark" viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="core" cx="50" cy="50" r="17"></circle>
+          <line class="ray" x1="74" y1="50" x2="86" y2="50"></line>
+          <line class="ray" x1="67" y1="67" x2="76" y2="76"></line>
+          <line class="ray" x1="50" y1="74" x2="50" y2="86"></line>
+          <line class="ray" x1="33" y1="67" x2="24" y2="76"></line>
+          <line class="ray" x1="26" y1="50" x2="14" y2="50"></line>
+          <line class="ray" x1="33" y1="33" x2="24" y2="24"></line>
+          <line class="ray" x1="50" y1="26" x2="50" y2="14"></line>
+          <line class="ray" x1="67" y1="33" x2="76" y2="24"></line>
+        </svg>
+        <span class="eyebrow" style="margin:0">SunStack</span>
+      </div>
+      <h1 class="display" data-anim style="--i:1">Turning sunshine<br>into <span class="accent">intelligence</span>.</h1>
+      <p class="sub" data-anim style="--i:2">An Australian marketplace that turns wasted <span class="nowrap">rooftop-solar</span> into sovereign AI compute.</p>
+      <div class="backers" data-anim style="--i:3;margin-top:38px">
+        <span class="lead-in">Backed by</span>
+        <span class="logo-chip"><img src="assets/logos/unsw.png" alt="UNSW" /></span>
+        <span class="logo-chip"><img src="assets/logos/trace.png" alt="TRaCE" /></span>
+        <a class="logo-chip" href="https://www.energyspurt.com.au/" target="_blank" rel="noopener"><img src="assets/logos/energyspurt.png" alt="Energy Spurt" /></a>
+      </div>
+    </div>
+    <div class="scrollhint" aria-hidden="true"><span class="m"></span>Scroll</div>
+  </section>
+
+  <!-- 2 · OVERVIEW (idea + value flow) ====================== -->
+  <section class="tile t-light" id="tile-2" data-surface="light" aria-label="Overview">
+    <div class="tile-inner narrow" style="text-align:center">
+      <span class="eyebrow" data-anim style="--i:0">The whole idea</span>
+      <h2 class="h" data-anim style="--i:1">Clean energy in.<br>Useful intelligence out.</h2>
+      <p class="lead center" data-anim style="--i:2;margin-top:18px">
+        A small solar-powered computer in a home does AI work for someone who needs it.
+        The homeowner earns. The buyer saves. The sun is not wasted.
+      </p>
+      <div class="figure" data-anim style="--i:3;margin-top:30px;max-width:840px;margin-inline:auto">
+        <img src="assets/img/value-flow.png" alt="Rooftop solar powers a home compute node, which joins the SunStack network and serves AI to a buyer" onerror="this.closest('.figure').style.display='none'" />
+      </div>
+      <div class="flowstrip">
+        <div class="flowstep" data-anim style="--i:4"><span class="dot"></span><h4>Rooftop solar</h4><p>Spare midday sun</p></div>
+        <div class="flowstep" data-anim style="--i:5"><span class="dot"></span><h4>Home node</h4><p>A small GPU box</p></div>
+        <div class="flowstep" data-anim style="--i:6"><span class="dot"></span><h4>SunStack network</h4><p>Routes the work</p></div>
+        <div class="flowstep" data-anim style="--i:7"><span class="dot"></span><h4>AI for a buyer</h4><p>Real results</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · THE GAP (motivation, combined) =================== -->
+  <section class="tile t-dark" id="tile-3" data-surface="dark" aria-label="The gap">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">The gap</span>
+      <h2 class="h" data-anim style="--i:1;color:#fff">Too much sun. Too little AI.</h2>
+      <div class="cards two" style="margin-top:34px">
+        <div class="card" data-anim style="--i:2">
+          <div class="knum">Wasted sunshine</div>
+          <div class="gap-stats">
+            <div class="gstat"><span class="num amber" data-count="8" data-prefix="4–" data-suffix="¢">4–8¢</span><span class="gl">paid for the solar you export at midday</span></div>
+            <div class="gstat"><span class="num" data-count="40" data-prefix="30–" data-suffix="¢">30–40¢</span><span class="gl">to buy the same power back at night</span></div>
+          </div>
+          <p class="cardnote">The worst trade in the country. Every sunny day.</p>
+        </div>
+        <div class="card" data-anim style="--i:3">
+          <div class="knum">Expensive AI</div>
+          <div class="gap-stats">
+            <div class="gstat"><span class="num amber" data-count="60" data-prefix="+30–" data-suffix="%">+30–60%</span><span class="gl">what Sydney GPUs cost over comparable US regions</span></div>
+          </div>
+          <p class="cardnote">So many Australian businesses send their data offshore to save money.</p>
+        </div>
+      </div>
+      <p class="kicker" data-anim style="--i:4;text-align:center;margin-top:30px">Two problems. Never meeting.</p>
+    </div>
+  </section>
+
+  <!-- 4 · WHY AUSTRALIA ==================================== -->
+  <section class="tile t-light" id="tile-4" data-surface="light" aria-label="Why only Australia">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">Why here</span>
+      <h2 class="h" data-anim style="--i:1">This maths only works in Australia.</h2>
+      <div class="cards" style="margin-top:36px">
+        <div class="card" data-anim style="--i:2">
+          <div class="knum">01</div><h3>Most solar homes on Earth</h3>
+          <p>About 1 in 3 Australian homes has rooftop solar. In some suburbs, more than half.</p>
+        </div>
+        <div class="card" data-anim style="--i:3">
+          <div class="knum">02</div><h3>The widest price gap</h3>
+          <p>Cheap at noon, dear at night — the biggest spread in the developed world.</p>
+        </div>
+        <div class="card" data-anim style="--i:4">
+          <div class="knum">03</div><h3>Batteries at scale</h3>
+          <p>~350,000 homes added a battery in the scheme’s first ten months. 2M+ targeted by 2030.</p>
+        </div>
+        <div class="card" data-anim style="--i:5">
+          <div class="knum">04</div><h3>Ready-made rails</h3>
+          <p>The energy market already accepts home-based “virtual power plants.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · THE NODE ========================================= -->
+  <section class="tile t-dark" id="tile-5" data-surface="dark" aria-label="What lives in the garage">
+    <div class="tile-inner">
+      <div class="split media-left">
+        <div class="media">
+          <div class="figure" data-anim style="--i:0">
+            <img src="assets/img/node-garage.png" alt="A small sealed SunStack compute node mounted on a clean garage wall" onerror="this.closest('.figure').style.background='var(--dark-2)'" />
+          </div>
+        </div>
+        <div class="copy">
+          <span class="eyebrow" data-anim style="--i:1">The node</span>
+          <h2 class="h" data-anim style="--i:2;color:#fff">A quiet box on the wall.</h2>
+          <p class="lead" data-anim style="--i:3;margin-top:16px">
+            A sealed computer, about the size of a large desktop. Its own circuit.
+            Its own internet. It works only on spare solar, and steps aside when the house needs power.
+          </p>
+          <div class="cards three" style="margin-top:26px">
+            <div class="card" data-anim style="--i:4"><h3>No upfront cost</h3><p>Financed from what it earns.</p></div>
+            <div class="card" data-anim style="--i:5"><h3>Sealed &amp; insured</h3><p>Separate from your home network.</p></div>
+            <div class="card" data-anim style="--i:6"><h3>You’re in control</h3><p>Pause it any time from your phone.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · THREE SIDES ===================================== -->
+  <section class="tile t-light" id="tile-6" data-surface="light" aria-label="Three sides, one story">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">How it fits together</span>
+      <h2 class="h" data-anim style="--i:1">Three people who never have to meet.</h2>
+      <div class="trio" style="margin-top:36px">
+        <div class="who" data-anim style="--i:2">
+          <div class="role">Homeowner</div>
+          <h3>Lends the sun</h3>
+          <p>Spare solar and a corner of the garage. Earns a share of every job the node runs.</p>
+        </div>
+        <div class="who" data-anim style="--i:3">
+          <div class="role">SunStack</div>
+          <h3>Runs the market</h3>
+          <p>Builds the box, routes each job, handles billing, security, and the energy market.</p>
+        </div>
+        <div class="who" data-anim style="--i:4">
+          <div class="role">Buyer</div>
+          <h3>Gets the work done</h3>
+          <p>Sends AI work, gets results. Never learns whose garage ran it.</p>
+        </div>
+      </div>
+      <p class="lead" data-anim style="--i:5;margin-top:32px;max-width:70ch">
+        The node dials out to us, so it works behind any home internet — no special setup, no fixed address.
+      </p>
+    </div>
+  </section>
+
+  <!-- 7 · THE NETWORK ===================================== -->
+  <section class="tile t-dark" id="tile-7" data-surface="dark" aria-label="How the network behaves">
+    <div class="tile-inner">
+      <div class="split">
+        <div class="copy">
+          <span class="eyebrow" data-anim style="--i:0">The network</span>
+          <h2 class="h" data-anim style="--i:1;color:#fff">Many small homes.<br>One big machine.</h2>
+          <p class="lead" data-anim style="--i:2;margin-top:16px">
+            If a storm cuts the sun in Sydney, work shifts to Melbourne.
+            If Melbourne has a bad day, it shifts again — or waits.
+          </p>
+          <p class="kicker" data-anim style="--i:3;margin-top:20px">Unreliable in any one place. Reliable everywhere at once.</p>
+        </div>
+        <div class="media">
+          <div class="figure" data-anim style="--i:4;background:var(--dark-3)">
+            <img src="assets/img/network-topology.png" alt="Many glowing homes across the map linked to hubs" onerror="this.closest('.figure').style.display='none'" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · PROTOTYPE: BUYER DEMO =========================== -->
+  <section class="tile t-light" id="tile-8" data-surface="light" aria-label="It runs today — buyer demo">
+    <div class="tile-inner wide">
+      <div class="split">
+        <div class="copy">
+          <span class="eyebrow" data-anim style="--i:0">Not a concept</span>
+          <h2 class="h" data-anim style="--i:1">It already runs.</h2>
+          <p class="lead" data-anim style="--i:2;margin-top:16px">
+            A buyer signs in, picks a model, and chats. Real text. Real images.
+            Metered and billed, end to end.
+          </p>
+          <div class="codecard" data-anim style="--i:3;margin-top:22px">
+            <div class="bar"><i></i><i></i><i></i></div>
+<pre><span class="c"># The same OpenAI client — pointed at SunStack</span>
+<span class="k">from</span> openai <span class="k">import</span> OpenAI
+
+client = OpenAI(
+    base_url=<span class="s">"https://api.sunstack.ai/v1"</span>,
+    api_key=<span class="s">"sk-sun-…"</span>,
+)
+resp = client.chat.completions.create(
+    model=<span class="s">"qwen3.5-0.8b"</span>,
+    messages=[{<span class="s">"role"</span>: <span class="s">"user"</span>,
+               <span class="s">"content"</span>: <span class="s">"Write a short product blurb."</span>}],
+)
+<span class="k">print</span>(resp.choices[<span class="n">0</span>].message.content)</pre>
+          </div>
+          <p data-anim style="--i:4;margin-top:12px;color:var(--muted);font-size:13.5px">The same API you already use.</p>
+        </div>
+        <div class="media">
+          <div class="videowrap" id="demoVideo" data-anim style="--i:2" role="button" tabindex="0" aria-label="Play the live demo full screen">
+            <video src="assets/video/text-image.mp4" poster="assets/video/poster.jpg" muted loop playsinline autoplay preload="metadata"></video>
+            <div class="tag"><span class="live"></span> Live: real text + image on a real GPU node</div>
+          </div>
+          <p class="stat" style="margin-top:12px;color:var(--muted);font-size:13.5px">Recording of the served model generating text and an image.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 · PROTOTYPE: OPERATOR CONSOLE ===================== -->
+  <section class="tile t-dark" id="tile-9" data-surface="dark" aria-label="Operators run the fleet">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">The control room</span>
+      <h2 class="h" data-anim style="--i:1;color:#fff">One console runs the marketplace.</h2>
+      <p class="lead" data-anim style="--i:2;margin-top:14px;max-width:64ch;color:var(--on-dark)">
+        See every node. Watch each job go to the least-busy one. Track usage, energy, and billing.
+      </p>
+      <div class="shots-2" style="margin-top:26px">
+        <div class="frame" data-anim style="--i:3">
+          <div class="bar"><i></i><i></i><i></i><span class="url">admin.sunstack.ai · Dispatch</span></div>
+          <img src="assets/shots/dispatch-scheduling.png" alt="Live per-model routing: each job goes to the least-busy node" />
+        </div>
+        <div class="frame" data-anim style="--i:4">
+          <div class="bar"><i></i><i></i><i></i><span class="url">admin.sunstack.ai · Energy</span></div>
+          <img src="assets/shots/energy.png" alt="Energy served, broken down per node" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 · PROTOTYPE: SAFETY ============================== -->
+  <section class="tile t-light" id="tile-10" data-surface="light" aria-label="Is it safe?">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">The first question we’re asked</span>
+      <h2 class="h" data-anim style="--i:1">Safety was the part that took longest.</h2>
+      <div class="cards three" style="margin-top:34px">
+        <div class="card" data-anim style="--i:2">
+          <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></div>
+          <h3 style="margin-top:16px">For the home</h3>
+          <p>Its own circuit. Its own network. Sealed, insured, and paused any time.</p>
+        </div>
+        <div class="card" data-anim style="--i:3">
+          <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+          <h3 style="margin-top:16px">For the buyer</h3>
+          <p>Encrypted in transit — and, on high-trust nodes, inside the chip. Signed receipts and spot re-runs, by design.</p>
+        </div>
+        <div class="card" data-anim style="--i:4">
+          <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.8 6 3.8 9S14.5 18.5 12 21c-2.5-2.5-3.8-6-3.8-9S9.5 5.5 12 3z"/></svg></div>
+          <h3 style="margin-top:16px">For the country</h3>
+          <p>Runs on Australian soil. Follows privacy law. Designed for government-grade audit.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 · BENEFITS: HOMEOWNERS =========================== -->
+  <section class="tile t-dark" id="tile-11" data-surface="dark" aria-label="Benefits for homeowners">
+    <div class="tile-inner">
+      <div class="split media-left">
+        <div class="media">
+          <div class="figure" data-anim style="--i:0;background:var(--dark-2)">
+            <img src="assets/img/homeowner-spot.png" alt="A homeowner checking their earnings on a phone, solar roof behind" onerror="this.closest('.figure').style.display='none'" />
+          </div>
+        </div>
+        <div class="copy">
+          <span class="eyebrow" data-anim style="--i:1">Who wins · 1 of 3</span>
+          <h2 class="h" data-anim style="--i:2;color:#fff">For homeowners.</h2>
+          <div class="points">
+            <div class="point" data-anim style="--i:3">
+              <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+              <div class="txt"><h3>A new income</h3><p>About <b>$1,500–$4,500 a year</b> from spare rooftop solar.</p></div>
+            </div>
+            <div class="point" data-anim style="--i:4">
+              <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+              <div class="txt"><h3>Nothing to pay upfront</h3><p>The box is financed and pays for itself.</p></div>
+            </div>
+            <div class="point" data-anim style="--i:5">
+              <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></div>
+              <div class="txt"><h3>Full control</h3><p>Pause any time. Remove it any time.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 · BENEFITS: BUYERS =============================== -->
+  <section class="tile t-light" id="tile-12" data-surface="light" aria-label="Benefits for buyers">
+    <div class="tile-inner">
+      <div class="split">
+        <div class="copy">
+          <span class="eyebrow" data-anim style="--i:0">Who wins · 2 of 3</span>
+          <h2 class="h" data-anim style="--i:1">For the people who use the AI.</h2>
+          <div class="points">
+            <div class="point" data-anim style="--i:2">
+              <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
+              <div class="txt"><h3>Lower prices</h3><p>Powered by the cheapest energy in the country.</p></div>
+            </div>
+            <div class="point" data-anim style="--i:3">
+              <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/></svg></div>
+              <div class="txt"><h3>Australian &amp; sovereign</h3><p>Data stays on home soil.</p></div>
+            </div>
+            <div class="point" data-anim style="--i:4">
+              <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-4 4 4 4M16 8l4 4-4 4"/></svg></div>
+              <div class="txt"><h3>Familiar &amp; verifiable</h3><p>A standard API you already know — with verifiable execution on the roadmap.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="media">
+          <div class="figure" data-anim style="--i:2">
+            <img src="assets/img/buyer-spot.png" alt="A developer using the SunStack API at a laptop" onerror="this.closest('.figure').style.display='none'" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 · BENEFITS: SOCIETY & UNIVERSITY (merged) ======== -->
+  <section class="tile t-dark" id="tile-13" data-surface="dark" aria-label="Benefits for society and the university">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">Who wins · 3 of 3</span>
+      <h2 class="h" data-anim style="--i:1;color:#fff">For SunStack, the university, and the country.</h2>
+      <div class="duo" style="margin-top:30px">
+        <div class="duo-col" data-anim style="--i:2">
+          <h3 class="duo-h">For SunStack &amp; the university</h3>
+          <div class="points">
+            <div class="point"><div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></div><div class="txt"><h3>A defensible new business</h3><p>The first integrated operator of a national compute network — recurring revenue from compute and grid services.</p></div></div>
+            <div class="point"><div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg></div><div class="txt"><h3>Real research &amp; IP</h3><p>Energy-aware scheduling, attestation, virtual power plants, tenant isolation. The output: papers, patents, and trained engineers.</p></div></div>
+            <div class="point"><div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></div><div class="txt"><h3>A uniquely Australian story</h3><p>National infrastructure no other country can build the same way.</p></div></div>
+          </div>
+        </div>
+        <div class="duo-col" data-anim style="--i:3">
+          <h3 class="duo-h">For the country</h3>
+          <div class="points">
+            <div class="point"><div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.8 6 3.8 9S14.5 18.5 12 21"/></svg></div><div class="txt"><h3>Sovereign AI</h3><p>Designed so every job runs in an Australian home.</p></div></div>
+            <div class="point"><div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13c0-6 7-9 16-9 0 9-3 16-9 16z"/><path d="M4 20c3-4 6-6 10-7"/></svg></div><div class="txt"><h3>A calmer grid</h3><p>Soaks up midday surplus right where it’s made.</p></div></div>
+            <div class="point"><div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V9l6-4 6 4v12M10 21v-6h4v6"/></svg></div><div class="txt"><h3>No new land</h3><p>Uses rooftops people already own.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 · ROADMAP ======================================= -->
+  <section class="tile t-parchment" id="tile-14" data-surface="light" aria-label="What's next">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">What’s next</span>
+      <h2 class="h" data-anim style="--i:1">Where we take it from here.</h2>
+      <div class="cards" style="margin-top:36px">
+        <div class="card" data-anim style="--i:2">
+          <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13c0-6 7-9 16-9 0 9-3 16-9 16z"/><path d="M4 20c3-4 6-6 10-7"/></svg></div>
+          <h3 style="margin-top:16px">Greener, cheaper energy</h3>
+          <p>Solar-aware scheduling that gets more useful work out of every kilowatt-hour.</p>
+        </div>
+        <div class="card" data-anim style="--i:3">
+          <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9.5 12l2 2 3.5-3.5"/></svg></div>
+          <h3 style="margin-top:16px">Stronger security</h3>
+          <p>Hardware attestation, signed receipts, and tenant isolation between jobs.</p>
+        </div>
+        <div class="card" data-anim style="--i:4">
+          <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
+          <h3 style="margin-top:16px">Faster inference</h3>
+          <p>Quicker responses and bigger models on the same home hardware.</p>
+        </div>
+        <div class="card" data-anim style="--i:5">
+          <div class="chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></div>
+          <h3 style="margin-top:16px">Deployment &amp; trials</h3>
+          <p>Real garages onboarded, with university and industry pilots — and grid-service trials.</p>
+        </div>
+      </div>
+      <p class="kicker" data-anim style="--i:6;text-align:center;margin-top:32px">Start small. Prove each step. Scale what works.</p>
+    </div>
+  </section>
+
+  <!-- 15 · THANK YOU ===================================== -->
+  <section class="tile t-dark thanks" id="tile-15" data-surface="dark" aria-label="Thank you">
+    <div class="scrim" style="background:radial-gradient(1000px 560px at 50% 120%, rgba(232,147,42,.26), transparent 60%)"></div>
+    <div class="tile-inner narrow">
+      <svg class="sunmark" viewBox="0 0 100 100" aria-hidden="true" data-anim style="--i:0;margin:0 auto 26px">
+        <circle class="core" cx="50" cy="50" r="17"></circle>
+        <line class="ray" x1="74" y1="50" x2="86" y2="50"></line>
+        <line class="ray" x1="67" y1="67" x2="76" y2="76"></line>
+        <line class="ray" x1="50" y1="74" x2="50" y2="86"></line>
+        <line class="ray" x1="33" y1="67" x2="24" y2="76"></line>
+        <line class="ray" x1="26" y1="50" x2="14" y2="50"></line>
+        <line class="ray" x1="33" y1="33" x2="24" y2="24"></line>
+        <line class="ray" x1="50" y1="26" x2="50" y2="14"></line>
+        <line class="ray" x1="67" y1="33" x2="76" y2="24"></line>
+      </svg>
+      <h2 class="display" data-anim style="--i:1;font-size:clamp(30px,4.8vw,60px);color:#fff">
+        Australia has a once-in-a-generation chance to build something no other country can.
+      </h2>
+      <p class="sub" data-anim style="--i:2">We’d love to build it here, with you.</p>
+      <div class="ty" data-anim style="--i:3">Thank you.</div>
+      <div class="backers" data-anim style="--i:4;margin-top:40px;justify-content:center">
+        <span class="logo-chip"><img src="assets/logos/unsw.png" alt="UNSW" /></span>
+        <span class="logo-chip"><img src="assets/logos/trace.png" alt="TRaCE" /></span>
+        <a class="logo-chip" href="https://www.energyspurt.com.au/" target="_blank" rel="noopener"><img src="assets/logos/energyspurt.png" alt="Energy Spurt" /></a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="assets/js/deck.js"></script>
+</body>
+</html>
