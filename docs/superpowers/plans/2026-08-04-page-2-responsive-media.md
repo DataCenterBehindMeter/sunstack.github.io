@@ -78,15 +78,18 @@ class Page2ResponsiveTests(unittest.TestCase):
                             return {
                                 renderedRatio: box.width / box.height,
                                 naturalRatio: element.naturalWidth / element.naturalHeight,
-                                viewportWidth: window.innerWidth,
-                                pageWidth: document.documentElement.scrollWidth,
                             };
                         }"""
                     )
                     self.assertAlmostEqual(
                         metrics["renderedRatio"], metrics["naturalRatio"], places=2
                     )
-                    self.assertLessEqual(metrics["pageWidth"], metrics["viewportWidth"])
+                    tile_metrics = page.locator("#tile-2").evaluate(
+                        "element => ({ clientWidth: element.clientWidth, scrollWidth: element.scrollWidth })"
+                    )
+                    self.assertLessEqual(
+                        tile_metrics["scrollWidth"], tile_metrics["clientWidth"]
+                    )
                     self.assertEqual(
                         page.locator("#tile-2 .flowstep h4").first.evaluate(
                             "element => getComputedStyle(element).color"
