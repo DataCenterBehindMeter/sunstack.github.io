@@ -36,7 +36,7 @@
   </a>
   <nav class="chapters" id="chapters" aria-label="Sections"></nav>
 </header>
-<div class="counter" id="counter" aria-hidden="true"><b>01</b> / 15</div>
+<div class="counter" id="counter" aria-hidden="true"><b>01</b> / 16</div>
 <div class="kbdhint" id="kbdhint"><kbd>↓</kbd> or <kbd>Space</kbd> to advance</div>
 
 <div class="lightbox" id="lightbox" aria-hidden="true">
@@ -268,29 +268,38 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 9 · PROTOTYPE: OPERATOR CONSOLE ===================== -->
-  <section class="tile t-dark" id="tile-9" data-surface="dark" aria-label="Operators run the fleet">
+  <!-- 9 · PROTOTYPE: OPERATOR DISPATCH ==================== -->
+  <section class="tile t-dark" id="tile-9" data-surface="dark" aria-label="Operator dispatch">
     <div class="tile-inner wide">
-      <span class="eyebrow" data-anim style="--i:0">The control room</span>
+      <span class="eyebrow" data-anim style="--i:0">The control room · Dispatch</span>
       <h2 class="h" data-anim style="--i:1;color:#fff">One console runs the marketplace.</h2>
       <p class="lead" data-anim style="--i:2;margin-top:14px;max-width:64ch;color:var(--on-dark)">
-        See every node. Watch each job go to the least-busy one. Track usage, energy, and billing.
+        See every node. Watch each job go to the least-busy one.
       </p>
-      <div class="shots-2" style="margin-top:26px">
-        <div class="frame" data-anim style="--i:3">
-          <div class="bar"><i></i><i></i><i></i><span class="url">admin.sunstack.ai · Dispatch</span></div>
-          <img src="assets/shots/dispatch-scheduling.png" alt="Live per-model routing: each job goes to the least-busy node" />
-        </div>
-        <div class="frame" data-anim style="--i:4">
-          <div class="bar"><i></i><i></i><i></i><span class="url">admin.sunstack.ai · Energy</span></div>
-          <img src="assets/shots/energy.png" alt="Energy served, broken down per node" />
-        </div>
+      <div class="frame operator-shot" data-anim style="--i:3">
+        <div class="bar"><i></i><i></i><i></i><span class="url">admin.sunstack.ai · Dispatch</span></div>
+        <img src="assets/shots/dispatch-scheduling.png" alt="Live per-model routing: each job goes to the least-busy node" />
       </div>
     </div>
   </section>
 
-  <!-- 10 · PROTOTYPE: SAFETY ============================== -->
-  <section class="tile t-light" id="tile-10" data-surface="light" aria-label="Is it safe?">
+  <!-- 10 · PROTOTYPE: OPERATOR ENERGY ===================== -->
+  <section class="tile t-dark" id="tile-10" data-surface="dark" aria-label="Operator energy">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">The control room · Energy</span>
+      <h2 class="h" data-anim style="--i:1;color:#fff">One console tracks the energy.</h2>
+      <p class="lead" data-anim style="--i:2;margin-top:14px;max-width:64ch;color:var(--on-dark)">
+        Track usage, energy, and billing across the fleet.
+      </p>
+      <div class="frame operator-shot" data-anim style="--i:3">
+        <div class="bar"><i></i><i></i><i></i><span class="url">admin.sunstack.ai · Energy</span></div>
+        <img src="assets/shots/energy.png" alt="Energy served, broken down per node" />
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 · PROTOTYPE: SAFETY ============================== -->
+  <section class="tile t-light" id="tile-11" data-surface="light" aria-label="Is it safe?">
     <div class="tile-inner wide">
       <span class="eyebrow" data-anim style="--i:0">The first question we’re asked</span>
       <h2 class="h" data-anim style="--i:1">Safety was the part that took longest.</h2>
@@ -314,8 +323,8 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 11 · BENEFITS: HOMEOWNERS =========================== -->
-  <section class="tile t-dark" id="tile-11" data-surface="dark" aria-label="Benefits for homeowners">
+  <!-- 12 · BENEFITS: HOMEOWNERS =========================== -->
+  <section class="tile t-dark" id="tile-12" data-surface="dark" aria-label="Benefits for homeowners">
     <div class="tile-inner">
       <div class="split media-left">
         <div class="media">
@@ -345,8 +354,8 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 12 · BENEFITS: BUYERS =============================== -->
-  <section class="tile t-light" id="tile-12" data-surface="light" aria-label="Benefits for buyers">
+  <!-- 13 · BENEFITS: BUYERS =============================== -->
+  <section class="tile t-light" id="tile-13" data-surface="light" aria-label="Benefits for buyers">
     <div class="tile-inner">
       <div class="split">
         <div class="copy">
@@ -376,8 +385,8 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 13 · BENEFITS: SOCIETY & UNIVERSITY (merged) ======== -->
-  <section class="tile t-dark" id="tile-13" data-surface="dark" aria-label="Benefits for society and the university">
+  <!-- 14 · BENEFITS: SOCIETY & UNIVERSITY (merged) ======== -->
+  <section class="tile t-dark" id="tile-14" data-surface="dark" aria-label="Benefits for society and the university">
     <div class="tile-inner wide">
       <span class="eyebrow" data-anim style="--i:0">Who wins · 3 of 3</span>
       <h2 class="h" data-anim style="--i:1;color:#fff">For SunStack, the university, and the country.</h2>
@@ -402,8 +411,8 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 14 · ROADMAP ======================================= -->
-  <section class="tile t-parchment" id="tile-14" data-surface="light" aria-label="What's next">
+  <!-- 15 · ROADMAP ======================================= -->
+  <section class="tile t-parchment" id="tile-15" data-surface="light" aria-label="What's next">
     <div class="tile-inner wide">
       <span class="eyebrow" data-anim style="--i:0">What’s next</span>
       <h2 class="h" data-anim style="--i:1">Where we take it from here.</h2>
@@ -433,8 +442,8 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 15 · THANK YOU ===================================== -->
-  <section class="tile t-dark thanks" id="tile-15" data-surface="dark" aria-label="Thank you">
+  <!-- 16 · THANK YOU ===================================== -->
+  <section class="tile t-dark thanks" id="tile-16" data-surface="dark" aria-label="Thank you">
     <div class="scrim" style="background:radial-gradient(1000px 560px at 50% 120%, rgba(232,147,42,.26), transparent 60%)"></div>
     <div class="tile-inner narrow">
       <svg class="sunmark" viewBox="0 0 100 100" aria-hidden="true" data-anim style="--i:0;margin:0 auto 26px">

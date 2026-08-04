@@ -48,7 +48,7 @@ class OperatorSlideTests(unittest.TestCase):
 
                     for image in (dispatch, energy):
                         page.wait_for_function(
-                            "element => element.complete", image.element_handle()
+                            "element => element.complete", arg=image.element_handle()
                         )
                         metrics = image.evaluate(
                             """element => {
