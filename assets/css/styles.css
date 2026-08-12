@@ -482,6 +482,9 @@ h3.h { font-size: clamp(20px, 2vw, 26px); font-weight: 700; }
 .backers .lead-in { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--on-dark-muted); margin-right: 4px; }
 .logo-chip { display: inline-flex; align-items: center; justify-content: center; background: #fff; border-radius: 9px; padding: 9px 13px; height: 46px; }
 .logo-chip img { max-height: 26px; max-width: 92px; width: auto; height: auto; object-fit: contain; }
+/* Stacked logos (mark over wordmark, e.g. Energy Spurt) need more height so they aren't shrunk/cut */
+.logo-chip-stacked { height: auto; padding: 6px 12px; }
+.logo-chip-stacked img { max-height: 44px; max-width: 130px; }
 
 /* ============================================================
    Thank-you tile
