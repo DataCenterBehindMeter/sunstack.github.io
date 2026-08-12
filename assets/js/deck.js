@@ -16,10 +16,10 @@
   var SECTIONS = [
     { name: "Overview", start: 1 },      // cover, overview (idea + value flow)
     { name: "Why now", start: 3 },       // the gap, why Australia
-    { name: "How it works", start: 5 },  // node, three sides, network
-    { name: "Prototype", start: 8 },     // buyer demo, operator console, safety
-    { name: "Who wins", start: 12 },     // homeowners, buyers, society+university
-    { name: "The plan", start: 15 }      // roadmap, thank-you
+    { name: "How it works", start: 5 },  // three parties, network, node
+    { name: "Prototype", start: 8 },     // buyer demo, operator console
+    { name: "Who wins", start: 11 },     // homeowners, buyers, society+university
+    { name: "The plan", start: 14 }      // roadmap, thank-you
   ];
   function sectionForTile(n) {
     var idx = 0;
