@@ -123,6 +123,21 @@ FIGURES = [
         "lines on a black background.",
     ),
     (
+        "network-structure.png",
+        "A clean flat editorial illustration on a warm off-white parchment "
+        "background showing many homes acting as one network, read left to "
+        "right: on the left a little cluster of small pitched-roof houses with "
+        "solar panels, each with a tiny matte rounded compute box beside it (a "
+        "neighbourhood of home compute nodes); in the centre a single soft "
+        "glowing routing hub made of gentle concentric rings and small dots "
+        "that ties them all together; on the right one or two open laptops. "
+        "Smooth flowing amber light-lines gather the many houses into the "
+        "central hub and fan back out to the laptops, suggesting many small "
+        "homes working as one big machine. Simple geometric shapes, thin "
+        "confident linework, subtle warm shadow, generous negative space, "
+        "balanced horizontal composition, one small muted-teal detail.",
+    ),
+    (
         "homeowner-spot.png",
         "A warm, authentic natural-light photograph of a person standing in the "
         "bright driveway or open garage of an Australian home, glancing down at "
