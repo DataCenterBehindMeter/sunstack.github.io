@@ -160,8 +160,10 @@ code { font-family: "JetBrains Mono", ui-monospace, monospace; }
 }
 /* tile 8: two stacked demo videos */
 .media-videos { display: flex; flex-direction: column; gap: 14px; }
-#tile-8 .videowrap video { max-height: 30vh; object-fit: cover; }
-@media (max-width: 900px) { #tile-8 .videowrap video { max-height: none; object-fit: contain; } }
+/* show the FULL video (incl. the input bar) — never crop the aspect ratio */
+#tile-8 .videowrap { background: var(--dark-2); }
+#tile-8 .videowrap video { max-height: 34vh; object-fit: contain; width: 100%; }
+@media (max-width: 900px) { #tile-8 .videowrap video { max-height: none; } }
 .tile-inner { width: 100%; max-width: var(--maxw); }
 .tile-inner.wide { max-width: 1280px; }
 .tile-inner.narrow { max-width: 860px; }
@@ -507,6 +509,8 @@ h3.h { font-size: clamp(20px, 2vw, 26px); font-weight: 700; }
 .topbar .wordmark .sm { width: 20px; height: 20px; flex-shrink: 0; }
 .topbar .wordmark .sm .core { fill: var(--amber); }
 .topbar .wordmark .sm .ray { stroke: var(--amber); stroke-width: 8; stroke-linecap: round; }
+/* SunstackAI wordmark: the "AI" always renders in the brand amber (matches cloud) */
+.wordmark .ai, .cover-head .eyebrow .ai { color: var(--amber); }
 .chapters { display: flex; align-items: center; gap: clamp(10px, 1.7vw, 24px); pointer-events: auto; }
 .chapter {
   background: none; border: none; cursor: pointer; font: inherit;
