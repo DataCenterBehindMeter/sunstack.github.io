@@ -278,36 +278,84 @@ window.SunStackData = (function () {
       date: "2026-04"
     },
 
-    // --- Model token prices ---
-    deepinfra_pricing: {
-      name: "DeepInfra — API pricing page",
+    // --- Model token prices (Sept 2026 open-weight catalog) ---
+    gpt_oss_20b_pricing: {
+      name: "getmaxim.ai — gpt-oss-20b cost calculator (DeepInfra/Groq)",
+      publisher: "getmaxim.ai",
+      url: "https://www.getmaxim.ai/bifrost/llm-cost-calculator/provider/deepinfra/model/gpt-oss-20b",
+      date: "2026-09"
+    },
+    gemma4_pricing: {
+      name: "OpenRouter — Gemma 4 31B-it / 26B-A4B pricing",
+      publisher: "OpenRouter",
+      url: "https://openrouter.ai/google/gemma-4-31b-it",
+      date: "2026-09"
+    },
+    qwen36_pricing: {
+      name: "OpenRouter — Qwen3.6-35B-A3B pricing",
+      publisher: "OpenRouter",
+      url: "https://openrouter.ai/qwen/qwen3.6-35b-a3b",
+      date: "2026-09"
+    },
+    qwen3_coder_pricing: {
+      name: "OpenRouter — Qwen3-Coder-Next pricing",
+      publisher: "OpenRouter",
+      url: "https://openrouter.ai/qwen/qwen3-coder-next",
+      date: "2026-09"
+    },
+    llama4_scout_pricing: {
+      name: "DeepInfra — Llama 4 Scout pricing",
       publisher: "DeepInfra",
       url: "https://deepinfra.com/pricing",
-      date: "2026"
+      date: "2026-09"
     },
-    groq_pricing: {
-      name: "Groq — API pricing",
-      publisher: "Groq",
-      url: "https://groq.com/pricing/",
-      date: "2026"
+    gpt_oss_120b_pricing: {
+      name: "DeepInfra — gpt-oss-120b pricing (Fireworks/Groq $0.60 out)",
+      publisher: "DeepInfra",
+      url: "https://deepinfra.com/pricing",
+      date: "2026-09"
     },
-    novita_pricing: {
-      name: "Novita.ai — pricing page",
-      publisher: "Novita.ai",
-      url: "https://novita.ai/pricing",
-      date: "2026"
-    },
-    fireworks_pricing: {
-      name: "Fireworks AI — pricing page",
-      publisher: "Fireworks AI",
-      url: "https://fireworks.ai/pricing",
-      date: "2026"
-    },
-    openrouter_pricing: {
-      name: "OpenRouter — Llama 3.3 70B model page",
+    mistral_small_4_pricing: {
+      name: "OpenRouter — Mistral Small 4 (mistral-small-2603) pricing",
       publisher: "OpenRouter",
-      url: "https://openrouter.ai/meta-llama/llama-3.3-70b-instruct",
-      date: "2026"
+      url: "https://openrouter.ai/mistralai/mistral-small-2603",
+      date: "2026-09"
+    },
+    minimax_pricing: {
+      name: "Hugging Face — MiniMax-M2-1 model card",
+      publisher: "MiniMax / HuggingFace",
+      url: "https://huggingface.co/MiniMaxAI/MiniMax-M2-1",
+      date: "2026-09"
+    },
+    deepseek_v4_pricing: {
+      name: "DeepSeek official API pricing (V4-Flash off-peak $0.66 out)",
+      publisher: "DeepSeek",
+      url: "https://api-docs.deepseek.com/quick_start/pricing",
+      date: "2026-09"
+    },
+    glm53_pricing: {
+      name: "Z.ai official docs — GLM-5.3-Flash pricing ($0.50 out)",
+      publisher: "Z.ai",
+      url: "https://docs.z.ai/guides/overview/pricing",
+      date: "2026-09"
+    },
+    glm52_pricing: {
+      name: "Z.ai official docs — GLM-5.2 pricing ($4.40 out)",
+      publisher: "Z.ai",
+      url: "https://docs.z.ai/guides/overview/pricing",
+      date: "2026-09"
+    },
+    kimi_k26_pricing: {
+      name: "OpenRouter — Kimi K2.6 pricing ($3.39–4.00 out)",
+      publisher: "OpenRouter",
+      url: "https://openrouter.ai/moonshotai/kimi-k2.6",
+      date: "2026-09"
+    },
+    rba_fx: {
+      name: "RBA — Australian dollar exchange rate (AUD/USD)",
+      publisher: "Reserve Bank of Australia",
+      url: "https://www.rba.gov.au/statistics/frequency/exchange-rates.html",
+      date: "2026-09"
     },
 
     // --- Energy / solar ---
@@ -507,134 +555,123 @@ window.SunStackData = (function () {
   };
 
   /* ─── MODELS ─────────────────────────────────────────────────────────────
-   * minGbQ4: minimum unified/VRAM memory to run at 4-bit quant.
-   * minGbQ8 = minGbQ4 * 1.9  (Q8 ≈ 1.9× the Q4 footprint)
-   * minGbFp16 = minGbQ4 * 3.6 (FP16 ≈ 3.6× the Q4 footprint)
+   * minGbQ4: minimum unified/VRAM memory to run at Q4 quantization.
+   * minGbQ8 = minGbQ4 * QUANT_MULT.q8  (Q8 ≈ 1.9× the Q4 footprint)
+   * minGbFp16 = minGbQ4 * QUANT_MULT.fp16 (FP16 ≈ 3.6× the Q4 footprint)
+   * activeParamsB: active parameters in billions (key for bandwidth-bound throughput).
    * priceOutUsdPerM: market output token price (USD per 1M tokens).
+   * Sources: better_source_url from docs/superpowers/specs/models-research.json checks[].
    */
   const MODELS = {
-    llama31_8b: {
-      label: "Llama 3.1 8B",
-      minGbQ4: 5,
-      priceOutUsdPerM: D(0.08, 0.04, 0.20, "USD/1M", "deepinfra_pricing", "high"),
-      note: "Fits in any device on the list."
+    gpt_oss_20b: {
+      label: "gpt-oss-20b (MoE 21B/3.6B)",
+      minGbQ4: 13,
+      activeParamsB: 3.6,
+      priceOutUsdPerM: D(0.20, 0.14, 0.30, "USD/1M", "gpt_oss_20b_pricing", "high"),
+      note: "Smallest open-weight reasoning model; fits any node. Native MXFP4. ~o3-mini class. 128K ctx."
     },
-    qwen32b: {
-      label: "Qwen 32B",
-      minGbQ4: 20,
-      priceOutUsdPerM: D(0.28, 0.28, 0.90, "USD/1M", "deepinfra_pricing", "medium"),
-      note: "Dense 32B; fits in 24GB+ with Q4."
+    gemma4_26b_a4b: {
+      label: "Gemma 4 26B-A4B (MoE)",
+      minGbQ4: 17,
+      activeParamsB: 3.8,
+      priceOutUsdPerM: D(0.34, 0.22, 0.38, "USD/1M", "gemma4_pricing", "high"),
+      note: "Google multimodal MoE (text/image/audio/video); fits 24 GB GPU and any UMA node. Apache-2.0. 256K ctx."
     },
-    llama33_70b: {
-      label: "Llama 3.3 70B",
-      minGbQ4: 40,
-      priceOutUsdPerM: D(0.40, 0.32, 0.90, "USD/1M", "groq_pricing", "high"),
-      note: "Dense 70B; needs 40GB+ at Q4. Fits UMA devices only."
+    qwen36_35b_a3b: {
+      label: "Qwen3.6-35B-A3B (MoE)",
+      minGbQ4: 22,
+      activeParamsB: 3.0,
+      priceOutUsdPerM: D(0.70, 0.70, 1.60, "USD/1M", "qwen36_pricing", "medium"),
+      note: "Fast MoE; fits 24-32 GB nodes. 262K ctx, general+coding workhorse. Apache-2.0."
     },
-    qwen72b: {
-      label: "Qwen2.5 72B",
-      minGbQ4: 42,
-      priceOutUsdPerM: D(0.40, 0.40, 1.20, "USD/1M", "novita_pricing", "high"),
-      note: "Dense 72B; needs 42GB+ at Q4."
+    qwen3_coder_next: {
+      label: "Qwen3-Coder-Next (MoE 80B/3B)",
+      minGbQ4: 49,
+      activeParamsB: 3.0,
+      priceOutUsdPerM: D(0.80, 0.80, 0.80, "USD/1M", "qwen3_coder_pricing", "high"),
+      note: "Dedicated coding MoE; needs 64 GB+ UMA or 2×24 GB GPUs. 256K ctx. 70.6% SWE-bench."
+    },
+    llama4_scout: {
+      label: "Llama 4 Scout (MoE 109B/17B)",
+      minGbQ4: 63,
+      activeParamsB: 17,
+      priceOutUsdPerM: D(0.30, 0.30, 0.34, "USD/1M", "llama4_scout_pricing", "high"),
+      note: "Long-context MoE (10M ctx); fits 128 GB UMA. Higher active params → slower decode than 3-5B-active MoEs."
     },
     gpt_oss_120b: {
-      label: "gpt-oss-120B (MoE)",
-      minGbQ4: 64,
-      priceOutUsdPerM: D(0.60, 0.17, 0.60, "USD/1M", "fireworks_pricing", "high"),
-      note: "OpenAI open-weight MoE; MXFP4 weights ~64 GB."
+      label: "gpt-oss-120b (MoE 117B/5.1B)",
+      minGbQ4: 63,
+      activeParamsB: 5.1,
+      priceOutUsdPerM: D(0.40, 0.17, 0.60, "USD/1M", "gpt_oss_120b_pricing", "high"),
+      note: "OpenAI flagship open-weight MoE. ~o4-mini class. Fits 128 GB UMA. Native MXFP4. 128K ctx."
     },
-    deepseek_v3: {
-      label: "DeepSeek V3",
-      minGbQ4: 380,
-      priceOutUsdPerM: D(1.03, 0.89, 1.25, "USD/1M", "deepinfra_pricing", "high"),
-      note: "Very large MoE; requires multi-node or 512GB+ UMA for Q4."
+    mistral_small_4: {
+      label: "Mistral Small 4 (MoE 119B/6.5B)",
+      minGbQ4: 72,
+      activeParamsB: 6.5,
+      priceOutUsdPerM: D(0.60, 0.60, 0.60, "USD/1M", "mistral_small_4_pricing", "high"),
+      note: "Vision+reasoning+coding MoE; fits 128 GB UMA, not a single 24 GB GPU. 256K ctx. Apache-2.0."
+    },
+    minimax_m2: {
+      label: "MiniMax M2.1 (MoE 230B/10B)",
+      minGbQ4: 130,
+      activeParamsB: 10,
+      priceOutUsdPerM: D(1.20, 1.02, 1.20, "USD/1M", "minimax_pricing", "medium"),
+      note: "Large MoE; needs 256 GB Mac Studio or 2-box pool. High revenue ceiling. Open weights."
+    },
+    deepseek_v4_flash: {
+      label: "DeepSeek V4-Flash (MoE 284B/13B)",
+      minGbQ4: 175,
+      activeParamsB: 13,
+      priceOutUsdPerM: D(0.66, 0.66, 1.32, "USD/1M", "deepseek_v4_pricing", "high"),
+      note: "Strong open reasoning MoE; needs dual-box or 192 GB+ Mac Studio. 1M ctx. MIT."
+    },
+    glm_53_flash: {
+      label: "GLM-5.3-Flash (MoE 320B/18B)",
+      minGbQ4: 200,
+      activeParamsB: 18,
+      priceOutUsdPerM: D(0.50, 0.25, 0.50, "USD/1M", "glm53_pricing", "high"),
+      note: "Newest natively multimodal MoE; needs 2× Spark/Strix or 256-512 GB Mac Studio. 1M ctx. MIT."
+    },
+    glm_52: {
+      label: "GLM-5.2 (MoE 744B/40B)",
+      minGbQ4: 450,
+      activeParamsB: 40,
+      priceOutUsdPerM: D(4.40, 1.56, 4.40, "USD/1M", "glm52_pricing", "high"),
+      note: "Very large MoE; cluster or 512 GB Mac Studio only. 1M ctx. MIT."
+    },
+    kimi_k26: {
+      label: "Kimi K2.6 (MoE 1T/32B)",
+      minGbQ4: 630,
+      activeParamsB: 32,
+      priceOutUsdPerM: D(4.00, 3.39, 4.00, "USD/1M", "kimi_k26_pricing", "medium"),
+      note: "Frontier flagship MoE 1T param; multi-node only (4×H100 min). 256K ctx. Modified MIT."
     }
   };
 
   /* ─── QUANT_MULT ─────────────────────────────────────────────────────────
    * Memory multipliers relative to Q4 baseline (Q4 = 1 implicit).
    * Q8 ≈ 1.9× Q4 footprint; FP16 ≈ 3.6× Q4 footprint.
+   * Used by engine for model fit-check (modelMinGb).
    */
   const QUANT_MULT = { q8: 1.9, fp16: 3.6 };
 
-  /* ─── THROUGHPUT ─────────────────────────────────────────────────────────
-   * { single, batched, source_id, confidence, estimated }
-   * "single" = single-stream (batch=1) decode tok/s.
-   * "batched" = aggregate throughput at high concurrency.
-   * estimated:true means no direct dataset row; confidence:"low".
+  /* ─── QUANT_BYTES ────────────────────────────────────────────────────────
+   * Bytes per active parameter for the bandwidth-bound throughput estimate.
+   * q4: 0.55 B/param (4.4-bit effective — MXFP4 / GGUF Q4_K_M typical)
+   * q8: 1.06 B/param (8.5-bit effective)
+   * fp16: 2.0 B/param (exact half-precision)
+   * Used by engine: singleStreamTps = EFF * bw / (activeParamsB * QUANT_BYTES[quant])
    */
-  const THROUGHPUT = {
+  const QUANT_BYTES = { q4: 0.55, q8: 1.06, fp16: 2.0 };
 
-    dgx_spark: {
-      // single from dgx_spark_llama31_8b_decode_single_ollama_q4 (typical=38, conf=high)
-      // batched from dgx_spark_llama31_8b_decode_batch32_sglang_fp8 (typical=368, conf=high)
-      llama31_8b: { single: 38, batched: 368, source_id: "lmsys_spark", confidence: "high", estimated: false },
-      // single from dgx_spark_30b_dense_decode_single_llamacpp (typical=10.7, conf=high, closest to qwen32b)
-      // batched: no dataset row for qwen32b batched on DGX Spark → estimated
-      qwen32b:    { single: 11, batched: 40,  source_id: "dandinpower_spark", confidence: "low", estimated: true },
-      // single from dgx_spark_llama31_70b_decode_single_sglang_fp8 (typical=2.7, conf=high)
-      // batched: no direct 70B batched row → estimated
-      llama33_70b: { single: 3,  batched: 12,  source_id: "lmsys_spark",     confidence: "low", estimated: true },
-      // gpt_oss_120b: dgx_spark_gptoss120b_moe_decode single=60.6 (medium), batched=130 estimated
-      gpt_oss_120b: { single: 60, batched: 130, source_id: "llamacpp_gptoss120b", confidence: "medium", estimated: false }
-    },
-
-    strix_halo: {
-      // single from strix_halo_llama3_8b_decode_single_vulkan (typical=42, conf=high)
-      // batched: no dataset row → estimated
-      llama31_8b: { single: 42, batched: 80,  source_id: "strix_halo_level1", confidence: "low", estimated: true },
-      // single from strix_halo_30b_moe_decode_single_vulkan closest to qwen32b (typical=66.3 MoE; dense ~13)
-      // using strix_halo_24b_dense_decode_single_hip as proxy for 32B dense (typical=14.3)
-      qwen32b:    { single: 13, batched: 30,  source_id: "strix_halo_level1", confidence: "low", estimated: true },
-      // single from strix_halo_70b_dense_decode_single (typical=5, conf=high)
-      // batched: no dataset row → estimated
-      llama33_70b: { single: 5,  batched: 10,  source_id: "strix_halo_level1", confidence: "low", estimated: true },
-      // gpt_oss_120b: no direct row; estimated from bandwidth ratio (256/819 * m3ultra rate)
-      gpt_oss_120b: { single: 31, batched: 60,  source_id: "strix_halo_level1", confidence: "low", estimated: true }
-    },
-
-    mac_studio_m3ultra_256: {
-      // from m3ultra_qwen8b_q4_mlx_gen_tps typical=114.93 (8B proxy → llama31_8b)
-      llama31_8b: { single: 114, batched: 300, source_id: "macrumors_m3ultra_bench", confidence: "low", estimated: true },
-      // from m3ultra_qwen32b_q4_mlx_gen_tps typical=33.88 (conf=medium)
-      qwen32b:    { single: 34,  batched: 90,  source_id: "macrumors_m3ultra_bench", confidence: "medium", estimated: false },
-      // from m3ultra_llama70b_q4_mlx_gen_tps typical=16.45 (conf=medium)
-      llama33_70b: { single: 16,  batched: 40,  source_id: "macrumors_m3ultra_bench", confidence: "medium", estimated: false }
-    },
-
-    mac_studio_m3ultra_512: {
-      // same chip as 256; throughput largely identical (same bandwidth, more capacity only)
-      llama31_8b: { single: 114, batched: 300, source_id: "macrumors_m3ultra_bench", confidence: "low", estimated: true },
-      qwen32b:    { single: 34,  batched: 90,  source_id: "macrumors_m3ultra_bench", confidence: "low", estimated: true },
-      llama33_70b: { single: 16,  batched: 40,  source_id: "macrumors_m3ultra_bench", confidence: "low", estimated: true }
-    },
-
-    mac_mini_m4pro_64: {
-      // from m4pro_mini_llama8b_q4_ollama_gen_tps typical=42 (conf=medium) — 48GB config, applies to 64GB
-      llama31_8b: { single: 42, batched: 90,  source_id: "heyuan110_apple", confidence: "low", estimated: true },
-      // no direct qwen32b row for M4 Pro mini → estimated
-      qwen32b:    { single: 12, batched: 30,  source_id: "llamacpp_discussions_apple", confidence: "low", estimated: true }
-    },
-
-    gpu_4090: {
-      // single from rtx4090_llama8b_fp16_single_stream_tok_s typical=95 (conf=high)
-      // batched from rtx4090_llama8b_batched_aggregate_tok_s typical=2770 (conf=high)
-      llama31_8b: { single: 95,   batched: 2770, source_id: "gigagpu_4090_llama8b", confidence: "high", estimated: false },
-      // single/batched from rtx4090_30b_awq_batched_aggregate_tok_s typical=2259; no single-stream 30B row
-      // single estimated from bandwidth scaling
-      qwen32b:    { single: 30,   batched: 2259, source_id: "cloudrift_gpu",        confidence: "low",  estimated: true  }
-    },
-
-    gpu_5090: {
-      // single: rtx5090_llama8b_fp16_single_stream_tok_s is verdict:"unverifiable"
-      //   (bandwidth-derived, no measured benchmark) → estimated:true, confidence:"low"
-      // batched from rtx5090_llama8b_fp16_batched_aggregate_tok_s typical=4570 (conf=high, measured)
-      llama31_8b: { single: 150,  batched: 4570, source_id: "spheron_5090",  confidence: "low",    estimated: true  },
-      // batched from rtx5090_32b_awq_batched_aggregate_tok_s typical=4570 (conf=high)
-      // single estimated from bandwidth scaling (~32GB 4090 ratio)
-      qwen32b:    { single: 45,   batched: 4570, source_id: "cloudrift_gpu",  confidence: "low",   estimated: true  }
-    }
-  };
+  /* ─── EFF ────────────────────────────────────────────────────────────────
+   * Real-world memory-bandwidth efficiency factor (0–1).
+   * 0.6 calibrates the formula to within ~1.5× of measured single-stream
+   * benchmarks (e.g. DGX Spark gpt-oss-120b ≈ 58 t/s measured vs 58.4 t/s
+   * formula; M3 Ultra minimax_m2 active-10B ≈ 90 t/s formula).
+   */
+  const EFF = 0.6;
 
   /* ─── ENERGY_PRESETS ─────────────────────────────────────────────────────
    * feedInTariff, retailRate in AUD c/kWh.
@@ -698,7 +735,7 @@ window.SunStackData = (function () {
       source_id: "messari_akash", confidence: "medium", polarity: "+"
     },
     activeHours: {
-      value: 8, low: 4, high: 24,
+      value: 16, low: 4, high: 24,
       unit: "h/day",
       source_id: "messari_akash", confidence: "low", polarity: "+"
     },
@@ -718,12 +755,12 @@ window.SunStackData = (function () {
       source_id: "canstar_retail", confidence: "high", polarity: "-"
     },
     hardwareLifetimeYears: {
-      value: 4, low: 3, high: 6,
+      value: 5, low: 3, high: 7,
       unit: "years",
       source_id: "messari_akash", confidence: "low", polarity: "+"
     },
     overheadPerYearAud: {
-      value: 150, low: 80, high: 300,
+      value: 60, low: 30, high: 200,
       unit: "AUD/year",
       source_id: "messari_akash", confidence: "low", polarity: "-"
     },
@@ -739,10 +776,10 @@ window.SunStackData = (function () {
   }
 
   /* ── FX ──────────────────────────────────────────────────────────────────────
-   * Fixed AUD/USD exchange rate. Source: canstar_retail (RBA context).
+   * Fixed AUD/USD exchange rate. Source: rba_fx (RBA Sep 2026).
    * Kept as a constant so all money is shown in AUD without a user-adjustable knob.
    */
-  const FX_AUD_PER_USD = 1.53;
+  const FX_AUD_PER_USD = 1.39;
 
-  return { SOURCES, DEVICES, MODELS, QUANT_MULT, THROUGHPUT, ENERGY_PRESETS, INPUT_DEFAULTS, FX_AUD_PER_USD, cite };
+  return { SOURCES, DEVICES, MODELS, QUANT_MULT, QUANT_BYTES, EFF, ENERGY_PRESETS, INPUT_DEFAULTS, FX_AUD_PER_USD, cite };
 })();
