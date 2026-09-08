@@ -25,22 +25,79 @@ window.SunStackEngine = (function () {
     return rig.length > 0 && poolMemoryGb(rig) >= modelMinGb(modelId, quant);
   }
 
-  /* ── Per-device throughput lookup ────────────────────────────────────── */
-  function deviceModelTokps(deviceId, modelId, batched) {
-    const t = (D.THROUGHPUT[deviceId] || {})[modelId];
-    if (t) return { tps: batched ? t.batched : t.single, estimated: !!t.estimated };
-    // No data row: return 0 (conservative fallback)
-    return { tps: 0, estimated: true };
+  /* ── Bytes per active parameter for quantization ─────────────────────── */
+  function quantBytes(quant) {
+    return D.QUANT_BYTES[quant] || D.QUANT_BYTES.q4;
   }
 
-  /* ── Aggregate throughput for a rig ──────────────────────────────────── */
+  /* ── Memory-bandwidth-bound single-stream throughput (tok/s) ─────────────
+   * Formula: EFF * device.memBandwidthGbs / (model.activeParamsB * bytesPerParam)
+   * Decode phase is memory-bandwidth-bound: each active parameter is loaded
+   * once per output token. GBs / (B × bytes/param) = tok/s (units cancel).
+   */
+  function singleStreamTps(deviceId, modelId, quant) {
+    const dev = D.DEVICES[deviceId];
+    const mod = D.MODELS[modelId];
+    if (!dev || !mod || !mod.activeParamsB) return 0;
+    return D.EFF * dev.memBandwidthGbs / (mod.activeParamsB * quantBytes(quant));
+  }
+
+  /* ── Sublinear batch gain: c^0.7 ─────────────────────────────────────── */
+  function batchGain(c) {
+    return Math.pow(c, 0.7);
+  }
+
+  /* ── Served throughput for one device (batched) ───────────────────────── */
+  function servedTpsDevice(deviceId, modelId, quant, concurrency) {
+    return singleStreamTps(deviceId, modelId, quant) * batchGain(concurrency);
+  }
+
+  /* ── Aggregate throughput for a rig ─────────────────────────────────────
+   * Returns { aggServedTps, singleStreamMin, replicaCount, pooled }
+   *
+   * - Devices that individually hold the model each run one replica.
+   *   aggServedTps = sum of servedTps across all solo-fitting devices.
+   * - If none fit individually but pooled memory fits: one slower instance
+   *   at the min-bandwidth device × poolEfficiency.
+   * - If pooled memory does not fit: aggServedTps = 0.
+   *
+   * This ensures any rig that fits() a model yields aggServedTps > 0.
+   */
+  function aggThroughput(state) {
+    const rig = state.rig || [];
+    if (rig.length === 0) return { aggServedTps: 0, singleStreamMin: 0, replicaCount: 0, pooled: false };
+    const minGb = modelMinGb(state.modelId, state.quant);
+    const concurrency = state.concurrency != null ? state.concurrency : 12;
+    const totalMem = poolMemoryGb(rig);
+    if (totalMem < minGb) return { aggServedTps: 0, singleStreamMin: 0, replicaCount: 0, pooled: false };
+
+    // Devices that individually fit — each runs a replica
+    const soloFitters = rig.filter(id => D.DEVICES[id].memoryGb >= minGb);
+
+    if (soloFitters.length > 0) {
+      let aggServedTps = 0;
+      soloFitters.forEach(id => {
+        aggServedTps += servedTpsDevice(id, state.modelId, state.quant, concurrency);
+      });
+      const singleStreamMin = soloFitters.reduce(
+        (mn, id) => Math.min(mn, singleStreamTps(id, state.modelId, state.quant)), Infinity
+      );
+      return { aggServedTps, singleStreamMin, replicaCount: soloFitters.length, pooled: false };
+    }
+
+    // Only fits pooled: one instance, min-bandwidth device governs, apply poolEfficiency
+    const minBwDevice = rig.reduce((mn, id) =>
+      D.DEVICES[id].memBandwidthGbs < D.DEVICES[mn].memBandwidthGbs ? id : mn
+    );
+    const poolEff = state.poolEfficiency != null ? state.poolEfficiency : 0.75;
+    const single = singleStreamTps(minBwDevice, state.modelId, state.quant);
+    const aggServedTps = single * batchGain(concurrency) * poolEff;
+    return { aggServedTps, singleStreamMin: single, replicaCount: 1, pooled: true };
+  }
+
+  /* ── Scalar aggThroughputTps (backward-compat shim) ─────────────────── */
   function aggThroughputTps(state) {
-    if (!fits(state.rig, state.modelId, state.quant)) return 0;
-    const per = state.rig.map(id => deviceModelTokps(id, state.modelId, true).tps);
-    const raw = sum(per);
-    // poolEfficiency only discounts multi-box scaling overhead;
-    // measured `batched` figures already include single-box concurrency uplift.
-    return state.rig.length > 1 ? raw * state.poolEfficiency : raw;
+    return aggThroughput(state).aggServedTps;
   }
 
   /* ── Effective energy price (AUD/kWh) ────────────────────────────────── */
@@ -66,7 +123,8 @@ window.SunStackEngine = (function () {
     const rigCostAud     = sum(rig.map(id => D.DEVICES[id].priceUsd.typical)) * fx;
 
     const okFit   = fits(rig, state.modelId, state.quant);
-    const aggTokps = aggThroughputTps(state);
+    const thr      = aggThroughput(state);
+    const aggTokps = thr.aggServedTps;
 
     // tokensPerYear = aggregate tok/s * seconds per active hour * active hours/day * 365 days * utilization
     const tokensPerYear = okFit
@@ -128,6 +186,9 @@ window.SunStackEngine = (function () {
       totalLoadKw,
       rigCostAud,
       aggTokps,
+      aggServedTps: thr.aggServedTps,
+      singleStreamTps: thr.singleStreamMin,
+      replicaCount: thr.replicaCount,
       tokensPerYear,
       grossRevenueAud,
       homeowner: {
@@ -212,7 +273,9 @@ window.SunStackEngine = (function () {
     poolMemoryGb,
     modelMinGb,
     fits,
-    deviceModelTokps,
+    singleStreamTps,
+    batchGain,
+    aggThroughput,
     aggThroughputTps,
     effEnergyPriceAudPerKwh,
     computeScenario,
