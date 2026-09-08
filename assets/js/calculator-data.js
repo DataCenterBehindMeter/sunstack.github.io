@@ -548,9 +548,14 @@ window.SunStackData = (function () {
       minGbQ4: 380,
       priceOutUsdPerM: D(1.03, 0.89, 1.25, "USD/1M", "deepinfra_pricing", "high"),
       note: "Very large MoE; requires multi-node or 512GB+ UMA for Q4."
-    },
-    _quantRule: { q8: 1.9, fp16: 3.6 }
+    }
   };
+
+  /* ─── QUANT_MULT ─────────────────────────────────────────────────────────
+   * Memory multipliers relative to Q4 baseline (Q4 = 1 implicit).
+   * Q8 ≈ 1.9× Q4 footprint; FP16 ≈ 3.6× Q4 footprint.
+   */
+  const QUANT_MULT = { q8: 1.9, fp16: 3.6 };
 
   /* ─── THROUGHPUT ─────────────────────────────────────────────────────────
    * { single, batched, source_id, confidence, estimated }
@@ -743,5 +748,5 @@ window.SunStackData = (function () {
     return s;
   }
 
-  return { SOURCES, DEVICES, MODELS, THROUGHPUT, ENERGY_PRESETS, INPUT_DEFAULTS, cite };
+  return { SOURCES, DEVICES, MODELS, QUANT_MULT, THROUGHPUT, ENERGY_PRESETS, INPUT_DEFAULTS, cite };
 })();
