@@ -1,2 +1,209 @@
 /* SunStack calculator styles. Relies on styles.css tokens being linked first. */
+
+/* ── Layout wrap ──────────────────────────────────────────────────────────── */
 .calc-wrap { max-width: var(--maxw); margin: 0 auto; padding: 40px 20px; }
+
+.calc-head h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 32px;
+}
+
+/* ── Catalog ──────────────────────────────────────────────────────────────── */
+.catalog {
+  margin-bottom: 32px;
+}
+
+.catalog-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+/* Legend */
+.catalog-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--r-sm);
+}
+.legend-uma    { background: var(--amber); }
+.legend-nonuma { background: var(--muted); }
+
+/* Device grid */
+.catalog-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.catalog-grid button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--canvas);
+  cursor: pointer;
+  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+  min-width: 160px;
+}
+
+.catalog-grid button:hover {
+  border-color: var(--amber);
+  box-shadow: var(--shadow-soft);
+}
+
+/* UMA button: amber left accent */
+.catalog-grid button.uma {
+  border-left: 4px solid var(--amber);
+}
+
+/* Non-UMA button: muted left accent */
+.catalog-grid button.non-uma {
+  border-left: 4px solid var(--muted);
+}
+
+.dev-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.dev-mem {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.dev-price {
+  font-size: 0.7rem;
+  color: var(--body);
+}
+
+/* ── SVG hub ──────────────────────────────────────────────────────────────── */
+#rig-svg {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  margin: 0 auto 20px;
+  border-radius: var(--r-lg);
+  background: var(--parchment);
+  border: 1px solid var(--line);
+}
+
+/* Hub (PAIR centre node) */
+.pair-hub circle {
+  fill: var(--dark);
+  stroke: var(--amber);
+  stroke-width: 2.5;
+}
+.pair-hub text {
+  fill: var(--amber);
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* Edges */
+.rig-edge {
+  stroke: var(--line);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+/* Device nodes */
+.rig-node rect {
+  fill: var(--amber);
+  stroke: var(--amber-strong);
+  stroke-width: 1;
+  transition: opacity 0.1s;
+}
+.rig-node:hover rect {
+  opacity: 0.8;
+}
+
+/* Non-UMA nodes */
+.rig-node.non-uma rect {
+  fill: var(--muted);
+  stroke: #6a6358;
+}
+
+.rig-node text {
+  fill: var(--canvas);
+  font-family: "JetBrains Mono", monospace;
+  pointer-events: none;
+}
+
+/* ── Summary bar ──────────────────────────────────────────────────────────── */
+#rig-summary {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  margin-bottom: 32px;
+  font-size: 0.85rem;
+}
+
+.summary-empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.stat-val {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-lbl {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.summary-badge {
+  margin-left: auto;
+}
+
+.fit-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.fit-ok {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.fit-no {
+  background: #fbe9e7;
+  color: #bf360c;
+}
