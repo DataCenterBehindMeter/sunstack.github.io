@@ -694,109 +694,6 @@
   flex-shrink: 0;
 }
 
-/* ── Charts section ────────────────────────────────────────────────────────── */
-#charts {
-  margin-bottom: 32px;
-}
-
-.charts-section-title {
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  margin-bottom: 20px;
-}
-
-.chart-wrap {
-  margin-bottom: 28px;
-  padding: 18px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  background: var(--surface-2);
-}
-
-.chart-title {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--body);
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.chart-container {
-  width: 100%;
-  overflow-x: auto;
-}
-
-/* Chart fallback table */
-.chart-fallback {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.78rem;
-}
-
-.chart-fallback th {
-  text-align: left;
-  font-weight: 700;
-  padding: 5px 10px;
-  border-bottom: 2px solid var(--line);
-  color: var(--ink);
-  background: var(--surface-2);
-  white-space: nowrap;
-}
-
-.chart-fallback td {
-  padding: 5px 10px;
-  border-bottom: 1px solid var(--line-soft);
-  color: var(--body);
-  font-variant-numeric: tabular-nums;
-}
-
-.chart-fallback tr:last-child td {
-  border-bottom: none;
-}
-
-/* ── Tornado (hand-SVG horizontal bars) ────────────────────────────────────── */
-.tornado-svg {
-  display: block;
-  font-family: inherit;
-}
-
-.tornado-baseline {
-  stroke: var(--muted);
-  stroke-width: 1;
-  stroke-dasharray: 3 3;
-}
-
-.tornado-base-label {
-  fill: var(--muted);
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Lower-net half of each bar (toward the pessimistic end): teal. */
-.tornado-bar-low {
-  fill: var(--teal);
-}
-
-/* Higher-net half of each bar (toward the optimistic end): amber. */
-.tornado-bar-high {
-  fill: var(--amber);
-}
-
-.tornado-row-label {
-  fill: var(--body);
-  font-size: 11px;
-}
-
-.tornado-delta-label {
-  fill: var(--muted);
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-}
-
 /* ── Download button ───────────────────────────────────────────────────────── */
 .dl-btn {
   display: inline-block;
@@ -903,12 +800,6 @@ input[type="range"]:focus-visible {
 
   .sources-table {
     min-width: 460px;
-  }
-
-  /* Tables: allow horizontal scroll within container, not the whole page */
-  .chart-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
   }
 
   /* Preset row: wrap on very small screens */

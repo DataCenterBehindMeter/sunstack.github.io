@@ -224,17 +224,6 @@ def test_negative_net_flagged(page):
     assert "neg" in has_neg_class or "-" in card_text
 
 
-def test_charts_or_fallback_present(page):
-    """#tornado contains an svg (or .chart-fallback) both without and with a device;
-    #breakeven container always exists."""
-    assert page.locator("#tornado svg, #tornado .chart-fallback, #tornado table").count() >= 1
-    assert page.locator("#breakeven").count() == 1
-    # After removing the device, a fallback still appears.
-    page.click("#rig-svg .rig-node")
-    assert page.locator("#tornado svg, #tornado .chart-fallback, #tornado table").count() >= 1
-    assert page.locator("#breakeven").count() == 1
-
-
 def test_strategy_control_homeowner_share(page):
     """Changing #in-homeownerShare slider updates #card-homeowner-net."""
     before = page.inner_text("#card-homeowner-net")

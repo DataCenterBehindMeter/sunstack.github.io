@@ -1,6 +1,6 @@
 /* SunStack calculator — UI controller (Task 6+).
  * Depends on: SunStackData, SunStackEngine (loaded before this file).
- * DOM mount points: #rig-builder, #panels, #results, #charts, #sources, #references.
+ * DOM mount points: #rig-builder, #panels, #results, #sources, #references.
  */
 window.SunStackUI = (function () {
   'use strict';
@@ -156,9 +156,8 @@ window.SunStackUI = (function () {
     const sellPriceEl = document.getElementById('model-sell-price');
     if (sellPriceEl) _updateSellPriceLine(sellPriceEl, state);
 
-    // Repaint outputs (results cards, charts, citations)
+    // Repaint outputs (results cards, citations)
     ui && ui._renderResults   && ui._renderResults();
-    ui && ui._renderCharts    && ui._renderCharts();
     ui && ui._renderCitations ? ui._renderCitations() : renderCitations();
   }
 
@@ -1255,7 +1254,6 @@ window.SunStackUI = (function () {
     // Hook wired at module load; later tasks override _renderResults, etc.
     _renderPanels:    renderPanels,
     _renderResults:   null,
-    _renderCharts:    null,
     _renderCitations: renderCitations
   };
 })();
