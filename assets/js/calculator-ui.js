@@ -48,6 +48,22 @@ window.SunStackUI = (function () {
   const HUB_R  = 28;   // hub circle radius
   const NODE_W = 128, NODE_H = 52, NODE_R = 8;
 
+  /* ── Uncertainty-input display labels ────────────────────────────────────────
+   * One source of truth, shared by renderPanels, the sources table, and the
+   * downloadable assumptions export.
+   */
+  const INPUT_LABELS = {
+    utilization:           'Utilization',
+    activeHours:           'Active hours/day',
+    poolEfficiency:        'Pool efficiency',
+    feedInTariff:          'Solar feed-in (c/kWh)',
+    retailRate:            'Grid retail (c/kWh)',
+    batteryCost:           'Battery cost (c/kWh)',
+    hardwareLifetimeYears: 'Hardware lifetime (yr)',
+    overheadPerYearAud:    'Overhead (A$/yr)',
+    fxAudPerUsd:           'AUD/USD rate'
+  };
+
   /* ── Helpers ────────────────────────────────────────────────────────────── */
   function svgEl(tag, attrs) {
     const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -441,18 +457,6 @@ window.SunStackUI = (function () {
     const sliderGrid = document.createElement('div');
     sliderGrid.className = 'slider-grid';
 
-    const LABELS = {
-      utilization:           'Utilization',
-      activeHours:           'Active hours/day',
-      poolEfficiency:        'Pool efficiency',
-      feedInTariff:          'Solar feed-in (c/kWh)',
-      retailRate:            'Grid retail (c/kWh)',
-      batteryCost:           'Battery cost (c/kWh)',
-      hardwareLifetimeYears: 'Hardware lifetime (yr)',
-      overheadPerYearAud:    'Overhead (A$/yr)',
-      fxAudPerUsd:           'AUD/USD rate'
-    };
-
     E.UNCERTAINTY_INPUT_IDS.forEach(inputId => {
       const def = D.INPUT_DEFAULTS[inputId];
       const currentVal = state[inputId];
@@ -465,7 +469,7 @@ window.SunStackUI = (function () {
       label.className = 'slider-label';
 
       const labelText = document.createElement('span');
-      labelText.textContent = LABELS[inputId] || inputId;
+      labelText.textContent = INPUT_LABELS[inputId] || inputId;
 
       const valDisplay = document.createElement('span');
       valDisplay.className = 'slider-val';
@@ -486,7 +490,7 @@ window.SunStackUI = (function () {
                   : def.unit === 'AUD c/kWh' ? 0.1
                   : 1;
       slider.value = currentVal;
-      slider.setAttribute('aria-label', LABELS[inputId] || inputId);
+      slider.setAttribute('aria-label', INPUT_LABELS[inputId] || inputId);
 
       slider.addEventListener('input', () => {
         const v = parseFloat(slider.value);
@@ -589,6 +593,9 @@ window.SunStackUI = (function () {
    * 4. #sources: table of all cited defaults + #download-assumptions button.
    */
   function renderCitations() {
+    // Close any open popover before re-injecting chips — otherwise a popover
+    // anchored to a chip that's about to be removed is stranded in the DOM.
+    _closePopover();
     _injectCiteChips();
     _renderReferences();
     _renderSourcesTable();
@@ -686,19 +693,32 @@ window.SunStackUI = (function () {
       _activePopover = pop;
     }
 
+    // Whether THIS chip's popover is the one currently open.
+    function mine() {
+      return _activePopover && _activePopover.parentElement === chip.parentElement;
+    }
+
     chip.addEventListener('click', function (e) {
       e.stopPropagation();
-      if (_activePopover && _activePopover.parentElement === chip.parentElement) {
-        _closePopover();
-      } else {
-        openPopover(chip);
-      }
+      // A pointer click on an unfocused chip fires focus (which opens the
+      // popover) before this handler runs, so `mine()` is already true here.
+      // Treat click as "ensure open" rather than a blind toggle — otherwise
+      // the focus-open + click-toggle race would close it immediately. Esc and
+      // outside-click remain the ways to dismiss.
+      if (!mine()) openPopover(chip);
+    });
+
+    // Open on focus too — surfaces the source during keyboard/tab navigation.
+    // openPopover() closes any prior popover (single-open), so tabbing between
+    // chips moves the popover along with focus.
+    chip.addEventListener('focus', function () {
+      if (!mine()) openPopover(chip);
     });
 
     chip.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        openPopover(chip);
+        if (!mine()) openPopover(chip);
       }
     });
 
@@ -804,18 +824,6 @@ window.SunStackUI = (function () {
     root.appendChild(title);
 
     // Build rows: label, value, unit, confidence, source
-    const LABELS = {
-      utilization:           'Utilization',
-      activeHours:           'Active hours/day',
-      poolEfficiency:        'Pool efficiency',
-      feedInTariff:          'Solar feed-in (c/kWh)',
-      retailRate:            'Grid retail (c/kWh)',
-      batteryCost:           'Battery cost (c/kWh)',
-      hardwareLifetimeYears: 'Hardware lifetime (yr)',
-      overheadPerYearAud:    'Overhead (A$/yr)',
-      fxAudPerUsd:           'AUD/USD rate'
-    };
-
     const table = document.createElement('table');
     table.className = 'sources-table';
 
@@ -834,7 +842,7 @@ window.SunStackUI = (function () {
       const tr = document.createElement('tr');
 
       const tdLabel = document.createElement('td');
-      tdLabel.textContent = LABELS[inputId] || inputId;
+      tdLabel.textContent = INPUT_LABELS[inputId] || inputId;
 
       const tdVal = document.createElement('td');
       tdVal.textContent = String(def.value);
@@ -896,18 +904,6 @@ window.SunStackUI = (function () {
 
   /* ── Build + trigger download of assumptions as CSV and JSON ─────────────── */
   function _downloadAssumptions() {
-    const LABELS = {
-      utilization:           'Utilization',
-      activeHours:           'Active hours/day',
-      poolEfficiency:        'Pool efficiency',
-      feedInTariff:          'Solar feed-in (c/kWh)',
-      retailRate:            'Grid retail (c/kWh)',
-      batteryCost:           'Battery cost (c/kWh)',
-      hardwareLifetimeYears: 'Hardware lifetime (yr)',
-      overheadPerYearAud:    'Overhead (A$/yr)',
-      fxAudPerUsd:           'AUD/USD rate'
-    };
-
     const rows = [];
 
     // Uncertainty input defaults
@@ -918,7 +914,7 @@ window.SunStackUI = (function () {
       rows.push({
         category:   'input_default',
         id:         inputId,
-        label:      LABELS[inputId] || inputId,
+        label:      INPUT_LABELS[inputId] || inputId,
         value:      def.value,
         low:        def.low,
         high:       def.high,
