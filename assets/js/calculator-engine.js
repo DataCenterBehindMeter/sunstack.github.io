@@ -86,8 +86,13 @@ window.SunStackEngine = (function () {
     const grossRevenueAud = tokensPerYear * sunstackPriceUsdPerTok * fx;
 
     // ── Homeowner ──────────────────────────────────────────────────────────
-    const energyCostAud = totalLoadKw * state.activeHours * 365 * state.utilization
-                          * effEnergyPriceAudPerKwh(state);
+    // Only book inference energy when the rig actually runs paid work.
+    // A node that can't fit the model does no work (tokens=0), so charging it
+    // energy would be a phantom cost.
+    const energyCostAud = okFit
+      ? totalLoadKw * state.activeHours * 365 * state.utilization
+        * effEnergyPriceAudPerKwh(state)
+      : 0;
 
     const amortAll = rigCostAud / state.hardwareLifetimeYears;
     // financed = operator covers hardware; homeowner's book entry = 0

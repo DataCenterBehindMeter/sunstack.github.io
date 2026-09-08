@@ -58,6 +58,11 @@ def test_does_not_fit_yields_zero_revenue(page):
     o = calc(page, "s.rig=['mac_mini_m4_16']; s.modelId='deepseek_v3'")
     assert o["fits"] is False and o["tokensPerYear"] == 0 and o["grossRevenueAud"] == 0
 
+def test_energy_zero_when_not_fit(page):
+    # a node running no paid work (model does not fit) must not book inference energy
+    o = calc(page, "s.rig=['mac_mini_m4_16']; s.modelId='deepseek_v3'")
+    assert o["fits"] is False and o["homeowner"]["energyCostAud"] == 0
+
 def test_financed_moves_hardware_off_homeowner(page):
     fin = calc(page, "s.financed=true")["homeowner"]["amortizedHardwareAud"]
     own = calc(page, "s.financed=false")["homeowner"]["amortizedHardwareAud"]
@@ -87,6 +92,17 @@ def test_breakeven_zeroes_net(page):
     if u is not None:
         net = page.evaluate(f"() => {{const s={BASE}; s.utilization={u}; return window.SunStackEngine.computeScenario(s).homeowner.netAud;}}")
         assert abs(net) < 1.0
+
+def test_breakeven_null_when_zero_slope(page):
+    # model does not fit => tokens=0 at every utilization => net is constant => slope 0 => null
+    u = page.evaluate(f"() => {{const s={BASE}; s.rig=['mac_mini_m4_16']; s.modelId='deepseek_v3'; return window.SunStackEngine.breakevenUtilization(s);}}")
+    assert u is None
+
+def test_breakeven_null_when_out_of_range(page):
+    # overhead so large that homeowner net stays negative across all of [0,1]
+    # => break-even utilization would be > 1 => out of range => null
+    u = page.evaluate(f"() => {{const s={BASE}; s.overheadPerYearAud=1e12; return window.SunStackEngine.breakevenUtilization(s);}}")
+    assert u is None
 
 def test_hub_layout_bounds_and_count(page):
     r = page.evaluate("() => window.SunStackEngine.hubLayout(9, 600, 400)")
