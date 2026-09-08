@@ -11,8 +11,8 @@ window.SunStackUI = (function () {
 
   /* ── State ──────────────────────────────────────────────────────────────── */
   const state = {
-    rig: ['gpu_4090'],
-    modelId:  'qwen32b',
+    rig: ['mac_studio_m3ultra_256'],
+    modelId:  'minimax_m2',
     quant:    'q4',
 
     // uncertainty inputs — seeded from INPUT_DEFAULTS typical values
@@ -24,17 +24,19 @@ window.SunStackUI = (function () {
     hardwareLifetimeYears:   ID.hardwareLifetimeYears.value,
     overheadPerYearAud:      ID.overheadPerYearAud.value,
 
-    // energy mix (fractions that must sum to 1; default: 100% grid)
-    energyMix: { free: 0, solar: 0, grid: 1 },
+    // energy mix (fractions sum to 1; default: 60% free/off-peak, 30% solar, 10% grid)
+    energyMix: { free: 0.6, solar: 0.3, grid: 0.1 },
+
+    // concurrency — batching lever (NOT in INPUT_DEFAULTS; presets do not change it)
+    concurrency: 12,
 
     // pricing + shares
-    tariffs:              null,   // null = no state override (panels task sets this)
     undercut:             0.20,   // 20% below market
-    homeownerShare:       0.70,   // homeowner gets 70% of gross
+    homeownerShare:       0.55,   // homeowner gets 55% of gross
 
     // hardware
     financed:             true,
-    platformCostUsdPerMTok: 0.04,
+    platformCostUsdPerMTok: 0.002,
 
     // scenario
     preset: 'neutral'
@@ -332,7 +334,16 @@ window.SunStackUI = (function () {
       const rigCostUsd = state.rig.reduce((acc, id) => acc + D.DEVICES[id].priceUsd.typical, 0);
       const rigCostAud = rigCostUsd * D.FX_AUD_PER_USD;
       const okFit      = E.fits(state.rig, state.modelId, state.quant);
-      const aggTps     = okFit ? E.aggThroughputTps(state) : 0;
+      let tpsHtml = '';
+      if (okFit) {
+        const tput = E.aggThroughput(state);
+        const ss   = Math.round(tput.singleStreamMin);
+        const srv  = Math.round(tput.aggServedTps);
+        const conc = state.concurrency != null ? state.concurrency : 12;
+        tpsHtml =
+          '<span class="summary-stat"><span class="stat-val">' + ss + ' t/s</span><span class="stat-lbl">single-stream</span></span>' +
+          '<span class="summary-stat"><span class="stat-val">' + srv + ' t/s</span><span class="stat-lbl">served (' + conc + ' concurrent)</span></span>';
+      }
 
       const fitBadge = okFit
         ? '<span class="fit-badge fit-ok">fits ✓</span>'
@@ -342,7 +353,7 @@ window.SunStackUI = (function () {
         '<span class="summary-stat"><span class="stat-val">' + pooledGb + ' GB</span><span class="stat-lbl">pooled memory</span></span>' +
         '<span class="summary-stat"><span class="stat-val">' + fmtKw(totalLoadW) + '</span><span class="stat-lbl">total load</span></span>' +
         '<span class="summary-stat"><span class="stat-val">' + fmtAud(rigCostAud) + '</span><span class="stat-lbl">rig cost</span></span>' +
-        '<span class="summary-stat"><span class="stat-val">' + Math.round(aggTps) + ' tok/s</span><span class="stat-lbl">aggregate</span></span>' +
+        tpsHtml +
         '<span class="summary-badge">' + fitBadge + '</span>';
     }
 
@@ -705,6 +716,13 @@ window.SunStackUI = (function () {
       'in-platformCostUsdPerMTok', 'Platform cost (USD/1M tok)',
       0, 1, 0.01, state.platformCostUsdPerMTok,
       v => '$' + Number(v).toFixed(2), 'platformCostUsdPerMTok'
+    ));
+
+    // #in-concurrency: 1–64 integer; NOT in INPUT_DEFAULTS, not swung by presets
+    bizGrid.appendChild(makeBizSlider(
+      'in-concurrency', 'Concurrent requests (batch)',
+      1, 64, 1, state.concurrency,
+      v => String(Math.round(v)), 'concurrency'
     ));
 
     // #in-financed: checkbox

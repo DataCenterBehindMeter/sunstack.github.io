@@ -82,19 +82,38 @@
     grid.appendChild(netCard);
 
     // ── Payback card ──────────────────────────────────────────────────────
+    // When financed: operator payback = rigCostAud / operatorMargin (operator bears capital).
+    // When not financed: homeowner payback = rigCostAud / homeownerNet (homeowner bears capital).
     const paybackCard = document.createElement('div');
     paybackCard.className = 'result-card';
     paybackCard.id = 'card-payback';
     let paybackText;
-    if (state.financed || out.paybackYears === Infinity || out.paybackYears <= 0) {
-      paybackText = 'N/A';
+    let paybackSub;
+    if (state.financed) {
+      const opMargin = out.operator.marginAud;
+      if (opMargin > 0) {
+        const opPayback = out.rigCostAud / opMargin;
+        paybackText = opPayback.toFixed(1) + ' yr';
+        paybackSub  = 'operator payback';
+      } else {
+        paybackText = 'N/A';
+        paybackSub  = 'operator margin ≤ 0';
+      }
     } else {
-      paybackText = out.paybackYears.toFixed(1) + ' yr';
+      const hwNet = out.homeowner.netAud;
+      if (hwNet > 0) {
+        const hwPayback = out.rigCostAud / hwNet;
+        paybackText = hwPayback.toFixed(1) + ' yr';
+        paybackSub  = 'homeowner payback';
+      } else {
+        paybackText = 'N/A';
+        paybackSub  = 'homeowner net ≤ 0';
+      }
     }
     paybackCard.innerHTML =
       '<div class="card-label">Payback</div>' +
       '<div class="card-val">' + paybackText + '</div>' +
-      '<div class="card-sub">' + (state.financed ? 'No capital at risk' : 'break-even') + '</div>';
+      '<div class="card-sub">' + paybackSub + '</div>';
     grid.appendChild(paybackCard);
 
     // ── ROI card ──────────────────────────────────────────────────────────

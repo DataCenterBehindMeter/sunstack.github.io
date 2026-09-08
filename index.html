@@ -324,11 +324,12 @@ resp = client.chat.completions.create(
         </div>
       </div>
       <p class="lead" data-anim style="--i:6;margin-top:28px;max-width:70ch">
-        Every number in this model is sourced and auditable. A GPU node at neutral assumptions earns ~A$1,900/yr;
+        Every number in this model is sourced and auditable. A GPU node at neutral assumptions earns ~A$3,000/yr;
         a modestly-specced compute node a more modest new income — see exactly how much, and what moves it.
-        <!-- Computed from SunStackEngine.computeScenario with applyPreset(state,'neutral'):
-             gpu_4090 + qwen32b, 100% grid, neutral = A$1,857/yr net.
-             DGX Spark + gpt_oss_120b, neutral, 60% solar = A$113/yr net. -->
+        <!-- Computed from SunStackEngine.computeScenario with default state (neutral):
+             mac_studio_m3ultra_256 + minimax_m2 Q4, 60% free / 30% solar / 10% grid,
+             concurrency=12, homeownerShare=0.55, financed=true → homeowner A$3,063/yr net,
+             operator A$584/yr margin (rig cost A$9,868 AUD). -->
       </p>
       <div data-anim style="--i:7;margin-top:22px">
         <a class="btn" href="calculator.html">Explore the revenue calculator →</a>
