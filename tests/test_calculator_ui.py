@@ -395,3 +395,19 @@ def test_energy_slider_drag_does_not_recreate_element(page):
     assert before_card != after_card, (
         "#card-homeowner-net did not update after energy-mix slider input"
     )
+
+
+def test_roi_card_shows_owner_label(page):
+    """ROI card label includes '(operator)' when financed, '(homeowner)' when not."""
+    # Default state is financed=true
+    assert page.evaluate("() => window.SunStackUI.state.financed") is True
+    roi_label = page.inner_text("#card-roi .card-label").lower()
+    assert "operator" in roi_label
+
+    # Switch to self-funded
+    page.evaluate("""() => {
+      window.SunStackUI.state.financed = false;
+      window.SunStackUI.renderOutputs();
+    }""")
+    roi_label_after = page.inner_text("#card-roi .card-label").lower()
+    assert "homeowner" in roi_label_after

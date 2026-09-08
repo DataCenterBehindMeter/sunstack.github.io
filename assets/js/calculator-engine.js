@@ -180,7 +180,9 @@ window.SunStackEngine = (function () {
     const paybackYears = homeownerNet > 0
       ? (state.financed ? 0 : rigCostAud / homeownerNet)
       : Infinity;
-    const roiPct = rigCostAud > 0 ? (homeownerNet / rigCostAud) * 100 : 0;
+    // ROI refers to whoever pays for the hardware
+    const ownerProfit = state.financed ? operatorMargin : homeownerNet;
+    const roiPct = rigCostAud > 0 ? (ownerProfit / rigCostAud) * 100 : 0;
 
     return {
       fits: okFit,

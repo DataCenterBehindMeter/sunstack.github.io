@@ -115,13 +115,14 @@
     grid.appendChild(paybackCard);
 
     // ── ROI card ──────────────────────────────────────────────────────────
+    const roiOwner = state.financed ? 'operator' : 'homeowner';
     const roiCard = document.createElement('div');
     roiCard.className = 'result-card';
     roiCard.id = 'card-roi';
     roiCard.innerHTML =
-      '<div class="card-label">ROI</div>' +
+      '<div class="card-label">ROI (' + roiOwner + ')</div>' +
       '<div class="card-val">' + out.roiPct.toFixed(1) + '%</div>' +
-      '<div class="card-sub">annual return on hardware</div>';
+      '<div class="card-sub">annual return on hardware cost</div>';
     grid.appendChild(roiCard);
 
     // ── Operator margin card ──────────────────────────────────────────────

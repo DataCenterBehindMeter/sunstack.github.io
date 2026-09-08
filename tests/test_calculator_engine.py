@@ -216,3 +216,43 @@ def test_rig_cost_exact_value(page):
     assert result['ok'], f"rigCostAud={result['rigCostAud']:.2f} expected={result['expected']:.2f}"
     # Concrete check: (4699 + 1199) * 1.39 = 8198.22
     assert abs(result['rigCostAud'] - 8198.22) < 0.5, f"Expected ~A$8198, got {result['rigCostAud']:.2f}"
+
+
+def test_roi_by_owner_financed(page):
+    """When financed, roiPct = operator.marginAud / rigCostAud * 100."""
+    result = page.evaluate("""() => {
+      const E = window.SunStackEngine;
+      const state = {
+        rig: ['dgx_spark'], modelId: 'gpt_oss_120b', quant: 'q4',
+        poolEfficiency: 0.75, concurrency: 12,
+        utilization: 0.45, activeHours: 16,
+        energyMix: {free:0.6, solar:0.3, grid:0.1},
+        feedInTariff: 3.3, retailRate: 30,
+        undercut: 0.3, homeownerShare: 0.5, financed: true,
+        platformCostUsdPerMTok: 0.002
+      };
+      const out = E.computeScenario(state);
+      const expected = out.operator.marginAud / out.rigCostAud * 100;
+      return { roiPct: out.roiPct, expected, ok: Math.abs(out.roiPct - expected) < 0.001 };
+    }""")
+    assert result['ok'], f"roiPct={result['roiPct']:.3f} expected={result['expected']:.3f}"
+
+
+def test_roi_by_owner_self_funded(page):
+    """When not financed, roiPct = homeowner.netAud / rigCostAud * 100."""
+    result = page.evaluate("""() => {
+      const E = window.SunStackEngine;
+      const state = {
+        rig: ['dgx_spark'], modelId: 'gpt_oss_120b', quant: 'q4',
+        poolEfficiency: 0.75, concurrency: 12,
+        utilization: 0.45, activeHours: 16,
+        energyMix: {free:0.6, solar:0.3, grid:0.1},
+        feedInTariff: 3.3, retailRate: 30,
+        undercut: 0.3, homeownerShare: 0.5, financed: false,
+        platformCostUsdPerMTok: 0.002
+      };
+      const out = E.computeScenario(state);
+      const expected = out.homeowner.netAud / out.rigCostAud * 100;
+      return { roiPct: out.roiPct, expected, ok: Math.abs(out.roiPct - expected) < 0.001 };
+    }""")
+    assert result['ok'], f"roiPct={result['roiPct']:.3f} expected={result['expected']:.3f}"
