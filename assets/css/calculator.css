@@ -665,10 +665,11 @@
 }
 .split-seg:hover { opacity: 0.8; }
 
-.seg-homeowner { background: var(--teal); }
-.seg-operator  { background: var(--amber); }
-.seg-energy    { background: #ef9a9a; }
-.seg-hardware  { background: var(--muted); }
+.seg-buyer-saves { background: #66bb6a; } /* green — buyer benefit */
+.seg-homeowner   { background: var(--amber); } /* amber — homeowner earns */
+.seg-operator    { background: var(--teal); }  /* teal — operator margin */
+.seg-energy      { background: #ef9a9a; }
+.seg-hardware    { background: var(--muted); }
 
 .split-legend {
   display: flex;

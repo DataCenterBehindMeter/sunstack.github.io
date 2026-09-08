@@ -434,3 +434,23 @@ def test_roi_card_shows_owner_label(page):
     }""")
     roi_label_after = page.inner_text("#card-roi .card-label").lower()
     assert "homeowner" in roi_label_after
+
+
+def test_split_bar_three_party_segments_exist(page):
+    """#split-bar has segments for all three parties: homeowner, operator, buyer-saves."""
+    assert page.locator("#split-bar .seg-homeowner").count() >= 1
+    assert page.locator("#split-bar .seg-operator").count() >= 1
+    assert page.locator("#split-bar .seg-buyer-saves").count() >= 1
+
+
+def test_split_bar_title_mentions_cloud(page):
+    """Split bar title mentions cloud-equivalent spend."""
+    title_text = page.inner_text(".split-bar-title").lower()
+    assert "cloud" in title_text or "spend" in title_text
+
+
+def test_split_bar_has_tooltip_on_segment(page):
+    """The buyer-saves segment has a title attribute (tooltip) with AUD amount."""
+    seg = page.locator("#split-bar .seg-buyer-saves").first
+    tooltip = seg.get_attribute("title") or ""
+    assert "A$" in tooltip or "$" in tooltip

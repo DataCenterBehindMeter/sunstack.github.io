@@ -157,53 +157,68 @@
 
     root.appendChild(grid);
 
-    // ── Stacked bar (split-bar) ───────────────────────────────────────────
-    const bd = out.breakdown;
-    const total = (bd.homeownerTakeAud || 0) + (bd.operatorMarginAud || 0) +
-                  (bd.energyAud || 0) + (bd.hardwareAud || 0);
+    // ── Stacked bar (split-bar) — total = buyer's cloud-equivalent spend ──────
+    const cloudTotal = out.buyer.cloudCostAud;
 
-    if (total > 0) {
+    if (cloudTotal > 0) {
       const barWrap = document.createElement('div');
       barWrap.className = 'split-bar-wrap';
 
       const barTitle = document.createElement('div');
       barTitle.className = 'split-bar-title';
-      barTitle.textContent = 'Revenue split';
+      barTitle.textContent = 'Where each dollar of cloud-equivalent spend goes';
       barWrap.appendChild(barTitle);
 
       const bar = document.createElement('div');
       bar.id = 'split-bar';
       bar.className = 'split-bar';
 
+      // Hardware cost: operator's financing when financed, else homeowner's amortization
+      const hwCostAud = state.financed
+        ? out.operator.financingCostAud
+        : out.homeowner.amortizedHardwareAud;
+
+      // Clamp negative party values at 0 for bar rendering
+      const homeownerBarVal = Math.max(out.homeowner.netAud, 0);
+      const operatorBarVal  = Math.max(out.operator.marginAud, 0);
+
       const segments = [
-        { key: 'homeownerTakeAud', label: 'Homeowner',  val: bd.homeownerTakeAud  || 0, cls: 'seg-homeowner' },
-        { key: 'operatorMarginAud', label: 'Operator',  val: bd.operatorMarginAud || 0, cls: 'seg-operator' },
-        { key: 'energyAud',        label: 'Energy',     val: bd.energyAud         || 0, cls: 'seg-energy' },
-        { key: 'hardwareAud',      label: 'Hardware',   val: bd.hardwareAud       || 0, cls: 'seg-hardware' }
+        { label: 'Buyer saves',    val: out.buyer.savesAud,          barVal: out.buyer.savesAud,  cls: 'seg-buyer-saves' },
+        { label: 'Homeowner earns', val: out.homeowner.netAud,        barVal: homeownerBarVal,     cls: 'seg-homeowner' },
+        { label: 'Operator margin', val: out.operator.marginAud,      barVal: operatorBarVal,      cls: 'seg-operator' },
+        { label: 'Energy',          val: out.homeowner.energyCostAud, barVal: out.homeowner.energyCostAud, cls: 'seg-energy' },
+        { label: 'Hardware',        val: hwCostAud,                   barVal: hwCostAud,           cls: 'seg-hardware' }
       ];
 
       segments.forEach(seg => {
-        if (seg.val <= 0) return;
-        const pct = (seg.val / total * 100).toFixed(1);
+        if (seg.barVal <= 0) return;
+        const pct = (seg.barVal / cloudTotal * 100).toFixed(1);
         const seg_el = document.createElement('div');
         seg_el.className = 'split-seg ' + seg.cls;
         seg_el.style.width = pct + '%';
-        seg_el.setAttribute('title', seg.label + ': ' + fmtAudVal(seg.val) + ' (' + pct + '%)');
-        seg_el.setAttribute('aria-label', seg.label + ' ' + pct + ' percent');
+        // Tooltip shows actual (possibly negative) value + % of cloud-equivalent spend
+        const tooltipVal = seg.val < 0
+          ? seg.label + ': ' + fmtAudVal(seg.val) + ' (bar clamped to 0; ' + pct + '% of cloud spend)'
+          : seg.label + ': ' + fmtAudVal(seg.val) + ' (' + pct + '% of cloud spend)';
+        seg_el.setAttribute('title', tooltipVal);
+        seg_el.setAttribute('aria-label', seg.label + ' ' + pct + ' percent of cloud-equivalent spend');
         bar.appendChild(seg_el);
       });
 
       barWrap.appendChild(bar);
 
-      // Legend
+      // Legend — show all segments with actual value (including negative ones)
       const legend = document.createElement('div');
       legend.className = 'split-legend';
       segments.forEach(seg => {
         const item = document.createElement('span');
         item.className = 'split-legend-item';
+        const valText = seg.val < 0
+          ? fmtAudVal(seg.val) + ' ⚠'
+          : fmtAudVal(seg.val);
         item.innerHTML =
           '<span class="split-swatch ' + seg.cls + '"></span>' +
-          '<span>' + seg.label + '</span>';
+          '<span>' + seg.label + ' ' + valText + '</span>';
         legend.appendChild(item);
       });
       barWrap.appendChild(legend);
