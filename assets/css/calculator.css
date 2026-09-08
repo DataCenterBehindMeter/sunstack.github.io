@@ -138,13 +138,18 @@
 /* Non-UMA nodes */
 .rig-node.non-uma rect {
   fill: var(--muted);
-  stroke: #6a6358;
+  stroke: var(--line-dark);
 }
 
 .rig-node text {
   fill: var(--canvas);
   font-family: "JetBrains Mono", monospace;
   pointer-events: none;
+}
+
+/* Node hint line (remove prompt) — muted per review. */
+.rig-node .rig-node-hint {
+  fill: var(--muted);
 }
 
 /* ── Summary bar ──────────────────────────────────────────────────────────── */

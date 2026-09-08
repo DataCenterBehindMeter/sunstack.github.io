@@ -46,7 +46,7 @@ window.SunStackUI = (function () {
   const SVG_W = 640, SVG_H = 380;
   const HUB_CX = SVG_W / 2, HUB_CY = SVG_H / 2;
   const HUB_R  = 28;   // hub circle radius
-  const NODE_W = 110, NODE_H = 44, NODE_R = 8;
+  const NODE_W = 128, NODE_H = 52, NODE_R = 8;
 
   /* ── Helpers ────────────────────────────────────────────────────────────── */
   function svgEl(tag, attrs) {
@@ -61,6 +61,29 @@ window.SunStackUI = (function () {
 
   function fmtAud(aud) {
     return 'A$' + Math.round(aud).toLocaleString('en-AU');
+  }
+
+  /* Short, node-sized device name (drops the "(…GB)" suffix + vendor prefixes). */
+  function shortDeviceName(id) {
+    const NAMES = {
+      dgx_spark:              'DGX Spark',
+      strix_halo:             'Strix Halo',
+      mac_studio_m4max_36:    'Mac Studio M4 Max',
+      mac_studio_m4max_128:   'Mac Studio M4 Max',
+      mac_studio_m3ultra_96:  'Mac Studio M3 Ultra',
+      mac_studio_m3ultra_256: 'Mac Studio M3 Ultra',
+      mac_studio_m3ultra_512: 'Mac Studio M3 Ultra',
+      mac_mini_m4_16:         'Mac mini M4',
+      mac_mini_m4_24:         'Mac mini M4',
+      mac_mini_m4_32:         'Mac mini M4',
+      mac_mini_m4pro_48:      'Mac mini M4 Pro',
+      mac_mini_m4pro_64:      'Mac mini M4 Pro',
+      gpu_4090:               'RTX 4090',
+      gpu_5090:               'RTX 5090'
+    };
+    if (NAMES[id]) return NAMES[id];
+    // Fallback: label up to first parenthesis / comma.
+    return (D.DEVICES[id].label || id).split(/[(,]/)[0].trim();
   }
 
   /* ── Top-level render ───────────────────────────────────────────────────── */
@@ -177,26 +200,37 @@ window.SunStackUI = (function () {
         rx: NODE_R,     ry: NODE_R
       });
 
-      const labelEl = svgEl('text', {
-        x: NODE_W / 2, y: NODE_H / 2 - 6,
+      // Line 1: short device name so distinct devices are distinguishable.
+      const nameEl = svgEl('text', {
+        x: NODE_W / 2, y: NODE_H / 2 - 10,
+        'text-anchor': 'middle',
+        'font-size':   '9',
+        'font-weight': '700',
+        class: 'rig-node-name'
+      });
+      nameEl.textContent = shortDeviceName(devId);
+
+      // Line 2: memory.
+      const memEl = svgEl('text', {
+        x: NODE_W / 2, y: NODE_H / 2 + 3,
         'text-anchor': 'middle',
         'font-size':   '9',
         'font-weight': '600'
       });
-      // Shorten label to fit: take first word + memory
-      const shortLabel = dev.memoryGb + ' GB';
-      labelEl.textContent = shortLabel;
+      memEl.textContent = dev.memoryGb + ' GB';
 
+      // Line 3: remove hint.
       const removeEl = svgEl('text', {
-        x: NODE_W / 2, y: NODE_H / 2 + 9,
+        x: NODE_W / 2, y: NODE_H / 2 + 16,
         'text-anchor': 'middle',
         'font-size':   '8',
-        'fill':        '#999'
+        class: 'rig-node-hint'
       });
       removeEl.textContent = '✕ click to remove';
 
       nodeG.appendChild(rect);
-      nodeG.appendChild(labelEl);
+      nodeG.appendChild(nameEl);
+      nodeG.appendChild(memEl);
       nodeG.appendChild(removeEl);
 
       // Click removes this index
