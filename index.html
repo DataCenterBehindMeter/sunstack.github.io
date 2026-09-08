@@ -298,8 +298,46 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 11 · BENEFITS: HOMEOWNERS =========================== -->
-  <section class="tile t-dark" id="tile-11" data-surface="dark" aria-label="Benefits for homeowners">
+  <!-- 11 · BUSINESS MODEL TEASER ========================== -->
+  <section class="tile t-parchment" id="tile-11" data-surface="light" aria-label="The business model">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">The business model</span>
+      <h2 class="h" data-anim style="--i:1">Three parties. Everyone better off.</h2>
+      <p class="lead" data-anim style="--i:2;margin-top:16px;max-width:70ch">
+        The economics are simple: cheap solar energy in, useful AI work out, and three groups share what's left.
+      </p>
+      <div class="cards three" style="margin-top:30px">
+        <div class="card" data-anim style="--i:3">
+          <div class="knum">Homeowner</div>
+          <h3>A new income</h3>
+          <p>Spare solar and battery energy runs the financed box. No upfront cost — the earnings pay it off.</p>
+        </div>
+        <div class="card" data-anim style="--i:4">
+          <div class="knum">Buyer</div>
+          <h3>Lower prices</h3>
+          <p>Australian-hosted AI at less than competing cloud rates — and data never leaves home soil.</p>
+        </div>
+        <div class="card" data-anim style="--i:5">
+          <div class="knum">SunStack + university</div>
+          <h3>A defensible business</h3>
+          <p>Recurring compute revenue from a network no overseas rival can replicate — and live research data from every node.</p>
+        </div>
+      </div>
+      <p class="lead" data-anim style="--i:6;margin-top:28px;max-width:70ch">
+        Every number in this model is sourced and auditable. A GPU node at neutral assumptions earns ~A$1,900/yr;
+        a modestly-specced compute node a more modest new income — see exactly how much, and what moves it.
+        <!-- Computed from SunStackEngine.computeScenario with applyPreset(state,'neutral'):
+             gpu_4090 + qwen32b, 100% grid, neutral = A$1,857/yr net.
+             DGX Spark + gpt_oss_120b, neutral, 60% solar = A$113/yr net. -->
+      </p>
+      <div data-anim style="--i:7;margin-top:22px">
+        <a class="btn" href="calculator.html">Explore the revenue calculator →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 · BENEFITS: HOMEOWNERS =========================== -->
+  <section class="tile t-dark" id="tile-12" data-surface="dark" aria-label="Benefits for homeowners">
     <div class="tile-inner">
       <div class="split media-left">
         <div class="media">
@@ -325,44 +363,6 @@ resp = client.chat.completions.create(
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 12 · BUSINESS MODEL TEASER ========================== -->
-  <section class="tile t-light" id="tile-12" data-surface="light" aria-label="The business model">
-    <div class="tile-inner wide">
-      <span class="eyebrow" data-anim style="--i:0">The business model</span>
-      <h2 class="h" data-anim style="--i:1">Three parties. Everyone better off.</h2>
-      <p class="lead" data-anim style="--i:2;margin-top:16px;max-width:70ch">
-        The economics are simple: cheap solar energy in, useful AI work out, and three groups share what's left.
-      </p>
-      <div class="cards three" style="margin-top:30px">
-        <div class="card" data-anim style="--i:3">
-          <div class="knum amber">Homeowner</div>
-          <h3>A new income</h3>
-          <p>Spare solar and battery energy runs the financed box. No upfront cost — the earnings pay it off.</p>
-        </div>
-        <div class="card" data-anim style="--i:4">
-          <div class="knum amber">Buyer</div>
-          <h3>Lower prices</h3>
-          <p>Australian-hosted AI at less than competing cloud rates — and data never leaves home soil.</p>
-        </div>
-        <div class="card" data-anim style="--i:5">
-          <div class="knum amber">SunStack + university</div>
-          <h3>A defensible business</h3>
-          <p>Recurring compute revenue from a network no overseas rival can replicate — and live research data from every node.</p>
-        </div>
-      </div>
-      <p class="lead" data-anim style="--i:6;margin-top:28px;max-width:70ch">
-        Every number in this model is sourced and auditable. A GPU node at neutral assumptions earns ~A$1,900/yr;
-        a modestly-specced compute node a more modest new income — see exactly how much, and what moves it.
-        <!-- Computed from SunStackEngine.computeScenario with applyPreset(state,'neutral'):
-             gpu_4090 + qwen32b, 100% grid, neutral = A$1,857/yr net.
-             DGX Spark + gpt_oss_120b, neutral, 60% solar = A$113/yr net. -->
-      </p>
-      <div data-anim style="--i:7;margin-top:22px">
-        <a class="btn" href="calculator.html">Explore the revenue calculator →</a>
       </div>
     </div>
   </section>
