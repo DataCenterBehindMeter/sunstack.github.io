@@ -1,0 +1,2 @@
+/* SunStack calculator styles. Relies on styles.css tokens being linked first. */
+.calc-wrap { max-width: var(--maxw); margin: 0 auto; padding: 40px 20px; }
