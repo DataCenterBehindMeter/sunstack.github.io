@@ -46,13 +46,12 @@ window.SunStackEngine = (function () {
   /* ── Effective energy price (AUD/kWh) ────────────────────────────────── */
   function effEnergyPriceAudPerKwh(state) {
     const m = state.energyMix;
-    const tot = (m.free + m.solar + m.grid + m.battery) || 1;
-    // feedInTariff / retailRate / batteryCost are in AUD c/kWh → divide by 100 for AUD/kWh
+    const tot = ((m.free || 0) + (m.solar || 0) + (m.grid || 0)) || 1;
+    // feedInTariff / retailRate are in AUD c/kWh → divide by 100 for AUD/kWh
     const cPerKwh = (
-      m.free    * 0 +
-      m.solar   * state.feedInTariff +
-      m.grid    * state.retailRate +
-      m.battery * state.batteryCost
+      (m.free  || 0) * 0 +
+      (m.solar || 0) * state.feedInTariff +
+      (m.grid  || 0) * state.retailRate
     ) / tot;
     return cPerKwh / 100; // cents → dollars
   }
@@ -60,7 +59,7 @@ window.SunStackEngine = (function () {
   /* ── Full scenario computation ────────────────────────────────────────── */
   function computeScenario(state) {
     const rig = state.rig || [];
-    const fx  = state.fxAudPerUsd;
+    const fx  = D.FX_AUD_PER_USD;
 
     const pooledMemoryGb = poolMemoryGb(rig);
     const totalLoadKw    = sum(rig.map(id => D.DEVICES[id].loadW.typical)) / 1000;

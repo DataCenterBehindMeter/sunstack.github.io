@@ -19,10 +19,14 @@
     return fmtAud.format(Math.round(v));
   }
 
-  /* Compact AUD for axis/label use, e.g. "A$12k" / "-A$3k". */
+  /* Compact AUD for axis/label use, e.g. "A$12k" / "-A$3k" / "A$857". */
   function fmtAudK(v) {
     const sign = v < 0 ? '-' : '';
-    return sign + 'A$' + Math.abs(Math.round(v / 1000)) + 'k';
+    const abs  = Math.abs(v);
+    if (abs < 1000) {
+      return sign + 'A$' + Math.round(abs);
+    }
+    return sign + 'A$' + (abs / 1000).toFixed(1) + 'k';
   }
 
   /* ── Human-readable labels for uncertainty inputs (tornado bar labels) ──── */
@@ -32,10 +36,8 @@
     poolEfficiency:        'Pool efficiency',
     feedInTariff:          'Feed-in tariff',
     retailRate:            'Retail rate',
-    batteryCost:           'Battery cost',
     hardwareLifetimeYears: 'Hardware lifetime',
-    overheadPerYearAud:    'Overhead/yr',
-    fxAudPerUsd:           'AUD/USD FX'
+    overheadPerYearAud:    'Overhead/yr'
   };
 
   /* ── SVG helper ─────────────────────────────────────────────────────────── */
@@ -455,9 +457,10 @@
           stroke: '#837d72'
         },
         {
-          values: (u, vals) => vals.map(v =>
-            v == null ? '' : (v >= 0 ? 'A$' : '-A$') + Math.abs(Math.round(v / 1000)) + 'k'
-          ),
+          values: (u, vals) => vals.map(v => {
+            if (v == null) return '';
+            return fmtAudK(v);
+          }),
           size: 68,
           font: '11px sans-serif',
           stroke: '#837d72'

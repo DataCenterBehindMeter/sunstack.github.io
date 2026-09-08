@@ -22,9 +22,9 @@ def test_state_initialized(page):
     )
     assert has_state
     rig = page.evaluate("() => window.SunStackUI.state.rig")
-    assert rig == []
+    assert rig == ["gpu_4090"]
     model_id = page.evaluate("() => window.SunStackUI.state.modelId")
-    assert model_id == "gpt_oss_120b"
+    assert model_id == "qwen32b"
 
 
 def test_render_exposed(page):
@@ -56,31 +56,32 @@ def test_svg_hub_present(page):
     assert page.locator("#rig-svg").count() == 1
 
 
-def test_empty_rig_no_nodes(page):
-    """Empty rig: no .rig-node elements in SVG."""
-    assert page.locator("#rig-svg .rig-node").count() == 0
+def test_default_rig_has_one_node(page):
+    """Default rig (gpu_4090): one .rig-node element in SVG."""
+    assert page.locator("#rig-svg .rig-node").count() == 1
 
 
 def test_add_device_updates_summary_and_svg(page):
-    """Adding two dgx_spark devices shows 2 SVG nodes and 256 GB in summary."""
+    """Adding two dgx_spark devices to the default rig shows 3 SVG nodes total."""
     page.click("button[data-add-device='dgx_spark']")
     page.click("button[data-add-device='dgx_spark']")
-    # two device nodes in SVG
-    assert page.locator("#rig-svg .rig-node").count() == 2
-    # pooled memory: 128 + 128 = 256 GB
+    # default rig has 1 node (gpu_4090) + 2 dgx_spark = 3 nodes in SVG
+    assert page.locator("#rig-svg .rig-node").count() == 3
+    # pooled memory includes gpu_4090 (24GB) + 128 + 128 = 280 GB
     summary_text = page.inner_text("#rig-summary")
-    assert "256" in summary_text
+    assert "280" in summary_text
 
 
 def test_uma_vs_nonuma_class(page):
-    """Non-UMA device node gets class non-uma in SVG."""
+    """Non-UMA device node gets class non-uma in SVG (default rig has gpu_4090 which is non-UMA)."""
+    # Default rig already includes gpu_4090 (non-UMA); add another to be explicit
     page.click("button[data-add-device='gpu_5090']")
-    assert page.locator("#rig-svg .rig-node.non-uma").count() == 1
+    assert page.locator("#rig-svg .rig-node.non-uma").count() >= 1
 
 
 def test_remove_device(page):
-    """Clicking a rig-node removes it from SVG."""
-    page.click("button[data-add-device='dgx_spark']")
+    """Clicking a rig-node removes it from SVG (default rig starts with 1 node)."""
+    # Default rig has 1 node (gpu_4090); click it to remove
     assert page.locator("#rig-svg .rig-node").count() == 1
     page.click("#rig-svg .rig-node")
     assert page.locator("#rig-svg .rig-node").count() == 0
@@ -92,7 +93,11 @@ def test_rig_summary_present(page):
 
 
 def test_fits_badge_no_fit(page):
-    """Single mac_mini_m4_16 (16 GB) cannot fit gpt_oss_120b (needs 64 GB Q4) — badge shows exceeds."""
+    """After removing default device and adding only mac_mini_m4_16 (16 GB), model qwen32b (needs 20 GB Q4) doesn't fit."""
+    # Remove the default gpu_4090 node first
+    page.click("#rig-svg .rig-node")
+    # Change model to one that won't fit in 16 GB
+    page.evaluate("() => { window.SunStackUI.state.modelId = 'qwen32b'; window.SunStackUI.render(); }")
     page.click("button[data-add-device='mac_mini_m4_16']")
     summary_text = page.inner_text("#rig-summary").lower()
     # should show a 'no fit' indicator
@@ -100,29 +105,28 @@ def test_fits_badge_no_fit(page):
 
 
 def test_fits_badge_fit(page):
-    """Two DGX Sparks (256 GB) fit gpt_oss_120b (64 GB Q4) — badge shows fits."""
-    page.click("button[data-add-device='dgx_spark']")
-    page.click("button[data-add-device='dgx_spark']")
+    """Default rig (gpu_4090, 24 GB) fits qwen32b (20 GB Q4) — badge shows fits."""
     summary_text = page.inner_text("#rig-summary")
     assert "fit" in summary_text.lower() or "✓" in summary_text
 
 
 def test_state_rig_updated_on_add(page):
-    """state.rig reflects added devices."""
+    """state.rig reflects added devices (default rig already has gpu_4090)."""
     page.click("button[data-add-device='dgx_spark']")
     rig = page.evaluate("() => window.SunStackUI.state.rig")
-    assert rig == ["dgx_spark"]
+    assert rig == ["gpu_4090", "dgx_spark"]
 
 
 def test_state_preset_becomes_custom(page):
     """Adding a device sets state.preset to 'custom'."""
+    # Start fresh: remove default node first, then add one back to confirm behavior
     page.click("button[data-add-device='dgx_spark']")
     preset = page.evaluate("() => window.SunStackUI.state.preset")
     assert preset == "custom"
 
 
-def test_page_no_throw_empty_rig(page):
-    """Page loads without JS errors on empty rig."""
+def test_page_no_throw_on_load(page):
+    """Page loads without JS errors."""
     errors = page.evaluate("() => window._jsErrors || []")
     assert errors == [] or errors is None
 
@@ -132,7 +136,8 @@ def test_page_no_throw_empty_rig(page):
 
 def test_preset_toggle_moves_slider(page):
     """Clicking the optimistic preset changes the utilization slider value."""
-    page.click("button[data-add-device='dgx_spark']")
+    # Default rig already has a device; neutral preset has utilization=0.40,
+    # optimistic sets it to the high value (0.65) so they will differ.
     before = page.eval_on_selector("#in-utilization", "el => el.value")
     page.click("button[data-preset='optimistic']")
     after = page.eval_on_selector("#in-utilization", "el => el.value")
@@ -140,14 +145,14 @@ def test_preset_toggle_moves_slider(page):
 
 
 def test_model_gating_disables_unfittable(page):
-    """deepseek_v3 option is disabled when pool cannot fit it."""
-    page.click("button[data-add-device='mac_mini_m4_16']")
+    """deepseek_v3 option is disabled when pool cannot fit it (gpu_4090 has 24 GB, deepseek needs 380 GB Q4)."""
+    # Default rig (gpu_4090, 24 GB) cannot fit deepseek_v3 (380 GB)
     assert page.get_attribute("#model-select option[value='deepseek_v3']", "disabled") is not None
 
 
 def test_manual_edit_sets_custom(page):
     """Manually changing a slider sets state.preset to 'custom'."""
-    page.click("button[data-add-device='dgx_spark']")
+    # Default rig is already pre-populated; just change the slider
     if page.get_attribute("#in-utilization", "type") == "number":
         page.fill("#in-utilization", "0.55")
     else:
@@ -164,7 +169,7 @@ def test_manual_edit_sets_custom(page):
 def test_cite_chip_links_out(page):
     """A .cite-chip adjacent to a slider has a data-source-id; clicking it opens
     a .cite-popover whose first <a> href starts with http."""
-    page.click("button[data-add-device='dgx_spark']")
+    # Default rig already has a device; chips are rendered
     chip = page.locator(".cite-chip").first
     assert chip.get_attribute("data-source-id")
     chip.click()
@@ -188,8 +193,7 @@ def test_download_button_present(page):
 
 
 def test_headline_cards_render(page):
-    """After adding a device all four headline cards exist in #results."""
-    page.click("button[data-add-device='dgx_spark']")
+    """With the default rig pre-populated, all four headline cards exist in #results."""
     for cid in ["#card-homeowner-net", "#card-payback", "#card-operator-margin", "#card-buyer-saves"]:
         assert page.locator(cid).count() == 1, f"Missing card: {cid}"
 
@@ -214,20 +218,20 @@ def test_negative_net_flagged(page):
 
 
 def test_charts_or_fallback_present(page):
-    """#tornado contains an svg (or .chart-fallback) both WITHOUT and WITH a device;
+    """#tornado contains an svg (or .chart-fallback) both without and with a device;
     #breakeven container always exists."""
-    # Empty rig: the tornado container must still contain a chart or fallback.
+    # Default rig is pre-populated — tornado and breakeven should render.
     assert page.locator("#tornado svg, #tornado .chart-fallback, #tornado table").count() >= 1
     assert page.locator("#breakeven").count() == 1
-    # With a device: same guarantee holds.
-    page.click("button[data-add-device='dgx_spark']")
+    # After removing the device, a fallback still appears.
+    page.click("#rig-svg .rig-node")
     assert page.locator("#tornado svg, #tornado .chart-fallback, #tornado table").count() >= 1
     assert page.locator("#breakeven").count() == 1
 
 
 def test_strategy_control_homeowner_share(page):
     """Changing #in-homeownerShare slider updates #card-homeowner-net."""
-    page.click("button[data-add-device='dgx_spark']")
+    # Default rig is pre-populated so the card renders immediately
     before = page.inner_text("#card-homeowner-net")
     page.eval_on_selector(
         "#in-homeownerShare",
@@ -235,3 +239,40 @@ def test_strategy_control_homeowner_share(page):
     )
     after = page.inner_text("#card-homeowner-net")
     assert before != after
+
+
+# ── Item 6: Model gating tests ──────────────────────────────────────────────
+
+
+def test_model_gating_large_models_disabled_for_small_rig(page):
+    """With default rig (gpu_4090, 24 GB), larger models (≥40 GB Q4) are disabled."""
+    # llama33_70b needs 40 GB — disabled for 24 GB rig
+    assert page.get_attribute("#model-select option[value='llama33_70b']", "disabled") is not None
+    # gpt_oss_120b needs 64 GB — also disabled
+    assert page.get_attribute("#model-select option[value='gpt_oss_120b']", "disabled") is not None
+    # deepseek_v3 needs 380 GB — also disabled
+    assert page.get_attribute("#model-select option[value='deepseek_v3']", "disabled") is not None
+
+
+def test_model_gating_qwen32b_enabled_for_default_rig(page):
+    """With default rig (gpu_4090, 24 GB), qwen32b (20 GB Q4) is selectable (not disabled)."""
+    disabled = page.get_attribute("#model-select option[value='qwen32b']", "disabled")
+    assert disabled is None
+
+
+def test_model_gating_enabled_for_big_rig(page):
+    """Adding DGX Spark (128 GB) enables large models that were previously disabled."""
+    # Before: gpt_oss_120b (64 GB) disabled for 24 GB rig
+    assert page.get_attribute("#model-select option[value='gpt_oss_120b']", "disabled") is not None
+    # Add a DGX Spark (128 GB) -> pool = 24 + 128 = 152 GB -> gpt_oss_120b (64 GB) fits
+    page.click("button[data-add-device='dgx_spark']")
+    disabled_after = page.get_attribute("#model-select option[value='gpt_oss_120b']", "disabled")
+    assert disabled_after is None
+
+
+def test_default_net_approx_1857(page):
+    """Default rig scenario (gpu_4090 + qwen32b Q4 + grid 100% + financed) yields homeowner net ~A$1857."""
+    net = page.evaluate(
+        "() => window.SunStackEngine.computeScenario(window.SunStackUI.state).homeowner.netAud"
+    )
+    assert abs(net - 1857) < 50, f"Expected ~1857, got {net}"

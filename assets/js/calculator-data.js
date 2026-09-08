@@ -698,7 +698,7 @@ window.SunStackData = (function () {
       source_id: "messari_akash", confidence: "medium", polarity: "+"
     },
     activeHours: {
-      value: 8, low: 5, high: 10,
+      value: 8, low: 4, high: 24,
       unit: "h/day",
       source_id: "messari_akash", confidence: "low", polarity: "+"
     },
@@ -717,11 +717,6 @@ window.SunStackData = (function () {
       unit: "AUD c/kWh",
       source_id: "canstar_retail", confidence: "high", polarity: "-"
     },
-    batteryCost: {
-      value: 8, low: 5, high: 15,
-      unit: "AUD c/kWh",
-      source_id: "canstar_retail", confidence: "medium", polarity: "-"
-    },
     hardwareLifetimeYears: {
       value: 4, low: 3, high: 6,
       unit: "years",
@@ -732,11 +727,6 @@ window.SunStackData = (function () {
       unit: "AUD/year",
       source_id: "messari_akash", confidence: "low", polarity: "-"
     },
-    fxAudPerUsd: {
-      value: 1.53, low: 1.45, high: 1.65,
-      unit: "AUD/USD",
-      source_id: "canstar_retail", confidence: "medium", polarity: "+"
-    }
   };
 
   /* ─── cite() ─────────────────────────────────────────────────────────────
@@ -748,5 +738,11 @@ window.SunStackData = (function () {
     return s;
   }
 
-  return { SOURCES, DEVICES, MODELS, QUANT_MULT, THROUGHPUT, ENERGY_PRESETS, INPUT_DEFAULTS, cite };
+  /* ── FX ──────────────────────────────────────────────────────────────────────
+   * Fixed AUD/USD exchange rate. Source: canstar_retail (RBA context).
+   * Kept as a constant so all money is shown in AUD without a user-adjustable knob.
+   */
+  const FX_AUD_PER_USD = 1.53;
+
+  return { SOURCES, DEVICES, MODELS, QUANT_MULT, THROUGHPUT, ENERGY_PRESETS, INPUT_DEFAULTS, FX_AUD_PER_USD, cite };
 })();

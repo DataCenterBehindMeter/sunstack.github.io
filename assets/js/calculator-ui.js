@@ -11,8 +11,8 @@ window.SunStackUI = (function () {
 
   /* ── State ──────────────────────────────────────────────────────────────── */
   const state = {
-    rig: [],
-    modelId:  'gpt_oss_120b',
+    rig: ['gpu_4090'],
+    modelId:  'qwen32b',
     quant:    'q4',
 
     // uncertainty inputs — seeded from INPUT_DEFAULTS typical values
@@ -21,13 +21,11 @@ window.SunStackUI = (function () {
     activeHours:             ID.activeHours.value,
     feedInTariff:            ID.feedInTariff.value,
     retailRate:              ID.retailRate.value,
-    batteryCost:             ID.batteryCost.value,
     hardwareLifetimeYears:   ID.hardwareLifetimeYears.value,
     overheadPerYearAud:      ID.overheadPerYearAud.value,
-    fxAudPerUsd:             ID.fxAudPerUsd.value,
 
     // energy mix (fractions that must sum to 1; default: 100% grid)
-    energyMix: { free: 0, solar: 0, grid: 1, battery: 0 },
+    energyMix: { free: 0, solar: 0, grid: 1 },
 
     // pricing + shares
     tariffs:              null,   // null = no state override (panels task sets this)
@@ -58,10 +56,8 @@ window.SunStackUI = (function () {
     poolEfficiency:        'Pool efficiency',
     feedInTariff:          'Solar feed-in (c/kWh)',
     retailRate:            'Grid retail (c/kWh)',
-    batteryCost:           'Battery cost (c/kWh)',
     hardwareLifetimeYears: 'Hardware lifetime (yr)',
-    overheadPerYearAud:    'Overhead (A$/yr)',
-    fxAudPerUsd:           'AUD/USD rate'
+    overheadPerYearAud:    'Overhead (A$/yr)'
   };
 
   /* ── Helpers ────────────────────────────────────────────────────────────── */
@@ -158,10 +154,11 @@ window.SunStackUI = (function () {
       const btn = document.createElement('button');
       btn.dataset.addDevice = id;
       btn.className = dev.uma ? 'uma' : 'non-uma';
+      const priceAud = Math.round(dev.priceUsd.typical * D.FX_AUD_PER_USD);
       btn.innerHTML =
         '<span class="dev-label">' + dev.label + '</span>' +
         '<span class="dev-mem">'   + dev.memoryGb + ' GB</span>' +
-        '<span class="dev-price">US$' + dev.priceUsd.typical.toLocaleString('en-US') + '</span>';
+        '<span class="dev-price">A$' + priceAud.toLocaleString('en-AU') + '</span>';
       btn.addEventListener('click', () => {
         state.rig.push(id);
         state.preset = 'custom';
@@ -291,7 +288,7 @@ window.SunStackUI = (function () {
       const pooledGb  = E.poolMemoryGb(state.rig);
       const totalLoadW = state.rig.reduce((acc, id) => acc + D.DEVICES[id].loadW.typical, 0);
       const rigCostUsd = state.rig.reduce((acc, id) => acc + D.DEVICES[id].priceUsd.typical, 0);
-      const rigCostAud = rigCostUsd * state.fxAudPerUsd;
+      const rigCostAud = rigCostUsd * D.FX_AUD_PER_USD;
       const okFit      = E.fits(state.rig, state.modelId, state.quant);
       const aggTps     = okFit ? E.aggThroughputTps(state) : 0;
 
@@ -535,8 +532,8 @@ window.SunStackUI = (function () {
     const energyGrid = document.createElement('div');
     energyGrid.className = 'slider-grid';
 
-    const ENERGY_KEYS = ['free', 'solar', 'grid', 'battery'];
-    const ENERGY_LABELS = { free: 'Free / off-peak', solar: 'Solar', grid: 'Grid', battery: 'Battery' };
+    const ENERGY_KEYS = ['free', 'solar', 'grid'];
+    const ENERGY_LABELS = { free: 'Free / off-peak', solar: 'Solar', grid: 'Grid' };
 
     // Normalise totals for display (raw mix values stored, display as %)
     const rawTot = ENERGY_KEYS.reduce((s, k) => s + (state.energyMix[k] || 0), 0) || 1;
@@ -573,7 +570,7 @@ window.SunStackUI = (function () {
       slider.setAttribute('aria-label', ENERGY_LABELS[key] + ' energy share');
 
       slider.addEventListener('input', () => {
-        // Read ALL four sliders' current 0–100 values, then normalise to
+        // Read ALL three sliders' current 0–100 values, then normalise to
         // fractions. Reading every slider (not just the changed key) keeps
         // normalisation independent of the keys' prior stored scale.
         const raw = {};

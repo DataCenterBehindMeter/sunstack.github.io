@@ -11,9 +11,9 @@ def page():
 BASE = """{
   preset:'neutral', rig:['dgx_spark'], modelId:'gpt_oss_120b', quant:'q4',
   poolEfficiency:0.75, utilization:0.4, activeHours:8,
-  energyMix:{free:0.5,solar:0.3,grid:0.15,battery:0.05}, feedInTariff:3.3, retailRate:30, batteryCost:8,
+  energyMix:{free:0.5,solar:0.3,grid:0.2}, feedInTariff:3.3, retailRate:30,
   undercut:0.3, homeownerShare:0.5, financed:true, hardwareLifetimeYears:4, overheadPerYearAud:150,
-  platformCostUsdPerMTok:0.02, fxAudPerUsd:1.53 }"""
+  platformCostUsdPerMTok:0.02 }"""
 
 def calc(page, patch=""):
     return page.evaluate(f"() => {{ const s = {BASE}; {patch}; return window.SunStackEngine.computeScenario(s); }}")
@@ -28,12 +28,12 @@ def test_fits_gating(page):
 def test_energy_mix_normalizes(page):
     # doubling all weights must not change effective price (engine normalizes)
     a = page.evaluate(f"() => {{const s={BASE}; return window.SunStackEngine.effEnergyPriceAudPerKwh(s);}}")
-    b = page.evaluate(f"() => {{const s={BASE}; s.energyMix={{free:1,solar:0.6,grid:0.3,battery:0.1}}; return window.SunStackEngine.effEnergyPriceAudPerKwh(s);}}")
+    b = page.evaluate(f"() => {{const s={BASE}; s.energyMix={{free:1,solar:0.6,grid:0.4}}; return window.SunStackEngine.effEnergyPriceAudPerKwh(s);}}")
     assert abs(a-b) < 1e-9
 
 def test_free_energy_is_zero_component(page):
-    # 100% free solar => zero energy cost
-    o = calc(page, "s.energyMix={free:1,solar:0,grid:0,battery:0}")
+    # 100% free energy => zero energy cost
+    o = calc(page, "s.energyMix={free:1,solar:0,grid:0}")
     assert o["homeowner"]["energyCostAud"] == 0
 
 def test_net_increases_with_utilization(page):

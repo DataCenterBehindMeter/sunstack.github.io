@@ -311,6 +311,12 @@
   border-color: var(--amber);
 }
 
+/* Disabled options in model select show greyed text */
+.calc-select option:disabled {
+  color: var(--muted);
+  background: var(--canvas);
+}
+
 /* ── Slider grid ───────────────────────────────────────────────────────────── */
 .slider-grid {
   display: grid;
