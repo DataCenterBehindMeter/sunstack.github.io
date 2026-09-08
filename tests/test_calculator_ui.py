@@ -156,3 +156,29 @@ def test_manual_edit_sets_custom(page):
             "el => { el.value = 0.55; el.dispatchEvent(new Event('input')); }"
         )
     assert "custom" in page.inner_text("#preset-state").lower()
+
+
+# ── Task 8 tests ────────────────────────────────────────────────────────────
+
+
+def test_cite_chip_links_out(page):
+    """A .cite-chip adjacent to a slider has a data-source-id; clicking it opens
+    a .cite-popover whose first <a> href starts with http."""
+    page.click("button[data-add-device='dgx_spark']")
+    chip = page.locator(".cite-chip").first
+    assert chip.get_attribute("data-source-id")
+    chip.click()
+    href = page.locator(".cite-popover a").first.get_attribute("href")
+    assert href.startswith("http")
+
+
+def test_references_numbered_and_dedup(page):
+    """#references has at least one <li> and no more than the total source count."""
+    n_refs = page.locator("#references li").count()
+    n_src = page.evaluate("() => Object.keys(window.SunStackData.SOURCES).length")
+    assert 0 < n_refs <= n_src
+
+
+def test_download_button_present(page):
+    """#download-assumptions button exists exactly once inside #sources."""
+    assert page.locator("#download-assumptions").count() == 1

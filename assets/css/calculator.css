@@ -345,3 +345,196 @@
   accent-color: var(--amber);
   cursor: pointer;
 }
+
+/* ── Cite chips ────────────────────────────────────────────────────────────── */
+.cite-chip {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--amber-soft);
+  color: var(--amber-strong);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid var(--amber);
+  transition: background 0.12s var(--ease), border-color 0.12s var(--ease);
+  white-space: nowrap;
+}
+
+.cite-chip::after {
+  content: ' ↗';
+  font-size: 0.55rem;
+}
+
+.cite-chip:hover {
+  background: var(--amber);
+  color: var(--canvas);
+}
+
+.cite-chip:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+/* ── Cite popover ──────────────────────────────────────────────────────────── */
+.cite-popover {
+  position: absolute;
+  z-index: 100;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 240px;
+  max-width: 340px;
+  padding: 12px 14px;
+  background: var(--canvas);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cite-popover-figure {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.cite-popover-name {
+  font-size: 0.72rem;
+  color: var(--body);
+  line-height: 1.4;
+}
+
+.cite-popover-link {
+  display: inline-block;
+  font-size: 0.72rem;
+  color: var(--amber-strong);
+  text-decoration: underline;
+  margin-top: 2px;
+}
+
+.cite-popover-link:hover {
+  color: var(--amber);
+}
+
+/* ── Confidence dots ───────────────────────────────────────────────────────── */
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.dot.high   { background: var(--teal); }
+.dot.medium { background: var(--amber); }
+.dot.low    { background: var(--muted); }
+
+/* ── References section ────────────────────────────────────────────────────── */
+#references {
+  padding: 32px 0 16px;
+}
+
+.references-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.references-list {
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ref-item {
+  font-size: 0.8rem;
+  color: var(--body);
+}
+
+.ref-item a {
+  color: var(--amber-strong);
+  text-decoration: underline;
+}
+
+.ref-item a:hover {
+  color: var(--amber);
+}
+
+/* ── Sources table ─────────────────────────────────────────────────────────── */
+#sources {
+  padding: 32px 0;
+  border-top: 1px solid var(--line);
+}
+
+.sources-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.sources-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  margin-bottom: 18px;
+}
+
+.sources-table th {
+  text-align: left;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-bottom: 2px solid var(--line);
+  color: var(--ink);
+  background: var(--surface-2);
+  white-space: nowrap;
+}
+
+.sources-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--body);
+  vertical-align: middle;
+}
+
+.sources-table a {
+  color: var(--amber-strong);
+  text-decoration: underline;
+}
+
+.sources-table a:hover {
+  color: var(--amber);
+}
+
+/* ── Download button ───────────────────────────────────────────────────────── */
+.dl-btn {
+  display: inline-block;
+  padding: 9px 18px;
+  border: 1.5px solid var(--amber);
+  border-radius: var(--r-md);
+  background: var(--amber-soft);
+  color: var(--amber-strong);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+
+.dl-btn:hover {
+  background: var(--amber);
+  color: var(--canvas);
+}

@@ -100,10 +100,11 @@ window.SunStackUI = (function () {
     // Guard window.SunStackUI itself — it is undefined during the initial render()
     // call that happens inside the IIFE before the return value is assigned.
     const ui = window.SunStackUI;
-    ui && ui._renderPanels    && ui._renderPanels();
+    ui && ui._renderPanels    ? ui._renderPanels()    : renderPanels();
     ui && ui._renderResults   && ui._renderResults();
     ui && ui._renderCharts    && ui._renderCharts();
-    ui && ui._renderCitations && ui._renderCitations();
+    // Citations run always — either via external override or local function.
+    ui && ui._renderCitations ? ui._renderCitations() : renderCitations();
   }
 
   /* ── Rig-builder ─────────────────────────────────────────────────────────
@@ -580,6 +581,449 @@ window.SunStackUI = (function () {
     root.appendChild(wrap);
   }
 
+  /* ── Citations ──────────────────────────────────────────────────────────────
+   * Runs after _renderPanels rebuilds #panels.
+   * 1. Injects a .cite-chip beside each uncertainty slider that has a source_id.
+   * 2. Popover: click/focus opens it; Esc + outside-click closes it.
+   * 3. #references: deduped numbered list of sources actually used.
+   * 4. #sources: table of all cited defaults + #download-assumptions button.
+   */
+  function renderCitations() {
+    _injectCiteChips();
+    _renderReferences();
+    _renderSourcesTable();
+  }
+
+  /* ── Popover state ──────────────────────────────────────────────────────── */
+  let _activePopover = null;
+
+  function _closePopover() {
+    if (_activePopover) {
+      _activePopover.remove();
+      _activePopover = null;
+    }
+  }
+
+  /* Close on Esc (one listener registered once). */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') _closePopover();
+  });
+
+  /* Close on outside-click (delegated). */
+  document.addEventListener('click', function (e) {
+    if (_activePopover && !_activePopover.contains(e.target) &&
+        !e.target.classList.contains('cite-chip')) {
+      _closePopover();
+    }
+  });
+
+  /* ── makeCiteChip ───────────────────────────────────────────────────────── */
+  function _makeCiteChip(sourceId, def) {
+    const src = D.SOURCES[sourceId];
+    if (!src) return null;
+
+    const chip = document.createElement('span');
+    chip.className = 'cite-chip';
+    chip.dataset.sourceId = sourceId;
+    chip.setAttribute('tabindex', '0');
+    chip.setAttribute('role', 'button');
+    chip.setAttribute('aria-label', 'View source: ' + src.name);
+    chip.textContent = src.publisher || src.name;
+
+    function openPopover(anchorEl) {
+      _closePopover();
+
+      const pop = document.createElement('div');
+      pop.className = 'cite-popover';
+      pop.setAttribute('role', 'dialog');
+      pop.setAttribute('aria-label', 'Source details');
+
+      // Confidence dot
+      const conf = def && def.confidence ? def.confidence : 'medium';
+      const dotEl = document.createElement('span');
+      dotEl.className = 'dot ' + conf;
+      dotEl.setAttribute('aria-label', 'Confidence: ' + conf);
+
+      // Figure line (typical + range)
+      let figLine = '';
+      if (def && def.value !== undefined) {
+        figLine = String(def.value);
+        if (def.unit) figLine += ' ' + def.unit;
+        if (def.low !== undefined && def.high !== undefined) {
+          figLine += '  (range ' + def.low + '–' + def.high + ')';
+        }
+      }
+
+      const meta = document.createElement('div');
+      meta.className = 'cite-popover-meta';
+
+      if (figLine) {
+        const fig = document.createElement('div');
+        fig.className = 'cite-popover-figure';
+        fig.textContent = figLine;
+        meta.appendChild(fig);
+      }
+
+      const nameRow = document.createElement('div');
+      nameRow.className = 'cite-popover-name';
+      nameRow.textContent = src.name + ' · ' + (src.publisher || '') + ' · ' + (src.date || '');
+      meta.appendChild(nameRow);
+
+      const link = document.createElement('a');
+      link.href = src.url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = 'View source ↗';
+      link.className = 'cite-popover-link';
+
+      pop.appendChild(dotEl);
+      pop.appendChild(meta);
+      pop.appendChild(link);
+
+      // Position near anchor
+      anchorEl.parentElement.style.position = 'relative';
+      anchorEl.parentElement.appendChild(pop);
+      _activePopover = pop;
+    }
+
+    chip.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (_activePopover && _activePopover.parentElement === chip.parentElement) {
+        _closePopover();
+      } else {
+        openPopover(chip);
+      }
+    });
+
+    chip.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openPopover(chip);
+      }
+    });
+
+    return chip;
+  }
+
+  /* ── Inject chips beside uncertainty sliders ────────────────────────────── */
+  function _injectCiteChips() {
+    // Remove any previously injected chips (idempotent)
+    document.querySelectorAll('.cite-chip').forEach(c => c.remove());
+
+    E.UNCERTAINTY_INPUT_IDS.forEach(function (inputId) {
+      const def = D.INPUT_DEFAULTS[inputId];
+      if (!def || !def.source_id) return;
+
+      const slider = document.getElementById('in-' + inputId);
+      if (!slider) return;
+
+      const chip = _makeCiteChip(def.source_id, def);
+      if (!chip) return;
+
+      // Insert after the slider within its .slider-group
+      slider.insertAdjacentElement('afterend', chip);
+    });
+  }
+
+  /* ── Render #references — deduped, numbered ─────────────────────────────── */
+  function _renderReferences() {
+    const root = document.getElementById('references');
+    if (!root) return;
+    root.innerHTML = '';
+
+    // Collect source IDs actually used across INPUT_DEFAULTS (always shown)
+    const usedIds = [];
+    const seen = new Set();
+
+    function addId(id) {
+      if (id && !seen.has(id) && D.SOURCES[id]) {
+        seen.add(id);
+        usedIds.push(id);
+      }
+    }
+
+    // Uncertainty inputs
+    E.UNCERTAINTY_INPUT_IDS.forEach(function (inputId) {
+      const def = D.INPUT_DEFAULTS[inputId];
+      if (def) addId(def.source_id);
+    });
+
+    // Device price + load sources for rig devices
+    state.rig.forEach(function (devId) {
+      const dev = D.DEVICES[devId];
+      if (!dev) return;
+      if (dev.priceUsd) addId(dev.priceUsd.source_id);
+      if (dev.loadW)    addId(dev.loadW.source_id);
+    });
+
+    // Model price sources
+    addId((D.MODELS[state.modelId] && D.MODELS[state.modelId].priceOutUsdPerM)
+      ? D.MODELS[state.modelId].priceOutUsdPerM.source_id
+      : null);
+
+    // Always include all INPUT_DEFAULTS sources even for empty rig
+    Object.values(D.INPUT_DEFAULTS).forEach(function (def) { addId(def.source_id); });
+
+    if (usedIds.length === 0) return;
+
+    const title = document.createElement('h2');
+    title.className = 'references-title';
+    title.textContent = 'References';
+    root.appendChild(title);
+
+    const ol = document.createElement('ol');
+    ol.className = 'references-list';
+
+    usedIds.forEach(function (id) {
+      const src = D.SOURCES[id];
+      const li = document.createElement('li');
+      li.className = 'ref-item';
+
+      const a = document.createElement('a');
+      a.href = src.url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = src.name + ' — ' + (src.publisher || '') + ', ' + (src.date || '');
+
+      li.appendChild(a);
+      ol.appendChild(li);
+    });
+
+    root.appendChild(ol);
+  }
+
+  /* ── Render #sources table + download button ────────────────────────────── */
+  function _renderSourcesTable() {
+    const root = document.getElementById('sources');
+    if (!root) return;
+    root.innerHTML = '';
+
+    const title = document.createElement('h2');
+    title.className = 'sources-title';
+    title.textContent = 'Assumptions & Sources';
+    root.appendChild(title);
+
+    // Build rows: label, value, unit, confidence, source
+    const LABELS = {
+      utilization:           'Utilization',
+      activeHours:           'Active hours/day',
+      poolEfficiency:        'Pool efficiency',
+      feedInTariff:          'Solar feed-in (c/kWh)',
+      retailRate:            'Grid retail (c/kWh)',
+      batteryCost:           'Battery cost (c/kWh)',
+      hardwareLifetimeYears: 'Hardware lifetime (yr)',
+      overheadPerYearAud:    'Overhead (A$/yr)',
+      fxAudPerUsd:           'AUD/USD rate'
+    };
+
+    const table = document.createElement('table');
+    table.className = 'sources-table';
+
+    const thead = document.createElement('thead');
+    thead.innerHTML =
+      '<tr><th>Assumption</th><th>Value</th><th>Unit</th><th>Low</th><th>High</th><th>Confidence</th><th>Source</th></tr>';
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+
+    E.UNCERTAINTY_INPUT_IDS.forEach(function (inputId) {
+      const def = D.INPUT_DEFAULTS[inputId];
+      if (!def) return;
+      const src = def.source_id ? D.SOURCES[def.source_id] : null;
+
+      const tr = document.createElement('tr');
+
+      const tdLabel = document.createElement('td');
+      tdLabel.textContent = LABELS[inputId] || inputId;
+
+      const tdVal = document.createElement('td');
+      tdVal.textContent = String(def.value);
+
+      const tdUnit = document.createElement('td');
+      tdUnit.textContent = def.unit || '';
+
+      const tdLow = document.createElement('td');
+      tdLow.textContent = def.low !== undefined ? String(def.low) : '';
+
+      const tdHigh = document.createElement('td');
+      tdHigh.textContent = def.high !== undefined ? String(def.high) : '';
+
+      const tdConf = document.createElement('td');
+      if (def.confidence) {
+        const dot = document.createElement('span');
+        dot.className = 'dot ' + def.confidence;
+        dot.setAttribute('aria-label', 'Confidence: ' + def.confidence);
+        tdConf.appendChild(dot);
+        const confText = document.createTextNode(' ' + def.confidence);
+        tdConf.appendChild(confText);
+      }
+
+      const tdSrc = document.createElement('td');
+      if (src) {
+        const a = document.createElement('a');
+        a.href = src.url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = src.name;
+        tdSrc.appendChild(a);
+      }
+
+      tr.appendChild(tdLabel);
+      tr.appendChild(tdVal);
+      tr.appendChild(tdUnit);
+      tr.appendChild(tdLow);
+      tr.appendChild(tdHigh);
+      tr.appendChild(tdConf);
+      tr.appendChild(tdSrc);
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    root.appendChild(table);
+
+    // Download button
+    const dlBtn = document.createElement('button');
+    dlBtn.id = 'download-assumptions';
+    dlBtn.className = 'dl-btn';
+    dlBtn.textContent = 'Download assumptions (CSV + JSON)';
+
+    dlBtn.addEventListener('click', function () {
+      _downloadAssumptions();
+    });
+
+    root.appendChild(dlBtn);
+  }
+
+  /* ── Build + trigger download of assumptions as CSV and JSON ─────────────── */
+  function _downloadAssumptions() {
+    const LABELS = {
+      utilization:           'Utilization',
+      activeHours:           'Active hours/day',
+      poolEfficiency:        'Pool efficiency',
+      feedInTariff:          'Solar feed-in (c/kWh)',
+      retailRate:            'Grid retail (c/kWh)',
+      batteryCost:           'Battery cost (c/kWh)',
+      hardwareLifetimeYears: 'Hardware lifetime (yr)',
+      overheadPerYearAud:    'Overhead (A$/yr)',
+      fxAudPerUsd:           'AUD/USD rate'
+    };
+
+    const rows = [];
+
+    // Uncertainty input defaults
+    E.UNCERTAINTY_INPUT_IDS.forEach(function (inputId) {
+      const def = D.INPUT_DEFAULTS[inputId];
+      if (!def) return;
+      const src = def.source_id ? D.SOURCES[def.source_id] : null;
+      rows.push({
+        category:   'input_default',
+        id:         inputId,
+        label:      LABELS[inputId] || inputId,
+        value:      def.value,
+        low:        def.low,
+        high:       def.high,
+        unit:       def.unit || '',
+        confidence: def.confidence || '',
+        source_id:  def.source_id || '',
+        source_name: src ? src.name : '',
+        source_url:  src ? src.url  : '',
+        source_date: src ? src.date : ''
+      });
+    });
+
+    // Device context rows (frontier ref prices)
+    Object.entries(D.DEVICES).forEach(function ([devId, dev]) {
+      if (dev.priceUsd) {
+        const src = dev.priceUsd.source_id ? D.SOURCES[dev.priceUsd.source_id] : null;
+        rows.push({
+          category:   'ref_device_price',
+          id:         devId,
+          label:      dev.label + ' — price (USD)',
+          value:      dev.priceUsd.typical,
+          low:        dev.priceUsd.low,
+          high:       dev.priceUsd.high,
+          unit:       'USD',
+          confidence: dev.priceUsd.confidence || '',
+          source_id:  dev.priceUsd.source_id || '',
+          source_name: src ? src.name : '',
+          source_url:  src ? src.url  : '',
+          source_date: src ? src.date : ''
+        });
+      }
+      if (dev.loadW) {
+        const src2 = dev.loadW.source_id ? D.SOURCES[dev.loadW.source_id] : null;
+        rows.push({
+          category:   'ref_device_load',
+          id:         devId,
+          label:      dev.label + ' — load (W)',
+          value:      dev.loadW.typical,
+          low:        dev.loadW.low,
+          high:       dev.loadW.high,
+          unit:       'W',
+          confidence: dev.loadW.confidence || '',
+          source_id:  dev.loadW.source_id || '',
+          source_name: src2 ? src2.name : '',
+          source_url:  src2 ? src2.url  : '',
+          source_date: src2 ? src2.date : ''
+        });
+      }
+    });
+
+    // Model price context rows
+    Object.entries(D.MODELS).forEach(function ([modelId, model]) {
+      if (model.priceOutUsdPerM) {
+        const p = model.priceOutUsdPerM;
+        const src = p.source_id ? D.SOURCES[p.source_id] : null;
+        rows.push({
+          category:   'ref_model_price',
+          id:         modelId,
+          label:      model.label + ' — output token price (USD/1M)',
+          value:      p.typical,
+          low:        p.low,
+          high:       p.high,
+          unit:       'USD/1M',
+          confidence: p.confidence || '',
+          source_id:  p.source_id || '',
+          source_name: src ? src.name : '',
+          source_url:  src ? src.url  : '',
+          source_date: src ? src.date : ''
+        });
+      }
+    });
+
+    // CSV
+    const csvHeader = 'category,id,label,value,low,high,unit,confidence,source_id,source_name,source_url,source_date';
+    const csvLines = rows.map(function (r) {
+      return [
+        r.category, r.id,
+        '"' + r.label.replace(/"/g, '""') + '"',
+        r.value, r.low, r.high, r.unit, r.confidence,
+        r.source_id,
+        '"' + r.source_name.replace(/"/g, '""') + '"',
+        '"' + r.source_url.replace(/"/g, '""') + '"',
+        r.source_date
+      ].join(',');
+    });
+    const csvContent = csvHeader + '\n' + csvLines.join('\n');
+
+    const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+    const csvUrl = URL.createObjectURL(csvBlob);
+    const csvLink = document.createElement('a');
+    csvLink.href = csvUrl;
+    csvLink.download = 'sunstack-assumptions.csv';
+    csvLink.click();
+    URL.revokeObjectURL(csvUrl);
+
+    // JSON
+    const jsonBlob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' });
+    const jsonUrl = URL.createObjectURL(jsonBlob);
+    const jsonLink = document.createElement('a');
+    jsonLink.href = jsonUrl;
+    jsonLink.download = 'sunstack-assumptions.json';
+    jsonLink.click();
+    URL.revokeObjectURL(jsonUrl);
+  }
+
   /* ── Initial render ─────────────────────────────────────────────────────── */
   render();
 
@@ -592,6 +1036,6 @@ window.SunStackUI = (function () {
     _renderPanels:    renderPanels,
     _renderResults:   null,
     _renderCharts:    null,
-    _renderCitations: null
+    _renderCitations: renderCitations
   };
 })();
