@@ -582,6 +582,113 @@ window.SunStackUI = (function () {
     energySection.appendChild(energyGrid);
     wrap.appendChild(energySection);
 
+    // ── Business split controls ────────────────────────────────────────────
+    const bizSection = document.createElement('div');
+    bizSection.className = 'panel-section biz-section';
+
+    const bizTitle = document.createElement('h2');
+    bizTitle.className = 'panel-section-title';
+    bizTitle.textContent = 'Business split';
+    bizSection.appendChild(bizTitle);
+
+    const bizGrid = document.createElement('div');
+    bizGrid.className = 'slider-grid';
+
+    // Helper: make a range slider control group
+    function makeBizSlider(id, label, min, max, step, currentVal, fmtFn, stateKey) {
+      const group = document.createElement('div');
+      group.className = 'slider-group';
+
+      const lbl = document.createElement('label');
+      lbl.setAttribute('for', id);
+      lbl.className = 'slider-label';
+
+      const lblText = document.createElement('span');
+      lblText.textContent = label;
+
+      const valDisp = document.createElement('span');
+      valDisp.className = 'slider-val';
+      valDisp.id = 'val-' + stateKey;
+      valDisp.textContent = fmtFn(currentVal);
+
+      lbl.appendChild(lblText);
+      lbl.appendChild(valDisp);
+
+      const slider = document.createElement('input');
+      slider.type = 'range';
+      slider.id = id;
+      slider.min = min;
+      slider.max = max;
+      slider.step = step;
+      slider.value = currentVal;
+      slider.setAttribute('aria-label', label);
+
+      slider.addEventListener('input', () => {
+        const v = parseFloat(slider.value);
+        state[stateKey] = v;
+        state.preset = 'custom';
+        const d = document.getElementById('val-' + stateKey);
+        if (d) d.textContent = fmtFn(v);
+        render();
+      });
+
+      group.appendChild(lbl);
+      group.appendChild(slider);
+      return group;
+    }
+
+    // #in-undercut: 0–0.9, displayed as %
+    bizGrid.appendChild(makeBizSlider(
+      'in-undercut', 'SunStack undercut vs cloud (%)',
+      0, 0.9, 0.01, state.undercut,
+      v => Math.round(v * 100) + '%', 'undercut'
+    ));
+
+    // #in-homeownerShare: 0–1, displayed as %
+    bizGrid.appendChild(makeBizSlider(
+      'in-homeownerShare', 'Homeowner revenue share (%)',
+      0, 1, 0.01, state.homeownerShare,
+      v => Math.round(v * 100) + '%', 'homeownerShare'
+    ));
+
+    // #in-platformCostUsdPerMTok: number+range 0–1, displayed as USD
+    bizGrid.appendChild(makeBizSlider(
+      'in-platformCostUsdPerMTok', 'Platform cost (USD/1M tok)',
+      0, 1, 0.01, state.platformCostUsdPerMTok,
+      v => '$' + Number(v).toFixed(2), 'platformCostUsdPerMTok'
+    ));
+
+    // #in-financed: checkbox
+    const finGroup = document.createElement('div');
+    finGroup.className = 'slider-group biz-checkbox-group';
+
+    const finLabel = document.createElement('label');
+    finLabel.setAttribute('for', 'in-financed');
+    finLabel.className = 'slider-label biz-checkbox-label';
+
+    const finLabelText = document.createElement('span');
+    finLabelText.textContent = 'Hardware financed by SunStack';
+
+    const finCheckbox = document.createElement('input');
+    finCheckbox.type = 'checkbox';
+    finCheckbox.id = 'in-financed';
+    finCheckbox.checked = !!state.financed;
+    finCheckbox.setAttribute('aria-label', 'Hardware financed by SunStack');
+
+    finCheckbox.addEventListener('change', () => {
+      state.financed = finCheckbox.checked;
+      state.preset = 'custom';
+      render();
+    });
+
+    finLabel.appendChild(finLabelText);
+    finLabel.appendChild(finCheckbox);
+    finGroup.appendChild(finLabel);
+    bizGrid.appendChild(finGroup);
+
+    bizSection.appendChild(bizGrid);
+    wrap.appendChild(bizSection);
+
     root.appendChild(wrap);
   }
 

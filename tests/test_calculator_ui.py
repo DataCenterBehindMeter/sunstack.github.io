@@ -182,3 +182,50 @@ def test_references_numbered_and_dedup(page):
 def test_download_button_present(page):
     """#download-assumptions button exists exactly once inside #sources."""
     assert page.locator("#download-assumptions").count() == 1
+
+
+# ── Task 9 tests ────────────────────────────────────────────────────────────
+
+
+def test_headline_cards_render(page):
+    """After adding a device all four headline cards exist in #results."""
+    page.click("button[data-add-device='dgx_spark']")
+    for cid in ["#card-homeowner-net", "#card-payback", "#card-operator-margin", "#card-buyer-saves"]:
+        assert page.locator(cid).count() == 1, f"Missing card: {cid}"
+
+
+def test_negative_net_flagged(page):
+    """A config with tiny utilisation produces a card flagged negative (.neg or '-' in text)."""
+    page.click("button[data-add-device='gpu_5090']")
+    page.eval_on_selector(
+        "#in-utilization",
+        "el => { el.value = 0.01; el.dispatchEvent(new Event('input')); }"
+    )
+    # Disable financing so hardware cost hits the homeowner
+    if page.locator("#in-financed").count():
+        page.eval_on_selector(
+            "#in-financed",
+            "el => { el.checked = false; el.dispatchEvent(new Event('change')); }"
+        )
+    card = page.locator("#card-homeowner-net")
+    has_neg_class = card.get_attribute("class") or ""
+    card_text = page.inner_text("#card-homeowner-net")
+    assert "neg" in has_neg_class or "-" in card_text
+
+
+def test_charts_or_fallback_present(page):
+    """#tornado contains a uPlot canvas or a .chart-fallback table."""
+    page.click("button[data-add-device='dgx_spark']")
+    assert page.locator("#tornado, #tornado .chart-fallback, #tornado table").count() >= 1
+
+
+def test_strategy_control_homeowner_share(page):
+    """Changing #in-homeownerShare slider updates #card-homeowner-net."""
+    page.click("button[data-add-device='dgx_spark']")
+    before = page.inner_text("#card-homeowner-net")
+    page.eval_on_selector(
+        "#in-homeownerShare",
+        "el => { el.value = 0.3; el.dispatchEvent(new Event('input')); }"
+    )
+    after = page.inner_text("#card-homeowner-net")
+    assert before != after

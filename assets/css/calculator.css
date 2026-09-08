@@ -520,6 +520,210 @@
   color: var(--amber);
 }
 
+/* ── Business split controls ───────────────────────────────────────────────── */
+.biz-checkbox-group {
+  justify-content: center;
+}
+
+.biz-checkbox-label {
+  flex-direction: row;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.biz-checkbox-label input[type="checkbox"] {
+  accent-color: var(--teal);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Results grid ──────────────────────────────────────────────────────────── */
+#results {
+  margin-bottom: 32px;
+}
+
+.results-empty {
+  color: var(--muted);
+  font-style: italic;
+  font-size: 0.88rem;
+  padding: 16px 0;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.result-card {
+  padding: 18px 16px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.15s var(--ease);
+}
+
+.result-card:hover {
+  border-color: var(--teal);
+}
+
+.result-card.neg {
+  border-color: #ef9a9a;
+  background: #fff5f5;
+}
+
+.result-card.neg .card-val {
+  color: #c62828;
+}
+
+.card-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.card-val {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.card-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+/* ── Split bar ─────────────────────────────────────────────────────────────── */
+.split-bar-wrap {
+  margin-bottom: 28px;
+}
+
+.split-bar-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.split-bar {
+  display: flex;
+  height: 24px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+.split-seg {
+  height: 100%;
+  transition: opacity 0.15s var(--ease);
+  min-width: 2px;
+}
+.split-seg:hover { opacity: 0.8; }
+
+.seg-homeowner { background: var(--teal); }
+.seg-operator  { background: var(--amber); }
+.seg-energy    { background: #ef9a9a; }
+.seg-hardware  { background: var(--muted); }
+
+.split-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.split-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: var(--body);
+}
+
+.split-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Charts section ────────────────────────────────────────────────────────── */
+#charts {
+  margin-bottom: 32px;
+}
+
+.charts-section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.chart-wrap {
+  margin-bottom: 28px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.chart-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--body);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.chart-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Chart fallback table */
+.chart-fallback {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.chart-fallback th {
+  text-align: left;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-bottom: 2px solid var(--line);
+  color: var(--ink);
+  background: var(--surface-2);
+  white-space: nowrap;
+}
+
+.chart-fallback td {
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--body);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-fallback tr:last-child td {
+  border-bottom: none;
+}
+
 /* ── Download button ───────────────────────────────────────────────────────── */
 .dl-btn {
   display: inline-block;
