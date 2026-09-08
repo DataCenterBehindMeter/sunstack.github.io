@@ -335,10 +335,11 @@ window.SunStackUI = (function () {
     if (state.rig.length === 0) {
       summary.innerHTML = '<span class="summary-empty">Add a device above to start building your rig.</span>';
     } else {
-      const pooledGb  = E.poolMemoryGb(state.rig);
+      // Use computeScenario as single source of truth for rigCostAud (no separate sum)
+      const out        = E.computeScenario(state);
+      const pooledGb   = E.poolMemoryGb(state.rig);
       const totalLoadW = state.rig.reduce((acc, id) => acc + D.DEVICES[id].loadW.typical, 0);
-      const rigCostUsd = state.rig.reduce((acc, id) => acc + D.DEVICES[id].priceUsd.typical, 0);
-      const rigCostAud = rigCostUsd * D.FX_AUD_PER_USD;
+      const rigCostAud = out.rigCostAud;
       const okFit      = E.fits(state.rig, state.modelId, state.quant);
       let tpsHtml = '';
       if (okFit) {

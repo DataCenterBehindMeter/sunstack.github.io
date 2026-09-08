@@ -191,3 +191,28 @@ def test_both_parties_can_be_positive(page):
         f"operator={result['operatorMargin']:.0f}, "
         f"buyer={result['buyerSaves']:.0f}"
     )
+
+
+def test_rig_cost_exact_value(page):
+    """rigCostAud = sum(device.priceUsd.typical) * FX, no double-counting, no .high prices.
+    dgx_spark (4699) + mac_mini_m4_32 (1199) at FX 1.39 = 5898 * 1.39 = 8198.22."""
+    result = page.evaluate("""() => {
+      const E = window.SunStackEngine;
+      const state = {
+        rig: ['dgx_spark', 'mac_mini_m4_32'],
+        modelId: 'gpt_oss_20b', quant: 'q4',
+        poolEfficiency: 0.75, concurrency: 12,
+        utilization: 0.45, activeHours: 16,
+        energyMix: {free:0.6, solar:0.3, grid:0.1},
+        feedInTariff: 3.3, retailRate: 30,
+        undercut: 0.2, homeownerShare: 0.55, financed: true,
+        platformCostUsdPerMTok: 0.002
+      };
+      const out = E.computeScenario(state);
+      const D = window.SunStackData;
+      const expected = (D.DEVICES.dgx_spark.priceUsd.typical + D.DEVICES.mac_mini_m4_32.priceUsd.typical) * D.FX_AUD_PER_USD;
+      return { rigCostAud: out.rigCostAud, expected, ok: Math.abs(out.rigCostAud - expected) < 0.01 };
+    }""")
+    assert result['ok'], f"rigCostAud={result['rigCostAud']:.2f} expected={result['expected']:.2f}"
+    # Concrete check: (4699 + 1199) * 1.39 = 8198.22
+    assert abs(result['rigCostAud'] - 8198.22) < 0.5, f"Expected ~A$8198, got {result['rigCostAud']:.2f}"
