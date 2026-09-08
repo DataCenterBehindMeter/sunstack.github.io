@@ -276,3 +276,70 @@ def test_default_net_approx_1857(page):
         "() => window.SunStackEngine.computeScenario(window.SunStackUI.state).homeowner.netAud"
     )
     assert abs(net - 1857) < 50, f"Expected ~1857, got {net}"
+
+
+# ── Slider drag persistence (regression for render-loop split) ───────────────
+
+
+def test_slider_drag_does_not_recreate_element(page):
+    """Dragging #in-utilization must NOT destroy and recreate the element.
+
+    Captures the element handle before triggering input events, then asserts
+    the handle is still connected (same DOM node) after renderOutputs fires.
+    Also asserts that results updated (card value changed).
+    """
+    # Capture the element handle and initial card text.
+    slider_el = page.query_selector("#in-utilization")
+    assert slider_el is not None, "#in-utilization not found"
+
+    before_card = page.inner_text("#card-homeowner-net")
+
+    # Simulate a drag: programmatically move slider to a new value and fire
+    # the input event.  Use a value distinct from the neutral default (0.40).
+    page.evaluate(
+        """() => {
+            const el = document.getElementById('in-utilization');
+            el.value = 0.75;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+        }"""
+    )
+
+    # The SAME element handle must still be connected — if the element was
+    # recreated the handle would be detached (isConnected === false).
+    still_connected = page.evaluate("(el) => el.isConnected", slider_el)
+    assert still_connected, (
+        "#in-utilization was replaced in the DOM during slider input — "
+        "the render-loop split is not working correctly"
+    )
+
+    # Results must have updated to reflect the new utilization value.
+    after_card = page.inner_text("#card-homeowner-net")
+    assert before_card != after_card, (
+        "#card-homeowner-net did not update after slider input"
+    )
+
+
+def test_energy_slider_drag_does_not_recreate_element(page):
+    """Dragging #in-energy-solar must NOT destroy and recreate that slider."""
+    slider_el = page.query_selector("#in-energy-solar")
+    assert slider_el is not None, "#in-energy-solar not found"
+
+    before_card = page.inner_text("#card-homeowner-net")
+
+    page.evaluate(
+        """() => {
+            const el = document.getElementById('in-energy-solar');
+            el.value = 60;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+        }"""
+    )
+
+    still_connected = page.evaluate("(el) => el.isConnected", slider_el)
+    assert still_connected, (
+        "#in-energy-solar was replaced in the DOM during slider input"
+    )
+
+    after_card = page.inner_text("#card-homeowner-net")
+    assert before_card != after_card, (
+        "#card-homeowner-net did not update after energy-mix slider input"
+    )

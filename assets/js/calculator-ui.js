@@ -105,18 +105,60 @@ window.SunStackUI = (function () {
     return (D.DEVICES[id].label || id).split(/[(,]/)[0].trim();
   }
 
-  /* ── Top-level render ───────────────────────────────────────────────────── */
-  function render() {
-    renderRigBuilder();
-    // Later tasks attach hooks directly onto window.SunStackUI after module load.
-    // Guard window.SunStackUI itself — it is undefined during the initial render()
-    // call that happens inside the IIFE before the return value is assigned.
+  /* ── renderOutputs — recompute + repaint results/charts only ───────────────
+   * Does NOT rebuild sliders or selects. Safe to call mid-drag.
+   * Also updates every slider's value-label text in place.
+   */
+  function renderOutputs() {
     const ui = window.SunStackUI;
-    ui && ui._renderPanels    ? ui._renderPanels()    : renderPanels();
+
+    // Update in-place value labels for uncertainty sliders
+    E.UNCERTAINTY_INPUT_IDS.forEach(inputId => {
+      const def = D.INPUT_DEFAULTS[inputId];
+      const disp = document.getElementById('val-' + inputId);
+      if (disp && def) disp.textContent = fmtVal(def, state[inputId]);
+    });
+
+    // Update in-place value labels for energy-mix sliders
+    const ENERGY_KEYS = ['free', 'solar', 'grid'];
+    const rawTot = ENERGY_KEYS.reduce((s, k) => s + (state.energyMix[k] || 0), 0) || 1;
+    ENERGY_KEYS.forEach(key => {
+      const disp = document.getElementById('val-energy-' + key);
+      if (disp) {
+        const pct = Math.round(((state.energyMix[key] || 0) / rawTot) * 100);
+        disp.textContent = pct + '%';
+      }
+    });
+
+    // Update preset-state indicator
+    const presetEl = document.getElementById('preset-state');
+    if (presetEl) {
+      const displayPreset = (['pessimistic', 'neutral', 'optimistic'].includes(state.preset))
+        ? state.preset.charAt(0).toUpperCase() + state.preset.slice(1)
+        : 'Custom';
+      presetEl.textContent = displayPreset;
+    }
+
+    // Repaint outputs (results cards, charts, citations)
     ui && ui._renderResults   && ui._renderResults();
     ui && ui._renderCharts    && ui._renderCharts();
-    // Citations run always — either via external override or local function.
     ui && ui._renderCitations ? ui._renderCitations() : renderCitations();
+  }
+
+  /* ── renderStructure — full DOM rebuild (panels + rig-builder) ───────────
+   * Call on structural changes: add/remove device, model/quant change,
+   * financed toggle, preset-button clicks. Follows with renderOutputs().
+   */
+  function renderStructure() {
+    renderRigBuilder();
+    const ui = window.SunStackUI;
+    ui && ui._renderPanels    ? ui._renderPanels()    : renderPanels();
+    renderOutputs();
+  }
+
+  /* ── Top-level render ───────────────────────────────────────────────────── */
+  function render() {
+    renderStructure();
   }
 
   /* ── Rig-builder ─────────────────────────────────────────────────────────
@@ -162,7 +204,7 @@ window.SunStackUI = (function () {
       btn.addEventListener('click', () => {
         state.rig.push(id);
         state.preset = 'custom';
-        render();
+        renderStructure();
       });
       grid.appendChild(btn);
     }
@@ -261,7 +303,7 @@ window.SunStackUI = (function () {
       // Click removes this index
       const removeThisNode = () => {
         state.rig.splice(idx, 1);
-        render();
+        renderStructure();
       };
       nodeG.addEventListener('click', removeThisNode);
 
@@ -354,7 +396,7 @@ window.SunStackUI = (function () {
       btn.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
       btn.addEventListener('click', () => {
         Object.assign(state, E.applyPreset(state, mode));
-        render();
+        renderStructure();
       });
       presetRow.appendChild(btn);
     });
@@ -409,7 +451,7 @@ window.SunStackUI = (function () {
     modelSelect.addEventListener('change', () => {
       state.modelId = modelSelect.value;
       state.preset = 'custom';
-      render();
+      renderStructure();
     });
 
     const modelGroup = document.createElement('div');
@@ -443,7 +485,7 @@ window.SunStackUI = (function () {
     quantSelect.addEventListener('change', () => {
       state.quant = quantSelect.value;
       state.preset = 'custom';
-      render();
+      renderStructure();
     });
 
     const quantGroup = document.createElement('div');
@@ -506,10 +548,7 @@ window.SunStackUI = (function () {
         const v = parseFloat(slider.value);
         state[inputId] = v;
         state.preset = 'custom';
-        // Update display without full re-render for smoothness
-        const disp = document.getElementById('val-' + inputId);
-        if (disp) disp.textContent = fmtVal(def, v);
-        render();
+        renderOutputs();
       });
 
       group.appendChild(label);
@@ -581,7 +620,7 @@ window.SunStackUI = (function () {
         const tot = ENERGY_KEYS.reduce((s, k) => s + (raw[k] || 0), 0) || 1;
         ENERGY_KEYS.forEach(k => { state.energyMix[k] = raw[k] / tot; });
         state.preset = 'custom';
-        render();
+        renderOutputs();
       });
 
       group.appendChild(label);
@@ -639,7 +678,7 @@ window.SunStackUI = (function () {
         state.preset = 'custom';
         const d = document.getElementById('val-' + stateKey);
         if (d) d.textContent = fmtFn(v);
-        render();
+        renderOutputs();
       });
 
       group.appendChild(lbl);
@@ -688,7 +727,7 @@ window.SunStackUI = (function () {
     finCheckbox.addEventListener('change', () => {
       state.financed = finCheckbox.checked;
       state.preset = 'custom';
-      render();
+      renderOutputs();
     });
 
     finLabel.appendChild(finLabelText);
@@ -1144,6 +1183,8 @@ window.SunStackUI = (function () {
   return {
     state,
     render,
+    renderStructure,
+    renderOutputs,
     renderRigBuilder,
     // Hook wired at module load; later tasks override _renderResults, etc.
     _renderPanels:    renderPanels,
