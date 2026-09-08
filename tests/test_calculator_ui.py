@@ -214,9 +214,15 @@ def test_negative_net_flagged(page):
 
 
 def test_charts_or_fallback_present(page):
-    """#tornado contains a uPlot canvas or a .chart-fallback table."""
+    """#tornado contains an svg (or .chart-fallback) both WITHOUT and WITH a device;
+    #breakeven container always exists."""
+    # Empty rig: the tornado container must still contain a chart or fallback.
+    assert page.locator("#tornado svg, #tornado .chart-fallback, #tornado table").count() >= 1
+    assert page.locator("#breakeven").count() == 1
+    # With a device: same guarantee holds.
     page.click("button[data-add-device='dgx_spark']")
-    assert page.locator("#tornado, #tornado .chart-fallback, #tornado table").count() >= 1
+    assert page.locator("#tornado svg, #tornado .chart-fallback, #tornado table").count() >= 1
+    assert page.locator("#breakeven").count() == 1
 
 
 def test_strategy_control_homeowner_share(page):

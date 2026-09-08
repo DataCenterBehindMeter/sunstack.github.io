@@ -724,6 +724,45 @@
   border-bottom: none;
 }
 
+/* ── Tornado (hand-SVG horizontal bars) ────────────────────────────────────── */
+.tornado-svg {
+  display: block;
+  font-family: inherit;
+}
+
+.tornado-baseline {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.tornado-base-label {
+  fill: var(--muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Lower-net half of each bar (toward the pessimistic end): teal. */
+.tornado-bar-low {
+  fill: var(--teal);
+}
+
+/* Higher-net half of each bar (toward the optimistic end): amber. */
+.tornado-bar-high {
+  fill: var(--amber);
+}
+
+.tornado-row-label {
+  fill: var(--body);
+  font-size: 11px;
+}
+
+.tornado-delta-label {
+  fill: var(--muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Download button ───────────────────────────────────────────────────────── */
 .dl-btn {
   display: inline-block;

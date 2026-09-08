@@ -19,6 +19,34 @@
     return fmtAud.format(Math.round(v));
   }
 
+  /* Compact AUD for axis/label use, e.g. "A$12k" / "-A$3k". */
+  function fmtAudK(v) {
+    const sign = v < 0 ? '-' : '';
+    return sign + 'A$' + Math.abs(Math.round(v / 1000)) + 'k';
+  }
+
+  /* ── Human-readable labels for uncertainty inputs (tornado bar labels) ──── */
+  const TORNADO_LABELS = {
+    utilization:           'Utilization',
+    activeHours:           'Active hours/day',
+    poolEfficiency:        'Pool efficiency',
+    feedInTariff:          'Feed-in tariff',
+    retailRate:            'Retail rate',
+    batteryCost:           'Battery cost',
+    hardwareLifetimeYears: 'Hardware lifetime',
+    overheadPerYearAud:    'Overhead/yr',
+    fxAudPerUsd:           'AUD/USD FX'
+  };
+
+  /* ── SVG helper ─────────────────────────────────────────────────────────── */
+  function svgEl(tag, attrs) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) {
+      if (Object.prototype.hasOwnProperty.call(attrs, k)) el.setAttribute(k, attrs[k]);
+    }
+    return el;
+  }
+
   /* ── Results cards ──────────────────────────────────────────────────────── */
   function _renderResults() {
     const root = document.getElementById('results');
@@ -165,38 +193,76 @@
 
     root.innerHTML = '';
 
-    if (!state.rig || state.rig.length === 0) {
-      root.innerHTML = '<p class="results-empty">Add a device to see charts.</p>';
-      return;
-    }
-
     const chartsTitle = document.createElement('h2');
     chartsTitle.className = 'charts-section-title';
     chartsTitle.textContent = 'Sensitivity & Break-even';
     root.appendChild(chartsTitle);
 
-    _renderTornado(root, state);
-    _renderBreakeven(root, state);
+    // Always build BOTH chart scaffolds (title + #tornado / #breakeven
+    // container) so the containers exist even for an empty rig — the spec
+    // requires #tornado to always hold a chart or a fallback.
+    const tornadoContainer  = _buildChartScaffold(root, 'tornado',   'Sensitivity (tornado)');
+    const breakevenContainer = _buildChartScaffold(root, 'breakeven', 'Net income vs utilisation');
+
+    const hasRig = state.rig && state.rig.length > 0;
+
+    // ── Tornado (always hand-SVG; renders even with empty rig) ───────────────
+    _renderTornado(tornadoContainer, state, hasRig);
+
+    // ── Break-even (uPlot + table fallback) ─────────────────────────────────
+    if (hasRig) {
+      _renderBreakeven(breakevenContainer, state);
+    } else {
+      const p = document.createElement('p');
+      p.className = 'results-empty';
+      p.textContent = 'Add a device to see the break-even curve.';
+      breakevenContainer.appendChild(p);
+    }
   }
 
-  /* ── Tornado chart ──────────────────────────────────────────────────────── */
-  function _renderTornado(root, state) {
+  /* Build a .chart-wrap holding a titled empty #id container, return the container. */
+  function _buildChartScaffold(root, id, titleText) {
     const wrap = document.createElement('div');
     wrap.className = 'chart-wrap';
 
     const title = document.createElement('div');
     title.className = 'chart-title';
-    title.textContent = 'Sensitivity (tornado)';
+    title.textContent = titleText;
     wrap.appendChild(title);
 
     const container = document.createElement('div');
-    container.id = 'tornado';
+    container.id = id;
     container.className = 'chart-container';
     wrap.appendChild(container);
 
     root.appendChild(wrap);
+    return container;
+  }
 
-    // Compute sensitivity for each uncertainty input
+  /* ── Tornado chart (hand-SVG horizontal bars) ───────────────────────────────
+   * For each uncertainty input, a horizontal bar spans from the homeowner net at
+   * that input's `low` to its net at `high` (others held at current state),
+   * ranked DESCENDING by |Δnet| (biggest driver on top). The two halves around
+   * the base-case net are coloured with brand tokens: teal toward the lower-net
+   * end, amber toward the higher-net end.
+   */
+  function _renderTornado(container, state, hasRig) {
+    container.innerHTML = '';
+
+    // Empty rig → the spec requires #tornado to ALWAYS hold a chart or a
+    // .chart-fallback table. There is no sensitivity to draw without a rig, so
+    // render a one-row .chart-fallback placeholder (keeps the container valid).
+    if (!hasRig) {
+      const table = document.createElement('table');
+      table.className = 'chart-fallback';
+      table.innerHTML =
+        '<thead><tr><th>Input</th><th>Sensitivity</th></tr></thead>' +
+        '<tbody><tr><td colspan="2">Add a device to rank which assumptions ' +
+        'move homeowner net income the most.</td></tr></tbody>';
+      container.appendChild(table);
+      return;
+    }
+
     const base = E.computeScenario(state).homeowner.netAud;
 
     const rows = [];
@@ -211,117 +277,138 @@
       const netLow  = E.computeScenario(stLow).homeowner.netAud;
       const netHigh = E.computeScenario(stHigh).homeowner.netAud;
       const delta = Math.abs(netHigh - netLow);
-      rows.push({ id, label: id, netLow, netHigh, delta });
+      rows.push({ id, label: TORNADO_LABELS[id] || id, netLow, netHigh, delta });
     });
 
-    // Sort descending by |Δ net|
+    // Rank descending by |Δ net| — biggest driver first (top).
     rows.sort((a, b) => b.delta - a.delta);
-    const top = rows.slice(0, 8);
 
-    if (window.uPlot && top.length > 0) {
-      _renderTornadoUplot(container, top, state);
-    } else {
-      _renderTornadoFallback(container, top);
+    if (rows.length === 0) {
+      const p = document.createElement('p');
+      p.className = 'results-empty';
+      p.textContent = 'No sensitivity data available.';
+      container.appendChild(p);
+      return;
     }
-  }
 
-  function _renderTornadoUplot(container, rows, state) {
-    // uPlot horizontal bar: we simulate with a vertical bar chart
-    // x = row index, two series: low-end net, high-end net
-    const labels = rows.map(r => r.label.replace(/([A-Z])/g, ' $1').trim());
-    const lowVals  = rows.map(r => r.netLow);
-    const highVals = rows.map(r => r.netHigh);
-    const xs = rows.map((_, i) => i);
+    // ── SVG geometry ────────────────────────────────────────────────────────
+    const LABEL_W = 128;   // left gutter for input labels
+    const VAL_W   = 56;    // right gutter for Δ value
+    const ROW_H   = 30;    // per-row height (incl. gap)
+    const BAR_H   = 16;
+    const PAD_T   = 8;
+    const PAD_B   = 24;    // space for base-case axis label
+    const W       = 560;
+    const plotL   = LABEL_W;
+    const plotR   = W - VAL_W;
+    const plotW   = plotR - plotL;
+    const H       = PAD_T + rows.length * ROW_H + PAD_B;
 
-    const w = container.clientWidth || 500;
-    const h = Math.max(180, rows.length * 36 + 40);
-
-    const opts = {
-      width:  w,
-      height: h,
-      title: '',
-      scales: { x: { time: false }, y: {} },
-      axes: [
-        {
-          values: (u, vals) => vals.map(v => {
-            const i = Math.round(v);
-            return (labels[i] !== undefined) ? labels[i] : '';
-          }),
-          size: 130,
-          gap: 6,
-          font: '11px sans-serif',
-          stroke: '#837d72'
-        },
-        {
-          values: (u, vals) => vals.map(v => 'A$' + Math.round(v / 1000) + 'k'),
-          size: 60,
-          gap: 4,
-          font: '11px sans-serif',
-          stroke: '#837d72'
-        }
-      ],
-      series: [
-        {},
-        {
-          label: 'Low',
-          stroke: '#5db8a6',
-          fill:   'rgba(93,184,166,0.25)',
-          width:  2,
-          points: { show: false }
-        },
-        {
-          label: 'High',
-          stroke: '#e8932a',
-          fill:   'rgba(232,147,42,0.25)',
-          width:  2,
-          points: { show: false }
-        }
-      ],
-      data: [xs, lowVals, highVals]
-    };
-
-    try {
-      new window.uPlot(opts, [xs, lowVals, highVals], container);
-    } catch (e) {
-      _renderTornadoFallback(container, rows);
-    }
-  }
-
-  function _renderTornadoFallback(container, rows) {
-    const table = document.createElement('table');
-    table.className = 'chart-fallback';
-    table.innerHTML =
-      '<thead><tr><th>Input</th><th>Net (low)</th><th>Net (high)</th><th>|Δ|</th></tr></thead>';
-    const tbody = document.createElement('tbody');
+    // Domain: min/max across all low/high nets and the base-case, so the
+    // base-case (0-net line separate) sits proportionally.
+    let lo = base, hi = base;
     rows.forEach(r => {
-      const tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td>' + r.id + '</td>' +
-        '<td>' + (r.netLow >= 0 ? '' : '-') + 'A$' + Math.abs(Math.round(r.netLow)).toLocaleString('en-AU') + '</td>' +
-        '<td>' + (r.netHigh >= 0 ? '' : '-') + 'A$' + Math.abs(Math.round(r.netHigh)).toLocaleString('en-AU') + '</td>' +
-        '<td>A$' + Math.round(r.delta).toLocaleString('en-AU') + '</td>';
-      tbody.appendChild(tr);
+      lo = Math.min(lo, r.netLow, r.netHigh);
+      hi = Math.max(hi, r.netLow, r.netHigh);
     });
-    table.appendChild(tbody);
-    container.appendChild(table);
+    if (hi === lo) { hi = lo + 1; }   // avoid divide-by-zero
+    const span = hi - lo;
+    const xOf = v => plotL + ((v - lo) / span) * plotW;
+
+    const svg = svgEl('svg', {
+      viewBox: '0 0 ' + W + ' ' + H,
+      width: W,
+      height: H,
+      role: 'img',
+      'aria-label': 'Tornado sensitivity chart of homeowner net income',
+      class: 'tornado-svg'
+    });
+    // Let the SVG scale down responsively.
+    svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+    svg.style.width = '100%';
+    svg.style.height = 'auto';
+    svg.style.maxWidth = W + 'px';
+
+    // Base-case vertical reference line.
+    const baseX = xOf(base);
+    svg.appendChild(svgEl('line', {
+      x1: baseX, y1: PAD_T, x2: baseX, y2: PAD_T + rows.length * ROW_H,
+      class: 'tornado-baseline'
+    }));
+    const baseLbl = svgEl('text', {
+      x: baseX, y: H - 8,
+      'text-anchor': 'middle',
+      class: 'tornado-base-label'
+    });
+    baseLbl.textContent = 'base ' + fmtAudK(base);
+    svg.appendChild(baseLbl);
+
+    rows.forEach((r, i) => {
+      const yTop = PAD_T + i * ROW_H;
+      const yBar = yTop + (ROW_H - BAR_H) / 2;
+      const cy   = yBar + BAR_H / 2;
+
+      // Bar spans low↔high; split at the base-case net.
+      const xLow  = xOf(r.netLow);
+      const xHigh = xOf(r.netHigh);
+      const barL  = Math.min(xLow, xHigh);
+      const barR  = Math.max(xLow, xHigh);
+
+      // Split point = base-case x, clamped into [barL, barR].
+      const split = Math.max(barL, Math.min(barR, baseX));
+
+      // Lower-net half (teal): from barL to split.
+      if (split - barL > 0.5) {
+        svg.appendChild(svgEl('rect', {
+          x: barL, y: yBar, width: (split - barL), height: BAR_H,
+          rx: 2, ry: 2, class: 'tornado-bar-low'
+        }));
+      }
+      // Higher-net half (amber): from split to barR.
+      if (barR - split > 0.5) {
+        svg.appendChild(svgEl('rect', {
+          x: split, y: yBar, width: (barR - split), height: BAR_H,
+          rx: 2, ry: 2, class: 'tornado-bar-high'
+        }));
+      }
+      // If the whole bar is on one side of base (degenerate split), ensure at
+      // least a visible sliver exists.
+      if (barR - barL < 0.5) {
+        svg.appendChild(svgEl('rect', {
+          x: barL - 1, y: yBar, width: 2, height: BAR_H,
+          class: 'tornado-bar-high'
+        }));
+      }
+
+      // Row label (left gutter).
+      const lbl = svgEl('text', {
+        x: LABEL_W - 8, y: cy + 3,
+        'text-anchor': 'end',
+        class: 'tornado-row-label'
+      });
+      lbl.textContent = r.label;
+      const titleEl = svgEl('title', {});
+      titleEl.textContent = r.label + ': ' + fmtAudVal(r.netLow) + ' … ' + fmtAudVal(r.netHigh) +
+                            ' (Δ ' + fmtAudVal(r.delta) + ')';
+      lbl.appendChild(titleEl);
+      svg.appendChild(lbl);
+
+      // Δ value (right gutter).
+      const val = svgEl('text', {
+        x: plotR + 6, y: cy + 3,
+        'text-anchor': 'start',
+        class: 'tornado-delta-label'
+      });
+      val.textContent = fmtAudK(r.delta);
+      svg.appendChild(val);
+    });
+
+    container.appendChild(svg);
   }
 
   /* ── Break-even chart ───────────────────────────────────────────────────── */
-  function _renderBreakeven(root, state) {
-    const wrap = document.createElement('div');
-    wrap.className = 'chart-wrap';
-
-    const title = document.createElement('div');
-    title.className = 'chart-title';
-    title.textContent = 'Net income vs utilisation';
-    wrap.appendChild(title);
-
-    const container = document.createElement('div');
-    container.id = 'breakeven';
-    container.className = 'chart-container';
-    wrap.appendChild(container);
-
-    root.appendChild(wrap);
+  function _renderBreakeven(container, state) {
+    container.innerHTML = '';
 
     // Sample 21 points from 0 to 1
     const N = 21;
