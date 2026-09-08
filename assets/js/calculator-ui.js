@@ -63,6 +63,13 @@ window.SunStackUI = (function () {
     return 'A$' + Math.round(aud).toLocaleString('en-AU');
   }
 
+  /* Slider value display precision: integer-valued defaults show no decimals,
+   * everything else shows 2 dp. One rule for both initial paint and live input
+   * so the displayed precision never changes (no flicker on re-render). */
+  function fmtVal(def, v) {
+    return Number.isInteger(def.value) ? String(v) : Number(v).toFixed(2);
+  }
+
   /* Short, node-sized device name (drops the "(…GB)" suffix + vendor prefixes). */
   function shortDeviceName(id) {
     const NAMES = {
@@ -462,9 +469,7 @@ window.SunStackUI = (function () {
       const valDisplay = document.createElement('span');
       valDisplay.className = 'slider-val';
       valDisplay.id = 'val-' + inputId;
-      valDisplay.textContent = Number(currentVal).toFixed(
-        def.unit === 'fraction' ? 2 : (def.unit === 'AUD/USD' ? 2 : (Number.isInteger(def.value) ? 0 : 2))
-      );
+      valDisplay.textContent = fmtVal(def, currentVal);
 
       label.appendChild(labelText);
       label.appendChild(valDisplay);
@@ -488,9 +493,7 @@ window.SunStackUI = (function () {
         state.preset = 'custom';
         // Update display without full re-render for smoothness
         const disp = document.getElementById('val-' + inputId);
-        if (disp) disp.textContent = v.toFixed(
-          def.unit === 'fraction' ? 2 : (def.unit === 'AUD/USD' ? 2 : (Number.isInteger(def.value) ? 0 : 1))
-        );
+        if (disp) disp.textContent = fmtVal(def, v);
         render();
       });
 
@@ -552,10 +555,16 @@ window.SunStackUI = (function () {
       slider.setAttribute('aria-label', ENERGY_LABELS[key] + ' energy share');
 
       slider.addEventListener('input', () => {
-        // Update raw mix value then re-normalise all so they sum to 1
-        state.energyMix[key] = parseInt(slider.value, 10);
-        const tot = ENERGY_KEYS.reduce((s, k) => s + (state.energyMix[k] || 0), 0) || 1;
-        ENERGY_KEYS.forEach(k => { state.energyMix[k] = state.energyMix[k] / tot; });
+        // Read ALL four sliders' current 0–100 values, then normalise to
+        // fractions. Reading every slider (not just the changed key) keeps
+        // normalisation independent of the keys' prior stored scale.
+        const raw = {};
+        ENERGY_KEYS.forEach(k => {
+          const el = document.getElementById('in-energy-' + k);
+          raw[k] = el ? parseInt(el.value, 10) : 0;
+        });
+        const tot = ENERGY_KEYS.reduce((s, k) => s + (raw[k] || 0), 0) || 1;
+        ENERGY_KEYS.forEach(k => { state.energyMix[k] = raw[k] / tot; });
         state.preset = 'custom';
         render();
       });
