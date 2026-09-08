@@ -335,6 +335,15 @@
   white-space: nowrap;
 }
 
+.model-sell-price {
+  font-size: 0.78rem;
+  color: var(--teal);
+  margin-top: 6px;
+  font-weight: 500;
+  grid-column: 1 / -1;
+  flex-basis: 100%;
+}
+
 /* ── Slider grid ───────────────────────────────────────────────────────────── */
 .slider-grid {
   display: grid;

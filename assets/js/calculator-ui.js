@@ -80,6 +80,21 @@ window.SunStackUI = (function () {
     return Number.isInteger(def.value) ? String(v) : Number(v).toFixed(2);
   }
 
+  /* ── Compute and write the model sell-price line ───────────────────────────
+   * Called from renderPanels (full rebuild) and renderOutputs (live update).
+   * Shows SunStack sell price and the market/cloud price for comparison.
+   */
+  function _updateSellPriceLine(el, st) {
+    const model = D.MODELS[st.modelId];
+    if (!model) { el.textContent = ''; return; }
+    const fx = D.FX_AUD_PER_USD;
+    const marketAud   = model.priceOutUsdPerM.typical * fx;
+    const sunstackAud = marketAud * (1 - st.undercut);
+    el.textContent =
+      'SunStack sells this model at A$' + sunstackAud.toFixed(2) + ' / 1M tokens' +
+      '  (vs A$' + marketAud.toFixed(2) + ' market)';
+  }
+
   /* Short, node-sized device name (drops the "(…GB)" suffix + vendor prefixes). */
   function shortDeviceName(id) {
     const NAMES = {
@@ -136,6 +151,10 @@ window.SunStackUI = (function () {
         : 'Custom';
       presetEl.textContent = displayPreset;
     }
+
+    // Update model sell-price line (live — undercut or model may have changed)
+    const sellPriceEl = document.getElementById('model-sell-price');
+    if (sellPriceEl) _updateSellPriceLine(sellPriceEl, state);
 
     // Repaint outputs (results cards, charts, citations)
     ui && ui._renderResults   && ui._renderResults();
@@ -526,6 +545,13 @@ window.SunStackUI = (function () {
     quantGroup.appendChild(quantLabel);
     quantGroup.appendChild(quantSelect);
     modelRow.appendChild(quantGroup);
+
+    // ── Model sell-price line ──────────────────────────────────────────────
+    const sellPriceLine = document.createElement('div');
+    sellPriceLine.id = 'model-sell-price';
+    sellPriceLine.className = 'model-sell-price';
+    _updateSellPriceLine(sellPriceLine, state);
+    modelRow.appendChild(sellPriceLine);
 
     modelSection.appendChild(modelRow);
     wrap.appendChild(modelSection);

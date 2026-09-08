@@ -397,6 +397,29 @@ def test_energy_slider_drag_does_not_recreate_element(page):
     )
 
 
+def test_model_sell_price_element_exists(page):
+    """#model-sell-price element exists after page load."""
+    assert page.locator("#model-sell-price").count() == 1
+
+
+def test_model_sell_price_value(page):
+    """Sell-price line shows a plausible AUD value for the selected model."""
+    text = page.inner_text("#model-sell-price")
+    assert "A$" in text
+    assert "1M tokens" in text
+
+
+def test_model_sell_price_updates_on_undercut_change(page):
+    """Changing undercut slider updates #model-sell-price."""
+    before = page.inner_text("#model-sell-price")
+    page.eval_on_selector(
+        "#in-undercut",
+        "el => { el.value = 0.5; el.dispatchEvent(new Event('input')); }"
+    )
+    after = page.inner_text("#model-sell-price")
+    assert before != after
+
+
 def test_roi_card_shows_owner_label(page):
     """ROI card label includes '(operator)' when financed, '(homeowner)' when not."""
     # Default state is financed=true
