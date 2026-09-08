@@ -304,6 +304,10 @@
   font-size: 0.85rem;
   color: var(--ink);
   cursor: pointer;
+  /* Prevent long option text from expanding the select beyond its container */
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .calc-select:focus {
@@ -315,6 +319,20 @@
 .calc-select option:disabled {
   color: var(--muted);
   background: var(--canvas);
+}
+
+/* Multimodal marker legend below the model select */
+.model-mm-legend {
+  width: 100%;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 4px;
+  flex-basis: 100%;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Slider grid ───────────────────────────────────────────────────────────── */
@@ -836,6 +854,15 @@ input[type="range"]:focus-visible {
   .model-row {
     flex-direction: column;
     gap: 12px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .model-row .control-group {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
   }
 
   /* Catalog grid: wrap tighter */

@@ -12,7 +12,7 @@ BASE = """{
   preset:'neutral', rig:['dgx_spark'], modelId:'gpt_oss_120b', quant:'q4',
   poolEfficiency:0.75, utilization:0.4, activeHours:16, concurrency:12,
   energyMix:{free:0.6,solar:0.3,grid:0.1}, feedInTariff:3.3, retailRate:30,
-  undercut:0.3, homeownerShare:0.5, financed:true, hardwareLifetimeYears:5, overheadPerYearAud:60,
+  undercut:0.3, homeownerShare:0.5, financed:true,
   platformCostUsdPerMTok:0.002 }"""
 
 def calc(page, patch=""):
@@ -51,7 +51,8 @@ def test_buyer_saves_equals_tokens_times_gap(page):
 def test_net_reconstructs_from_parts(page):
     o = calc(page)
     h = o["homeowner"]
-    recon = h["shareAud"] - h["energyCostAud"] - h["amortizedHardwareAud"] - h["overheadAud"]
+    # overhead is always 0 (removed as user input); net = share - energy - hardware
+    recon = h["shareAud"] - h["energyCostAud"] - h["amortizedHardwareAud"]
     assert abs(recon - h["netAud"]) < 1e-6            # net is exactly its parts
     assert abs(h["shareAud"] - o["grossRevenueAud"] * 0.5) < 1e-6  # homeownerShare=0.5
 
@@ -100,9 +101,11 @@ def test_breakeven_null_when_zero_slope(page):
     assert u is None
 
 def test_breakeven_null_when_out_of_range(page):
-    # overhead so large that homeowner net stays negative across all of [0,1]
-    # => break-even utilization would be > 1 => out of range => null
-    u = page.evaluate(f"() => {{const s={BASE}; s.overheadPerYearAud=1e12; return window.SunStackEngine.breakevenUtilization(s);}}")
+    # When not financed and homeownerShare is tiny, the fixed hardware amortization
+    # cost exceeds any revenue at utilization ≤ 1 → breakeven is > 1 → null.
+    # Use financed=false so amortized hardware cost is always present;
+    # set homeownerShare very low so revenue never covers hardware cost at u≤1.
+    u = page.evaluate(f"() => {{const s={BASE}; s.financed=false; s.homeownerShare=0.001; return window.SunStackEngine.breakevenUtilization(s);}}")
     assert u is None
 
 def test_hub_layout_bounds_and_count(page):
@@ -152,7 +155,6 @@ def test_fitting_rig_has_nonzero_tps(page):
         energyMix: {free:0.6, solar:0.3, grid:0.1},
         feedInTariff: 3.3, retailRate: 30,
         undercut: 0.2, homeownerShare: 0.55, financed: true,
-        hardwareLifetimeYears: 5, overheadPerYearAud: 60,
         platformCostUsdPerMTok: 0.002
       };
       const fits = E.fits(state.rig, state.modelId, state.quant);
@@ -162,17 +164,16 @@ def test_fitting_rig_has_nonzero_tps(page):
     assert result['ok'], f"Fitting rig has zero tps: fits={result['fits']}, aggServedTps={result['aggServedTps']}"
 
 def test_both_parties_can_be_positive(page):
-    """Default config yields homeowner.netAud > 0 AND operator.marginAud > 0."""
+    """Default config (minimax_m3, mac_studio_m3ultra_256) yields homeowner.netAud > 0 AND operator.marginAud > 0."""
     result = page.evaluate("""() => {
       const E = window.SunStackEngine;
       const state = {
-        rig: ['mac_studio_m3ultra_256'], modelId: 'minimax_m2', quant: 'q4',
+        rig: ['mac_studio_m3ultra_256'], modelId: 'minimax_m3', quant: 'q4',
         poolEfficiency: 0.75, concurrency: 12,
         utilization: 0.4, activeHours: 16,
         energyMix: {free:0.6, solar:0.3, grid:0.1},
         feedInTariff: 3.3, retailRate: 30,
         undercut: 0.2, homeownerShare: 0.55, financed: true,
-        hardwareLifetimeYears: 5, overheadPerYearAud: 60,
         platformCostUsdPerMTok: 0.002, preset: 'neutral'
       };
       const out = E.computeScenario(state);

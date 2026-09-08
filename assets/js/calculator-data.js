@@ -321,10 +321,22 @@ window.SunStackData = (function () {
       url: "https://openrouter.ai/mistralai/mistral-small-2603",
       date: "2026-09"
     },
-    minimax_pricing: {
-      name: "Hugging Face — MiniMax-M2-1 model card",
-      publisher: "MiniMax / HuggingFace",
-      url: "https://huggingface.co/MiniMaxAI/MiniMax-M2-1",
+    minimax_m3_pricing: {
+      name: "OpenRouter — MiniMax M3 pricing (text+image+video MoE 230B/10B)",
+      publisher: "OpenRouter / MiniMax",
+      url: "https://openrouter.ai/minimax/minimax-m3",
+      date: "2026-09"
+    },
+    qwen3_vl_30b_pricing: {
+      name: "OpenRouter — Qwen3-VL 30B-A3B pricing",
+      publisher: "OpenRouter",
+      url: "https://openrouter.ai/qwen/qwen3-vl-30b-a3b",
+      date: "2026-09"
+    },
+    qwen3_vl_235b_pricing: {
+      name: "OpenRouter — Qwen3-VL 235B-A22B pricing",
+      publisher: "OpenRouter",
+      url: "https://openrouter.ai/qwen/qwen3-vl-235b-a22b",
       date: "2026-09"
     },
     deepseek_v4_pricing: {
@@ -567,6 +579,7 @@ window.SunStackData = (function () {
       label: "gpt-oss-20b (MoE 21B/3.6B)",
       minGbQ4: 13,
       activeParamsB: 3.6,
+      multimodal: false,
       priceOutUsdPerM: D(0.20, 0.14, 0.30, "USD/1M", "gpt_oss_20b_pricing", "high"),
       note: "Smallest open-weight reasoning model; fits any node. Native MXFP4. ~o3-mini class. 128K ctx."
     },
@@ -574,13 +587,23 @@ window.SunStackData = (function () {
       label: "Gemma 4 26B-A4B (MoE)",
       minGbQ4: 17,
       activeParamsB: 3.8,
+      multimodal: true,
       priceOutUsdPerM: D(0.34, 0.22, 0.38, "USD/1M", "gemma4_pricing", "high"),
       note: "Google multimodal MoE (text/image/audio/video); fits 24 GB GPU and any UMA node. Apache-2.0. 256K ctx."
+    },
+    qwen3_vl_30b_a3b: {
+      label: "Qwen3-VL 30B-A3B (MoE)",
+      minGbQ4: 19,
+      activeParamsB: 3.0,
+      multimodal: true,
+      priceOutUsdPerM: D(0.50, 0.30, 0.70, "USD/1M", "qwen3_vl_30b_pricing", "low"),
+      note: "Qwen3 visual-language MoE; vision+text, fits 24-32 GB nodes. Price: lower-confidence estimate. 32K ctx."
     },
     qwen36_35b_a3b: {
       label: "Qwen3.6-35B-A3B (MoE)",
       minGbQ4: 22,
       activeParamsB: 3.0,
+      multimodal: false,
       priceOutUsdPerM: D(0.70, 0.70, 1.60, "USD/1M", "qwen36_pricing", "medium"),
       note: "Fast MoE; fits 24-32 GB nodes. 262K ctx, general+coding workhorse. Apache-2.0."
     },
@@ -588,6 +611,7 @@ window.SunStackData = (function () {
       label: "Qwen3-Coder-Next (MoE 80B/3B)",
       minGbQ4: 49,
       activeParamsB: 3.0,
+      multimodal: false,
       priceOutUsdPerM: D(0.80, 0.80, 0.80, "USD/1M", "qwen3_coder_pricing", "high"),
       note: "Dedicated coding MoE; needs 64 GB+ UMA or 2×24 GB GPUs. 256K ctx. 70.6% SWE-bench."
     },
@@ -595,13 +619,15 @@ window.SunStackData = (function () {
       label: "Llama 4 Scout (MoE 109B/17B)",
       minGbQ4: 63,
       activeParamsB: 17,
+      multimodal: true,
       priceOutUsdPerM: D(0.30, 0.30, 0.34, "USD/1M", "llama4_scout_pricing", "high"),
-      note: "Long-context MoE (10M ctx); fits 128 GB UMA. Higher active params → slower decode than 3-5B-active MoEs."
+      note: "Long-context multimodal MoE (10M ctx); fits 128 GB UMA. Higher active params → slower decode than 3-5B-active MoEs."
     },
     gpt_oss_120b: {
       label: "gpt-oss-120b (MoE 117B/5.1B)",
       minGbQ4: 63,
       activeParamsB: 5.1,
+      multimodal: false,
       priceOutUsdPerM: D(0.40, 0.17, 0.60, "USD/1M", "gpt_oss_120b_pricing", "high"),
       note: "OpenAI flagship open-weight MoE. ~o4-mini class. Fits 128 GB UMA. Native MXFP4. 128K ctx."
     },
@@ -609,20 +635,31 @@ window.SunStackData = (function () {
       label: "Mistral Small 4 (MoE 119B/6.5B)",
       minGbQ4: 72,
       activeParamsB: 6.5,
+      multimodal: false,
       priceOutUsdPerM: D(0.60, 0.60, 0.60, "USD/1M", "mistral_small_4_pricing", "high"),
       note: "Vision+reasoning+coding MoE; fits 128 GB UMA, not a single 24 GB GPU. 256K ctx. Apache-2.0."
     },
-    minimax_m2: {
-      label: "MiniMax M2.1 (MoE 230B/10B)",
+    minimax_m3: {
+      label: "MiniMax M3 (MoE 230B/10B, text+image+video)",
       minGbQ4: 130,
       activeParamsB: 10,
-      priceOutUsdPerM: D(1.20, 1.02, 1.20, "USD/1M", "minimax_pricing", "medium"),
-      note: "Large MoE; needs 256 GB Mac Studio or 2-box pool. High revenue ceiling. Open weights."
+      multimodal: true,
+      priceOutUsdPerM: D(0.96, 0.60, 1.20, "USD/1M", "minimax_m3_pricing", "medium"),
+      note: "MiniMax's flagship multimodal MoE (text, image, video). Needs 256 GB Mac Studio or 2-box pool. 'MiniMax H3' is their companion multimodal video generation model."
+    },
+    qwen3_vl_235b_a22b: {
+      label: "Qwen3-VL 235B-A22B (MoE)",
+      minGbQ4: 140,
+      activeParamsB: 22,
+      multimodal: true,
+      priceOutUsdPerM: D(1.50, 0.70, 2.50, "USD/1M", "qwen3_vl_235b_pricing", "low"),
+      note: "Large vision-language MoE; needs 256 GB+ pool. Price: lower-confidence estimate. Open weights."
     },
     deepseek_v4_flash: {
       label: "DeepSeek V4-Flash (MoE 284B/13B)",
       minGbQ4: 175,
       activeParamsB: 13,
+      multimodal: false,
       priceOutUsdPerM: D(0.66, 0.66, 1.32, "USD/1M", "deepseek_v4_pricing", "high"),
       note: "Strong open reasoning MoE; needs dual-box or 192 GB+ Mac Studio. 1M ctx. MIT."
     },
@@ -630,13 +667,15 @@ window.SunStackData = (function () {
       label: "GLM-5.3-Flash (MoE 320B/18B)",
       minGbQ4: 200,
       activeParamsB: 18,
+      multimodal: true,
       priceOutUsdPerM: D(0.50, 0.25, 0.50, "USD/1M", "glm53_pricing", "high"),
-      note: "Newest natively multimodal MoE; needs 2× Spark/Strix or 256-512 GB Mac Studio. 1M ctx. MIT."
+      note: "Natively multimodal MoE; needs 2× Spark/Strix or 256-512 GB Mac Studio. 1M ctx. MIT."
     },
     glm_52: {
       label: "GLM-5.2 (MoE 744B/40B)",
       minGbQ4: 450,
       activeParamsB: 40,
+      multimodal: false,
       priceOutUsdPerM: D(4.40, 1.56, 4.40, "USD/1M", "glm52_pricing", "high"),
       note: "Very large MoE; cluster or 512 GB Mac Studio only. 1M ctx. MIT."
     },
@@ -644,6 +683,7 @@ window.SunStackData = (function () {
       label: "Kimi K2.6 (MoE 1T/32B)",
       minGbQ4: 630,
       activeParamsB: 32,
+      multimodal: false,
       priceOutUsdPerM: D(4.00, 3.39, 4.00, "USD/1M", "kimi_k26_pricing", "medium"),
       note: "Frontier flagship MoE 1T param; multi-node only (4×H100 min). 256K ctx. Modified MIT."
     }
@@ -754,17 +794,16 @@ window.SunStackData = (function () {
       unit: "AUD c/kWh",
       source_id: "canstar_retail", confidence: "high", polarity: "-"
     },
-    hardwareLifetimeYears: {
-      value: 5, low: 3, high: 7,
-      unit: "years",
-      source_id: "messari_akash", confidence: "low", polarity: "+"
-    },
-    overheadPerYearAud: {
-      value: 60, low: 30, high: 200,
-      unit: "AUD/year",
-      source_id: "messari_akash", confidence: "low", polarity: "-"
-    },
   };
+
+  /* ── HARDWARE_LIFETIME_YEARS ─────────────────────────────────────────────────
+   * Fixed hardware amortization period used in financing calculations.
+   * 5 years is a standard enterprise assumption for computing hardware depreciation
+   * (IRS Publication 946 / ATO Tax Ruling IT 2685 use 5 yr for computers).
+   * This is intentionally not a user-adjustable slider — hardware retains
+   * meaningful resale value and a single knob would mislead the projection.
+   */
+  const HARDWARE_LIFETIME_YEARS = 5;
 
   /* ─── cite() ─────────────────────────────────────────────────────────────
    * Returns the SOURCES entry for id; throws if not found.
@@ -781,5 +820,5 @@ window.SunStackData = (function () {
    */
   const FX_AUD_PER_USD = 1.39;
 
-  return { SOURCES, DEVICES, MODELS, QUANT_MULT, QUANT_BYTES, EFF, ENERGY_PRESETS, INPUT_DEFAULTS, FX_AUD_PER_USD, cite };
+  return { SOURCES, DEVICES, MODELS, QUANT_MULT, QUANT_BYTES, EFF, ENERGY_PRESETS, INPUT_DEFAULTS, FX_AUD_PER_USD, HARDWARE_LIFETIME_YEARS, cite };
 })();

@@ -151,13 +151,15 @@ window.SunStackEngine = (function () {
         * effEnergyPriceAudPerKwh(state)
       : 0;
 
-    const amortAll = rigCostAud / state.hardwareLifetimeYears;
+    const amortAll = rigCostAud / D.HARDWARE_LIFETIME_YEARS;
     // financed = operator covers hardware; homeowner's book entry = 0
     const amortizedHardwareAud = state.financed ? 0 : amortAll;
-    const overheadAud          = state.overheadPerYearAud;
+    // overhead: marginal overhead for a home node is negligible (homeowner already
+    // has internet); no longer a user-adjustable input — treated as zero.
+    const overheadAud = 0;
 
     const shareAud     = grossRevenueAud * state.homeownerShare;
-    const homeownerNet = shareAud - energyCostAud - amortizedHardwareAud - overheadAud;
+    const homeownerNet = shareAud - energyCostAud - amortizedHardwareAud;
 
     // ── Operator ───────────────────────────────────────────────────────────
     const platformCostAud  = tokensPerYear * (state.platformCostUsdPerMTok / 1e6) * fx;

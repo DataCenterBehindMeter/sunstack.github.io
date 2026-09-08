@@ -24,7 +24,7 @@ def test_state_initialized(page):
     rig = page.evaluate("() => window.SunStackUI.state.rig")
     assert rig == ["mac_studio_m3ultra_256"]
     model_id = page.evaluate("() => window.SunStackUI.state.modelId")
-    assert model_id == "minimax_m2"
+    assert model_id == "minimax_m3"
 
 
 def test_render_exposed(page):
@@ -91,11 +91,11 @@ def test_rig_summary_present(page):
 
 def test_fits_badge_no_fit(page):
     """After removing default device and adding only mac_mini_m4_16 (16 GB),
-    minimax_m2 (130 GB Q4) doesn't fit."""
+    minimax_m3 (130 GB Q4) doesn't fit."""
     # Remove the default mac_studio_m3ultra_256 node first
     page.click("#rig-svg .rig-node")
-    # Set model to minimax_m2 which needs 130 GB — won't fit in 16 GB
-    page.evaluate("() => { window.SunStackUI.state.modelId = 'minimax_m2'; window.SunStackUI.render(); }")
+    # Set model to minimax_m3 which needs 130 GB — won't fit in 16 GB
+    page.evaluate("() => { window.SunStackUI.state.modelId = 'minimax_m3'; window.SunStackUI.render(); }")
     page.click("button[data-add-device='mac_mini_m4_16']")
     summary_text = page.inner_text("#rig-summary").lower()
     # should show a 'no fit' indicator
@@ -103,7 +103,7 @@ def test_fits_badge_no_fit(page):
 
 
 def test_fits_badge_fit(page):
-    """Default rig (mac_studio_m3ultra_256, 256 GB) fits minimax_m2 (130 GB Q4) — badge shows fits."""
+    """Default rig (mac_studio_m3ultra_256, 256 GB) fits minimax_m3 (130 GB Q4) — badge shows fits."""
     summary_text = page.inner_text("#rig-summary")
     assert "fit" in summary_text.lower() or "✓" in summary_text
 
@@ -243,8 +243,8 @@ def test_model_gating_large_models_disabled_for_small_rig(page):
     page.click("button[data-add-device='mac_mini_m4_16']")
     # gpt_oss_120b needs 63 GB — disabled for 16 GB rig
     assert page.get_attribute("#model-select option[value='gpt_oss_120b']", "disabled") is not None
-    # minimax_m2 needs 130 GB — also disabled
-    assert page.get_attribute("#model-select option[value='minimax_m2']", "disabled") is not None
+    # minimax_m3 needs 130 GB — also disabled
+    assert page.get_attribute("#model-select option[value='minimax_m3']", "disabled") is not None
     # kimi_k26 needs 630 GB — also disabled
     assert page.get_attribute("#model-select option[value='kimi_k26']", "disabled") is not None
 
@@ -260,11 +260,11 @@ def test_model_gating_enabled_for_big_rig(page):
     # Set up a tiny 16 GB rig
     page.click("#rig-svg .rig-node")   # remove default mac_studio_m3ultra_256
     page.click("button[data-add-device='mac_mini_m4_16']")
-    # minimax_m2 (130 GB) disabled for 16 GB rig
-    assert page.get_attribute("#model-select option[value='minimax_m2']", "disabled") is not None
-    # Add DGX Spark (128 GB) → pool = 16 + 128 = 144 GB → minimax_m2 (130 GB) fits
+    # minimax_m3 (130 GB) disabled for 16 GB rig
+    assert page.get_attribute("#model-select option[value='minimax_m3']", "disabled") is not None
+    # Add DGX Spark (128 GB) → pool = 16 + 128 = 144 GB → minimax_m3 (130 GB) fits
     page.click("button[data-add-device='dgx_spark']")
-    disabled_after = page.get_attribute("#model-select option[value='minimax_m2']", "disabled")
+    disabled_after = page.get_attribute("#model-select option[value='minimax_m3']", "disabled")
     assert disabled_after is None
 
 

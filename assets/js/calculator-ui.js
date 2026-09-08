@@ -12,7 +12,7 @@ window.SunStackUI = (function () {
   /* ── State ──────────────────────────────────────────────────────────────── */
   const state = {
     rig: ['mac_studio_m3ultra_256'],
-    modelId:  'minimax_m2',
+    modelId:  'minimax_m3',
     quant:    'q4',
 
     // uncertainty inputs — seeded from INPUT_DEFAULTS typical values
@@ -21,8 +21,6 @@ window.SunStackUI = (function () {
     activeHours:             ID.activeHours.value,
     feedInTariff:            ID.feedInTariff.value,
     retailRate:              ID.retailRate.value,
-    hardwareLifetimeYears:   ID.hardwareLifetimeYears.value,
-    overheadPerYearAud:      ID.overheadPerYearAud.value,
 
     // energy mix (fractions sum to 1; default: 60% free/off-peak, 30% solar, 10% grid)
     energyMix: { free: 0.6, solar: 0.3, grid: 0.1 },
@@ -57,9 +55,7 @@ window.SunStackUI = (function () {
     activeHours:           'Active hours/day',
     poolEfficiency:        'Pool efficiency',
     feedInTariff:          'Solar feed-in (c/kWh)',
-    retailRate:            'Grid retail (c/kWh)',
-    hardwareLifetimeYears: 'Hardware lifetime (yr)',
-    overheadPerYearAud:    'Overhead (A$/yr)'
+    retailRate:            'Grid retail (c/kWh)'
   };
 
   /* ── Helpers ────────────────────────────────────────────────────────────── */
@@ -223,21 +219,31 @@ window.SunStackUI = (function () {
       'aria-label': 'PAIR hub rig diagram'
     });
 
-    // Hub node
+    // Hub node — wrapped in an SVG <a> so it links to the NVIDIA PAIR product page
+    const hubAnchor = svgEl('a', {
+      href:             'https://www.nvidia.com/en-au/ai-on-rtx/personal-ai-router/',
+      target:           '_blank',
+      rel:              'noopener',
+      'aria-label':     'NVIDIA PAIR — Personal AI Router',
+      style:            'cursor:pointer'
+    });
     const hubG = svgEl('g', { class: 'pair-hub' });
     const hubCircle = svgEl('circle', {
-      cx: HUB_CX, cy: HUB_CY, r: HUB_R
+      cx: HUB_CX, cy: HUB_CY, r: HUB_R,
+      style: 'cursor:pointer'
     });
     const hubLabel = svgEl('text', {
       x: HUB_CX, y: HUB_CY + 5,
       'text-anchor': 'middle',
       'font-size':   '12',
-      'font-weight': '600'
+      'font-weight': '600',
+      style:         'pointer-events:none'
     });
     hubLabel.textContent = 'PAIR';
     hubG.appendChild(hubCircle);
     hubG.appendChild(hubLabel);
-    svg.appendChild(hubG);
+    hubAnchor.appendChild(hubG);
+    svg.appendChild(hubAnchor);
 
     // Device nodes
     const positions = E.hubLayout(state.rig.length, SVG_W, SVG_H);
@@ -450,12 +456,21 @@ window.SunStackUI = (function () {
     for (const [id, model] of Object.entries(D.MODELS)) {
       const opt = document.createElement('option');
       opt.value = id;
-      opt.textContent = model.label;
-      if (id === state.modelId) opt.selected = true;
-      if (!E.fits(state.rig, id, state.quant)) {
+      const mmPrefix = model.multimodal ? '◈ ' : '';
+      const isFit = E.fits(state.rig, id, state.quant);
+      if (isFit) {
+        opt.textContent = mmPrefix + model.label;
+      } else {
+        const poolGb = E.poolMemoryGb(state.rig);
+        const needGb = E.modelMinGb(id, state.quant);
+        const reason = state.rig.length === 0
+          ? '— add a device first'
+          : '— needs ' + needGb + ' GB (pool ' + poolGb + ' GB)';
+        opt.textContent = mmPrefix + model.label + ' ' + reason;
         opt.disabled = true;
         opt.setAttribute('disabled', '');
       }
+      if (id === state.modelId) opt.selected = true;
       modelSelect.appendChild(opt);
     }
 
@@ -470,6 +485,12 @@ window.SunStackUI = (function () {
     modelGroup.appendChild(modelLabel);
     modelGroup.appendChild(modelSelect);
     modelRow.appendChild(modelGroup);
+
+    // Legend note for multimodal marker (below the select)
+    const mmLegend = document.createElement('div');
+    mmLegend.className = 'model-mm-legend';
+    mmLegend.textContent = '◈ = multimodal (text + image/video)';
+    modelRow.appendChild(mmLegend);
 
     // Quant select
     const quantLabel = document.createElement('label');
