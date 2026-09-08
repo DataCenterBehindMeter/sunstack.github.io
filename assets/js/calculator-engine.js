@@ -156,6 +156,34 @@ window.SunStackEngine = (function () {
     };
   }
 
+  const UNCERTAINTY_INPUT_IDS = Object.keys(D.INPUT_DEFAULTS);
+
+  function applyPreset(state, mode) {
+    const s = JSON.parse(JSON.stringify(state));
+    s.preset = mode;
+    if (mode === "neutral" || mode === "custom") {
+      UNCERTAINTY_INPUT_IDS.forEach(id => { s[id] = D.INPUT_DEFAULTS[id].value; });
+      return s;
+    }
+    UNCERTAINTY_INPUT_IDS.forEach(id => {
+      const d = D.INPUT_DEFAULTS[id];
+      const favorableHigh = d.polarity === "+";
+      const optimistic = mode === "optimistic";
+      s[id] = (optimistic === favorableHigh) ? d.high : d.low;
+    });
+    return s;
+  }
+
+  // net is linear in utilization: net(u) = A*u - B  => breakeven u* = B/A
+  function breakevenUtilization(state) {
+    const at = (u) => { const s = Object.assign({}, state, { utilization: u }); return computeScenario(s).homeowner.netAud; };
+    const n0 = at(0), n1 = at(1);
+    const A = n1 - n0;
+    if (A === 0) return null;
+    const u = -n0 / A;
+    return (u >= 0 && u <= 1) ? u : null;
+  }
+
   return {
     SECONDS_PER_YEAR,
     poolMemoryGb,
@@ -164,6 +192,9 @@ window.SunStackEngine = (function () {
     deviceModelTokps,
     aggThroughputTps,
     effEnergyPriceAudPerKwh,
-    computeScenario
+    computeScenario,
+    applyPreset,
+    breakevenUtilization,
+    UNCERTAINTY_INPUT_IDS
   };
 })();

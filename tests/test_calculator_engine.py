@@ -62,3 +62,28 @@ def test_financed_moves_hardware_off_homeowner(page):
     fin = calc(page, "s.financed=true")["homeowner"]["amortizedHardwareAud"]
     own = calc(page, "s.financed=false")["homeowner"]["amortizedHardwareAud"]
     assert fin == 0 and own > 0
+
+def test_preset_sets_uncertainty_by_polarity(page):
+    # optimistic: utilization -> high (polarity +), feedInTariff -> low (polarity -)
+    r = page.evaluate(f"""() => {{
+      const s = {BASE};
+      const o = window.SunStackEngine.applyPreset(s, 'optimistic');
+      const D = window.SunStackData.INPUT_DEFAULTS;
+      return [o.utilization, D.utilization.high, o.feedInTariff, D.feedInTariff.low];
+    }}""")
+    assert r[0] == r[1] and r[2] == r[3]
+
+def test_preset_holds_strategy_inputs(page):
+    r = page.evaluate(f"() => {{ const s={BASE}; s.undercut=0.42; s.homeownerShare=0.6; const o=window.SunStackEngine.applyPreset(s,'optimistic'); return [o.undercut,o.homeownerShare]; }}")
+    assert r == [0.42, 0.6]
+
+def test_optimistic_beats_pessimistic(page):
+    hi = page.evaluate(f"() => {{const s={BASE}; return window.SunStackEngine.computeScenario(window.SunStackEngine.applyPreset(s,'optimistic')).homeowner.netAud;}}")
+    lo = page.evaluate(f"() => {{const s={BASE}; return window.SunStackEngine.computeScenario(window.SunStackEngine.applyPreset(s,'pessimistic')).homeowner.netAud;}}")
+    assert hi > lo
+
+def test_breakeven_zeroes_net(page):
+    u = page.evaluate(f"() => {{const s={BASE}; return window.SunStackEngine.breakevenUtilization(s);}}")
+    if u is not None:
+        net = page.evaluate(f"() => {{const s={BASE}; s.utilization={u}; return window.SunStackEngine.computeScenario(s).homeowner.netAud;}}")
+        assert abs(net) < 1.0
