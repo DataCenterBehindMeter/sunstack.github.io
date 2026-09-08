@@ -329,8 +329,46 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 12 · BENEFITS: BUYERS =============================== -->
-  <section class="tile t-light" id="tile-12" data-surface="light" aria-label="Benefits for buyers">
+  <!-- 12 · BUSINESS MODEL TEASER ========================== -->
+  <section class="tile t-light" id="tile-12" data-surface="light" aria-label="The business model">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">The business model</span>
+      <h2 class="h" data-anim style="--i:1">Three parties. Everyone better off.</h2>
+      <p class="lead" data-anim style="--i:2;margin-top:16px;max-width:70ch">
+        The economics are simple: cheap solar energy in, useful AI work out, and three groups share what's left.
+      </p>
+      <div class="cards three" style="margin-top:30px">
+        <div class="card" data-anim style="--i:3">
+          <div class="knum amber">Homeowner</div>
+          <h3>A new income</h3>
+          <p>Spare solar and battery energy runs the financed box. No upfront cost — the earnings pay it off.</p>
+        </div>
+        <div class="card" data-anim style="--i:4">
+          <div class="knum amber">Buyer</div>
+          <h3>Lower prices</h3>
+          <p>Australian-hosted AI at less than competing cloud rates — and data never leaves home soil.</p>
+        </div>
+        <div class="card" data-anim style="--i:5">
+          <div class="knum amber">SunStack + university</div>
+          <h3>A defensible business</h3>
+          <p>Recurring compute revenue from a network no overseas rival can replicate — and live research data from every node.</p>
+        </div>
+      </div>
+      <p class="lead" data-anim style="--i:6;margin-top:28px;max-width:70ch">
+        Every number in this model is sourced and auditable. A GPU node at neutral assumptions earns ~A$1,900/yr;
+        a modestly-specced compute node a more modest new income — see exactly how much, and what moves it.
+        <!-- Computed from SunStackEngine.computeScenario with applyPreset(state,'neutral'):
+             gpu_4090 + qwen32b, 100% grid, neutral = A$1,857/yr net.
+             DGX Spark + gpt_oss_120b, neutral, 60% solar = A$113/yr net. -->
+      </p>
+      <div data-anim style="--i:7;margin-top:22px">
+        <a class="btn" href="calculator.html">Explore the revenue calculator →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 · BENEFITS: BUYERS =============================== -->
+  <section class="tile t-light" id="tile-13" data-surface="light" aria-label="Benefits for buyers">
     <div class="tile-inner">
       <div class="split">
         <div class="copy">
@@ -360,8 +398,8 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 13 · BENEFITS: SOCIETY & UNIVERSITY (merged) ======== -->
-  <section class="tile t-dark" id="tile-13" data-surface="dark" aria-label="Benefits for society and the university">
+  <!-- 14 · BENEFITS: SOCIETY & UNIVERSITY (merged) ======== -->
+  <section class="tile t-dark" id="tile-14" data-surface="dark" aria-label="Benefits for society and the university">
     <div class="tile-inner wide">
       <span class="eyebrow" data-anim style="--i:0">Who wins · 3 of 3</span>
       <h2 class="h" data-anim style="--i:1;color:#fff">For SunStack, the university, and the country.</h2>
@@ -386,8 +424,8 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 14 · ROADMAP ======================================= -->
-  <section class="tile t-parchment" id="tile-14" data-surface="light" aria-label="What's next">
+  <!-- 15 · ROADMAP ======================================= -->
+  <section class="tile t-parchment" id="tile-15" data-surface="light" aria-label="What's next">
     <div class="tile-inner wide">
       <span class="eyebrow" data-anim style="--i:0">What’s next</span>
       <h2 class="h" data-anim style="--i:1">Where we take it from here.</h2>
@@ -432,8 +470,8 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 15 · THANK YOU ===================================== -->
-  <section class="tile t-dark thanks" id="tile-15" data-surface="dark" aria-label="Thank you">
+  <!-- 16 · THANK YOU ===================================== -->
+  <section class="tile t-dark thanks" id="tile-16" data-surface="dark" aria-label="Thank you">
     <div class="scrim" style="background:radial-gradient(1000px 560px at 50% 120%, rgba(232,147,42,.26), transparent 60%)"></div>
     <div class="tile-inner narrow">
       <svg class="sunmark" viewBox="0 0 100 100" aria-hidden="true" data-anim style="--i:0;margin:0 auto 26px">

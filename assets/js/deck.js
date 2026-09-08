@@ -18,8 +18,8 @@
     { name: "Why now", start: 3 },       // the gap, why Australia
     { name: "How it works", start: 5 },  // three parties, network, node
     { name: "Prototype", start: 8 },     // buyer demo, operator console
-    { name: "Who wins", start: 11 },     // homeowners, buyers, society+university
-    { name: "The plan", start: 14 }      // roadmap, thank-you
+    { name: "Who wins", start: 12 },     // business-model teaser, homeowners, buyers, society+university
+    { name: "The plan", start: 15 }      // roadmap, thank-you
   ];
   function sectionForTile(n) {
     var idx = 0;

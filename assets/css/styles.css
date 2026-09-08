@@ -575,3 +575,10 @@ h3.h { font-size: clamp(20px, 2vw, 26px); font-weight: 700; }
 .skip { position: fixed; left: -999px; top: 8px; z-index: 300; background: #fff; color: var(--ink); padding: 10px 16px; border-radius: var(--r-sm); box-shadow: var(--shadow); }
 .skip:focus { left: 8px; }
 :focus-visible { outline: 2px solid var(--amber-strong); outline-offset: 3px; border-radius: 4px; }
+
+/* deck CTA button */
+.btn { display: inline-block; padding: 13px 28px; border-radius: var(--r-pill); background: var(--amber); color: #fff; font-weight: 700; font-size: clamp(14px, 1.3vw, 16px); letter-spacing: -0.01em; text-decoration: none; transition: background .15s, transform .1s; }
+.btn:hover { background: var(--amber-strong); }
+.btn:active { transform: scale(.97); }
+.t-dark .btn { background: var(--gold); color: var(--dark-1); }
+.t-dark .btn:hover { background: #d4941e; }
