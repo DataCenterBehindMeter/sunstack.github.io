@@ -56,8 +56,8 @@ The `state` object (single source of truth, owned by `calculator-ui.js`):
   DEVICES,        // { id: { label, uma:bool, priceUsd:{low,typical,high,source_id,confidence},
                   //        memoryGb, memBandwidthGbs, idleW, loadW:{low,typical,high,...} } }
   MODELS,         // { id: { label, minGbQ4, minGbQ8, minGbFp16,
-                  //        priceOutUsdPerM:{low,typical,high,source_id,confidence},
-                  //        cloudRefUsdPerM:{...}, note } }
+                  //        priceOutUsdPerM:{low,typical,high,source_id,confidence}, note } }
+                  //   priceOutUsdPerM = the model's going market rate = the buyer's cloud alternative.
   THROUGHPUT,     // { deviceId: { modelId: { single:tps, batched:tps, source_id, confidence, estimated:bool } } }
   ENERGY_PRESETS, // { state_code: { label, feedInTariff, retailRate, source_id } }
   INPUT_DEFAULTS, // { inputId: { value, low, high, unit, source_id, confidence, polarity } }  // polarity "+"/"-"
@@ -239,7 +239,7 @@ cd website && git add calculator.html assets/js/calculator-data.js assets/js/cal
 
 **Data transcription rules:** For every value, copy `typical` (and `low`/`high` where present) and the `source_url`+`source_name`+`confidence` from the matching row in `research-dataset.json`. Use these ids:
 - DEVICES (id → dataset keys): `dgx_spark` (price `dgx_spark_msrp_current`→4699, mem 128, bw 273, load `dgx_spark_load_power`→{100,120,143}, idle ~30, uma true); `strix_halo` (price ~ {1800,2000,2600} from `strix_halo`/`gmktec_evox2_128gb_price`, mem 128, bw 256, load {147,165,180}, idle ~20, uma true); `mac_studio_m4max_36`, `mac_studio_m4max_128`, `mac_studio_m3ultra_96`, `mac_studio_m3ultra_256`, `mac_studio_m3ultra_512` (prices/mem/bw/power from `mac_studio` rows; uma true); `mac_mini_m4_16`, `mac_mini_m4_24`, `mac_mini_m4_32`, `mac_mini_m4pro_48`, `mac_mini_m4pro_64` (from `mac_mini` rows; uma true); `gpu_4090` (card+host ≈ USD {2200,2500,2800}, VRAM 24, bw 1008, system load {500,550,600}, uma **false**); `gpu_5090` (≈ USD {4500,5000,5500}, VRAM 32, bw 1792, load {575,625,700}, uma **false**). For non-UMA, `memoryGb` = VRAM.
-- MODELS (id → `minGbQ4`, `priceOutUsdPerM` from `*_output` token rows, `cloudRefUsdPerM` from `ref_*`): `llama31_8b` (5 GB; out {0.05,0.10,0.20}; ref gpt4o_mini 0.60); `qwen32b` (20; out {0.20,0.28,0.90}; ref 0.60); `llama33_70b` (40; out {0.32,0.40,1.04}; ref 0.60); `qwen72b` (42; out {0.40,0.40,0.90}; ref 0.60); `gpt_oss_120b` (64; out {0.17,0.25,0.60}; ref gpt4o_mini 0.60); `deepseek_v3` (380; out {0.25,0.89,1.25}; ref claude_haiku 4.00). `minGbQ8 = minGbQ4*1.9`, `minGbFp16 = minGbQ4*3.6` (documented rule; note on MODELS).
+- MODELS (id → `minGbQ4`, `priceOutUsdPerM` from `*_output` token rows = the model's going market rate): `llama31_8b` (5 GB; out {0.05,0.10,0.20}); `qwen32b` (20; out {0.20,0.28,0.90}); `llama33_70b` (40; out {0.32,0.40,1.04}); `qwen72b` (42; out {0.40,0.40,0.90}); `gpt_oss_120b` (64; out {0.17,0.25,0.60}); `deepseek_v3` (380; out {0.25,0.89,1.25}). `minGbQ8 = minGbQ4*1.9`, `minGbFp16 = minGbQ4*3.6` (documented rule; note on MODELS). The frontier refs `ref_gpt4o_mini`/`ref_claude_haiku` are shown as context in the Assumptions table only (Task 8), not used in the pricing math.
 - THROUGHPUT (measured, from `tput_*` rows; `{single, batched, estimated:false}`): seed at least — `dgx_spark`: `llama31_8b {38,368}`, `qwen32b {11,40 est}`, `llama33_70b {2.7,12 est}`, `gpt_oss_120b {60,130}`; `strix_halo`: `llama31_8b {42,80 est}`, `qwen32b {13,30 est}`, `llama33_70b {5,10 est}`, `gpt_oss_120b {31,60 est}`; `mac_studio_m3ultra_256`/`_512`: `llama33_70b {16,40 est}`, `qwen32b {34,90 est}`, `llama31_8b {114,300 est}`; `mac_mini_m4pro_64`: `llama31_8b {42,90 est}`, `qwen32b {12,30 est}`; `gpu_4090`: `llama31_8b {95,2770}`, `qwen32b {30,2259}`; `gpu_5090`: `llama31_8b {150,3500}`, `qwen32b {45,4570}`. Mark any value not directly in the dataset `estimated:true` + `confidence:"low"`.
 - ENERGY_PRESETS: `VIC {1.1,26.4}`, `NSW {5,33}`, `QLD {5,24}`, `SA {5,40}`, `WA {2.25,34}`, `national {3.3,30}` (AUD c/kWh, from `au_energy` rows).
 - INPUT_DEFAULTS with polarity (optimistic bound for homeowner): `utilization {0.20,0.40,0.65,"+"}`, `activeHours {5,8,10,"+"}`, `poolEfficiency {0.6,0.75,0.9,"+"}`, `feedInTariff {1.1,3.3,10,"-"}`, `retailRate {24,30,45,"-"}`, `batteryCost {5,8,15,"-"}`, `hardwareLifetimeYears {3,4,6,"+"}`, `overheadPerYearAud {80,150,300,"-"}`, `fxAudPerUsd {1.45,1.53,1.65,"+"}`. (Strategy inputs `undercut, homeownerShare, financed, platformCostUsdPerMTok, energyMix, modelId, quant, rig` have NO polarity and are absent here.)
@@ -265,7 +265,7 @@ def test_every_source_id_resolves(page):
       const D = window.SunStackData, bad = [];
       const check = (o) => { if (o && o.source_id && !D.SOURCES[o.source_id]) bad.push(o.source_id); };
       Object.values(D.DEVICES).forEach(d => { check(d.priceUsd); check(d.loadW); });
-      Object.values(D.MODELS).forEach(m => { check(m.priceOutUsdPerM); check(m.cloudRefUsdPerM); });
+      Object.values(D.MODELS).forEach(m => { check(m.priceOutUsdPerM); });
       Object.values(D.INPUT_DEFAULTS).forEach(check);
       return bad;
     })()""")
@@ -319,7 +319,6 @@ window.SunStackData = (function () {
   const MODELS = {
     gpt_oss_120b: { label: "gpt-oss-120B (MoE)", minGbQ4: 64,
       priceOutUsdPerM: D(0.25, 0.17, 0.60, "USD/1M", "tok_gptoss", "high"),
-      cloudRefUsdPerM: D(0.60, 0.60, 0.60, "USD/1M", "tok_ref_4omini", "high"),
       note: "Open MoE; MXFP4 weights ~64 GB." },
     // …llama31_8b, qwen32b, llama33_70b, qwen72b, deepseek_v3…
     _quantRule: { q8: 1.9, fp16: 3.6 }
@@ -415,7 +414,7 @@ def test_net_increases_with_utilization(page):
 
 def test_buyer_saves_equals_tokens_times_gap(page):
     o = calc(page)
-    # saves == tokens * cloudRef*undercut converted to AUD, and savePct ~ undercut
+    # saves == tokens * market*undercut converted to AUD, and savePct == undercut
     assert abs(o["buyer"]["savePct"] - 0.30) < 1e-6
     assert o["buyer"]["savesAud"] > 0
 
@@ -488,8 +487,9 @@ window.SunStackEngine = (function () {
     const tokensPerYear = okFit ? aggTokps * 3600 * state.activeHours * 365 * state.utilization : 0;
 
     const model = D.MODELS[state.modelId];
-    const sunstackPriceUsdPerTok = (model.priceOutUsdPerM.typical * (1 - state.undercut)) / 1e6;
-    const cloudPriceUsdPerTok = model.cloudRefUsdPerM.typical / 1e6;
+    const marketPriceUsdPerTok = model.priceOutUsdPerM.typical / 1e6;      // going market rate for THIS model = buyer's cloud alternative
+    const sunstackPriceUsdPerTok = marketPriceUsdPerTok * (1 - state.undercut);
+    const cloudPriceUsdPerTok = marketPriceUsdPerTok;                       // => buyer saves = tokens*market*undercut, savePct == undercut
     const grossRevenueAud = tokensPerYear * sunstackPriceUsdPerTok * fx;
 
     // energy
