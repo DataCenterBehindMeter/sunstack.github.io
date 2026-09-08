@@ -212,3 +212,136 @@
   background: #fbe9e7;
   color: #bf360c;
 }
+
+/* ── Panels ───────────────────────────────────────────────────────────────── */
+.panels-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-bottom: 32px;
+}
+
+.panel-section {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.panel-section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+/* ── Preset toggle ─────────────────────────────────────────────────────────── */
+.preset-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.preset-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--canvas);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--body);
+  transition: border-color 0.15s var(--ease), background 0.15s var(--ease);
+}
+
+.preset-btn:hover {
+  border-color: var(--amber);
+}
+
+.preset-btn.active {
+  border-color: var(--amber);
+  background: var(--amber-soft);
+  color: var(--amber-strong);
+  font-weight: 700;
+}
+
+.preset-state-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ── Model / quant row ─────────────────────────────────────────────────────── */
+.model-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 160px;
+}
+
+.control-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--body);
+}
+
+.calc-select {
+  padding: 7px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--canvas);
+  font-size: 0.85rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.calc-select:focus {
+  outline: none;
+  border-color: var(--amber);
+}
+
+/* ── Slider grid ───────────────────────────────────────────────────────────── */
+.slider-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--body);
+  cursor: default;
+}
+
+.slider-val {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--amber-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.slider-group input[type="range"] {
+  width: 100%;
+  accent-color: var(--amber);
+  cursor: pointer;
+}

@@ -273,6 +273,304 @@ window.SunStackUI = (function () {
     root.appendChild(summary);
   }
 
+  /* ── Panels (input controls) ─────────────────────────────────────────────
+   * Renders into #panels: preset toggle, model/quant selects, uncertainty
+   * sliders, energy-mix sliders.
+   * Called from render() via window.SunStackUI._renderPanels.
+   */
+  function renderPanels() {
+    const root = document.getElementById('panels');
+    if (!root) return;
+
+    // ── Auto-fallback: if current model doesn't fit, pick the largest that does ──
+    if (!E.fits(state.rig, state.modelId, state.quant)) {
+      const sorted = Object.entries(D.MODELS)
+        .sort((a, b) => b[1].minGbQ4 - a[1].minGbQ4);
+      for (const [id] of sorted) {
+        if (E.fits(state.rig, id, state.quant)) {
+          state.modelId = id;
+          break;
+        }
+      }
+      // If none fit (empty rig or all exceed), leave unchanged
+    }
+
+    root.innerHTML = '';
+
+    // ── Section wrapper ────────────────────────────────────────────────────
+    const wrap = document.createElement('div');
+    wrap.className = 'panels-wrap';
+
+    // ── Preset toggle ──────────────────────────────────────────────────────
+    const presetSection = document.createElement('div');
+    presetSection.className = 'panel-section preset-section';
+
+    const presetTitle = document.createElement('h2');
+    presetTitle.className = 'panel-section-title';
+    presetTitle.textContent = 'Scenario';
+    presetSection.appendChild(presetTitle);
+
+    const presetRow = document.createElement('div');
+    presetRow.className = 'preset-row';
+
+    ['pessimistic', 'neutral', 'optimistic'].forEach(mode => {
+      const btn = document.createElement('button');
+      btn.dataset.preset = mode;
+      btn.className = 'preset-btn' + (state.preset === mode ? ' active' : '');
+      btn.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+      btn.addEventListener('click', () => {
+        Object.assign(state, E.applyPreset(state, mode));
+        render();
+      });
+      presetRow.appendChild(btn);
+    });
+
+    presetSection.appendChild(presetRow);
+
+    const presetState = document.createElement('span');
+    presetState.id = 'preset-state';
+    presetState.className = 'preset-state-label';
+    const displayPreset = (['pessimistic', 'neutral', 'optimistic'].includes(state.preset))
+      ? state.preset.charAt(0).toUpperCase() + state.preset.slice(1)
+      : 'Custom';
+    presetState.textContent = displayPreset;
+    presetSection.appendChild(presetState);
+
+    wrap.appendChild(presetSection);
+
+    // ── Model + Quant selects ──────────────────────────────────────────────
+    const modelSection = document.createElement('div');
+    modelSection.className = 'panel-section model-section';
+
+    const modelTitle = document.createElement('h2');
+    modelTitle.className = 'panel-section-title';
+    modelTitle.textContent = 'Model';
+    modelSection.appendChild(modelTitle);
+
+    const modelRow = document.createElement('div');
+    modelRow.className = 'model-row';
+
+    // Model select
+    const modelLabel = document.createElement('label');
+    modelLabel.setAttribute('for', 'model-select');
+    modelLabel.className = 'control-label';
+    modelLabel.textContent = 'Model';
+
+    const modelSelect = document.createElement('select');
+    modelSelect.id = 'model-select';
+    modelSelect.className = 'calc-select';
+
+    for (const [id, model] of Object.entries(D.MODELS)) {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = model.label;
+      if (id === state.modelId) opt.selected = true;
+      if (!E.fits(state.rig, id, state.quant)) {
+        opt.disabled = true;
+        opt.setAttribute('disabled', '');
+      }
+      modelSelect.appendChild(opt);
+    }
+
+    modelSelect.addEventListener('change', () => {
+      state.modelId = modelSelect.value;
+      state.preset = 'custom';
+      render();
+    });
+
+    const modelGroup = document.createElement('div');
+    modelGroup.className = 'control-group';
+    modelGroup.appendChild(modelLabel);
+    modelGroup.appendChild(modelSelect);
+    modelRow.appendChild(modelGroup);
+
+    // Quant select
+    const quantLabel = document.createElement('label');
+    quantLabel.setAttribute('for', 'quant-select');
+    quantLabel.className = 'control-label';
+    quantLabel.textContent = 'Quantization';
+
+    const quantSelect = document.createElement('select');
+    quantSelect.id = 'quant-select';
+    quantSelect.className = 'calc-select';
+
+    [
+      { value: 'q4',  label: 'Q4 (4-bit)' },
+      { value: 'q8',  label: 'Q8 (8-bit)' },
+      { value: 'fp16', label: 'FP16 (half)' }
+    ].forEach(({ value, label }) => {
+      const opt = document.createElement('option');
+      opt.value = value;
+      opt.textContent = label;
+      if (value === state.quant) opt.selected = true;
+      quantSelect.appendChild(opt);
+    });
+
+    quantSelect.addEventListener('change', () => {
+      state.quant = quantSelect.value;
+      state.preset = 'custom';
+      render();
+    });
+
+    const quantGroup = document.createElement('div');
+    quantGroup.className = 'control-group';
+    quantGroup.appendChild(quantLabel);
+    quantGroup.appendChild(quantSelect);
+    modelRow.appendChild(quantGroup);
+
+    modelSection.appendChild(modelRow);
+    wrap.appendChild(modelSection);
+
+    // ── Uncertainty sliders ────────────────────────────────────────────────
+    const sliderSection = document.createElement('div');
+    sliderSection.className = 'panel-section slider-section';
+
+    const sliderTitle = document.createElement('h2');
+    sliderTitle.className = 'panel-section-title';
+    sliderTitle.textContent = 'Assumptions';
+    sliderSection.appendChild(sliderTitle);
+
+    const sliderGrid = document.createElement('div');
+    sliderGrid.className = 'slider-grid';
+
+    const LABELS = {
+      utilization:           'Utilization',
+      activeHours:           'Active hours/day',
+      poolEfficiency:        'Pool efficiency',
+      feedInTariff:          'Solar feed-in (c/kWh)',
+      retailRate:            'Grid retail (c/kWh)',
+      batteryCost:           'Battery cost (c/kWh)',
+      hardwareLifetimeYears: 'Hardware lifetime (yr)',
+      overheadPerYearAud:    'Overhead (A$/yr)',
+      fxAudPerUsd:           'AUD/USD rate'
+    };
+
+    E.UNCERTAINTY_INPUT_IDS.forEach(inputId => {
+      const def = D.INPUT_DEFAULTS[inputId];
+      const currentVal = state[inputId];
+
+      const group = document.createElement('div');
+      group.className = 'slider-group';
+
+      const label = document.createElement('label');
+      label.setAttribute('for', 'in-' + inputId);
+      label.className = 'slider-label';
+
+      const labelText = document.createElement('span');
+      labelText.textContent = LABELS[inputId] || inputId;
+
+      const valDisplay = document.createElement('span');
+      valDisplay.className = 'slider-val';
+      valDisplay.id = 'val-' + inputId;
+      valDisplay.textContent = Number(currentVal).toFixed(
+        def.unit === 'fraction' ? 2 : (def.unit === 'AUD/USD' ? 2 : (Number.isInteger(def.value) ? 0 : 2))
+      );
+
+      label.appendChild(labelText);
+      label.appendChild(valDisplay);
+
+      const slider = document.createElement('input');
+      slider.type = 'range';
+      slider.id = 'in-' + inputId;
+      slider.min = def.low;
+      slider.max = def.high;
+      // Use enough step resolution for fractional inputs
+      slider.step = def.unit === 'fraction' ? 0.01
+                  : def.unit === 'AUD/USD'  ? 0.01
+                  : def.unit === 'AUD c/kWh' ? 0.1
+                  : 1;
+      slider.value = currentVal;
+      slider.setAttribute('aria-label', LABELS[inputId] || inputId);
+
+      slider.addEventListener('input', () => {
+        const v = parseFloat(slider.value);
+        state[inputId] = v;
+        state.preset = 'custom';
+        // Update display without full re-render for smoothness
+        const disp = document.getElementById('val-' + inputId);
+        if (disp) disp.textContent = v.toFixed(
+          def.unit === 'fraction' ? 2 : (def.unit === 'AUD/USD' ? 2 : (Number.isInteger(def.value) ? 0 : 1))
+        );
+        render();
+      });
+
+      group.appendChild(label);
+      group.appendChild(slider);
+      sliderGrid.appendChild(group);
+    });
+
+    sliderSection.appendChild(sliderGrid);
+    wrap.appendChild(sliderSection);
+
+    // ── Energy-mix sliders ─────────────────────────────────────────────────
+    const energySection = document.createElement('div');
+    energySection.className = 'panel-section energy-section';
+
+    const energyTitle = document.createElement('h2');
+    energyTitle.className = 'panel-section-title';
+    energyTitle.textContent = 'Energy mix';
+    energySection.appendChild(energyTitle);
+
+    const energyGrid = document.createElement('div');
+    energyGrid.className = 'slider-grid';
+
+    const ENERGY_KEYS = ['free', 'solar', 'grid', 'battery'];
+    const ENERGY_LABELS = { free: 'Free / off-peak', solar: 'Solar', grid: 'Grid', battery: 'Battery' };
+
+    // Normalise totals for display (raw mix values stored, display as %)
+    const rawTot = ENERGY_KEYS.reduce((s, k) => s + (state.energyMix[k] || 0), 0) || 1;
+
+    ENERGY_KEYS.forEach(key => {
+      const rawVal = state.energyMix[key] || 0;
+      const pct = Math.round((rawVal / rawTot) * 100);
+
+      const group = document.createElement('div');
+      group.className = 'slider-group';
+
+      const label = document.createElement('label');
+      label.setAttribute('for', 'in-energy-' + key);
+      label.className = 'slider-label';
+
+      const labelText = document.createElement('span');
+      labelText.textContent = ENERGY_LABELS[key];
+
+      const valDisplay = document.createElement('span');
+      valDisplay.className = 'slider-val';
+      valDisplay.id = 'val-energy-' + key;
+      valDisplay.textContent = pct + '%';
+
+      label.appendChild(labelText);
+      label.appendChild(valDisplay);
+
+      const slider = document.createElement('input');
+      slider.type = 'range';
+      slider.id = 'in-energy-' + key;
+      slider.min = 0;
+      slider.max = 100;
+      slider.step = 1;
+      slider.value = pct;
+      slider.setAttribute('aria-label', ENERGY_LABELS[key] + ' energy share');
+
+      slider.addEventListener('input', () => {
+        // Update raw mix value then re-normalise all so they sum to 1
+        state.energyMix[key] = parseInt(slider.value, 10);
+        const tot = ENERGY_KEYS.reduce((s, k) => s + (state.energyMix[k] || 0), 0) || 1;
+        ENERGY_KEYS.forEach(k => { state.energyMix[k] = state.energyMix[k] / tot; });
+        state.preset = 'custom';
+        render();
+      });
+
+      group.appendChild(label);
+      group.appendChild(slider);
+      energyGrid.appendChild(group);
+    });
+
+    energySection.appendChild(energyGrid);
+    wrap.appendChild(energySection);
+
+    root.appendChild(wrap);
+  }
+
   /* ── Initial render ─────────────────────────────────────────────────────── */
   render();
 
@@ -281,8 +579,8 @@ window.SunStackUI = (function () {
     state,
     render,
     renderRigBuilder,
-    // Hooks for later tasks (set externally):
-    _renderPanels:    null,
+    // Hook wired at module load; later tasks override _renderResults, etc.
+    _renderPanels:    renderPanels,
     _renderResults:   null,
     _renderCharts:    null,
     _renderCitations: null

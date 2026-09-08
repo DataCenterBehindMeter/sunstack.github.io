@@ -125,3 +125,34 @@ def test_page_no_throw_empty_rig(page):
     """Page loads without JS errors on empty rig."""
     errors = page.evaluate("() => window._jsErrors || []")
     assert errors == [] or errors is None
+
+
+# ── Task 7 tests ────────────────────────────────────────────────────────────
+
+
+def test_preset_toggle_moves_slider(page):
+    """Clicking the optimistic preset changes the utilization slider value."""
+    page.click("button[data-add-device='dgx_spark']")
+    before = page.eval_on_selector("#in-utilization", "el => el.value")
+    page.click("button[data-preset='optimistic']")
+    after = page.eval_on_selector("#in-utilization", "el => el.value")
+    assert before != after
+
+
+def test_model_gating_disables_unfittable(page):
+    """deepseek_v3 option is disabled when pool cannot fit it."""
+    page.click("button[data-add-device='mac_mini_m4_16']")
+    assert page.get_attribute("#model-select option[value='deepseek_v3']", "disabled") is not None
+
+
+def test_manual_edit_sets_custom(page):
+    """Manually changing a slider sets state.preset to 'custom'."""
+    page.click("button[data-add-device='dgx_spark']")
+    if page.get_attribute("#in-utilization", "type") == "number":
+        page.fill("#in-utilization", "0.55")
+    else:
+        page.eval_on_selector(
+            "#in-utilization",
+            "el => { el.value = 0.55; el.dispatchEvent(new Event('input')); }"
+        )
+    assert "custom" in page.inner_text("#preset-state").lower()
