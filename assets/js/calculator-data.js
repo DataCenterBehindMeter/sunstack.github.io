@@ -480,25 +480,27 @@ window.SunStackData = (function () {
       loadW: D(140, 80, 140, "W", "apple_macmini_power", "high")
     },
 
-    // Non-UMA: memoryGb = VRAM; full system cost = GPU + host (rest_of_system_cost_usd blended in)
+    // Non-UMA: memoryGb = VRAM. priceUsd is ALL-IN system cost (card + host PC),
+    // since the engine sums device.priceUsd uniformly. Host cost from dataset
+    // rest_of_system_cost_usd {low 1200, typ 2170, high 3500}.
+    // 4090 card {1800, 2500, 3500} + host = {3000, 4670, 7000}.
     gpu_4090: {
-      label: "RTX 4090 (24GB VRAM) + host PC",
+      label: "RTX 4090 desktop (24GB, incl. host)",
       uma: false,
       memoryGb: 24,
       memBandwidthGbs: 1008,
-      // GPU street price (~$2,500) + mid host (~$2,170 → ~$2,200 blended) ≈ $4,700 typical;
-      // brief targets {2200,2500,2800} for GPU card only — dataset typical=$2,500; use card cost for the model
-      priceUsd: D(2500, 1800, 3500, "USD", "bestvaluegpu_4090", "medium"),
+      priceUsd: D(4670, 3000, 7000, "USD", "bestvaluegpu_4090", "medium"),
       idleW: 30,
       loadW: D(775, 650, 900, "W", "overclock_4090_power", "medium")
     },
 
+    // 5090 card {3350, 5000, 5800} + host {1200, 2170, 3500} = {4550, 7170, 9300}.
     gpu_5090: {
-      label: "RTX 5090 (32GB VRAM) + host PC",
+      label: "RTX 5090 desktop (32GB, incl. host)",
       uma: false,
       memoryGb: 32,
       memBandwidthGbs: 1792,
-      priceUsd: D(5000, 3350, 5800, "USD", "videocardprices_5090", "medium"),
+      priceUsd: D(7170, 4550, 9300, "USD", "videocardprices_5090", "medium"),
       idleW: 30,
       loadW: D(850, 775, 1007, "W", "overclocking_5090_power", "medium")
     }
@@ -619,9 +621,10 @@ window.SunStackData = (function () {
     },
 
     gpu_5090: {
-      // single from rtx5090_llama8b_fp16_single_stream_tok_s typical=170 (conf=medium)
-      // batched from rtx5090_llama8b_fp16_batched_aggregate_tok_s typical=4570 (conf=high)
-      llama31_8b: { single: 150,  batched: 4570, source_id: "spheron_5090",  confidence: "medium", estimated: false },
+      // single: rtx5090_llama8b_fp16_single_stream_tok_s is verdict:"unverifiable"
+      //   (bandwidth-derived, no measured benchmark) → estimated:true, confidence:"low"
+      // batched from rtx5090_llama8b_fp16_batched_aggregate_tok_s typical=4570 (conf=high, measured)
+      llama31_8b: { single: 150,  batched: 4570, source_id: "spheron_5090",  confidence: "low",    estimated: true  },
       // batched from rtx5090_32b_awq_batched_aggregate_tok_s typical=4570 (conf=high)
       // single estimated from bandwidth scaling (~32GB 4090 ratio)
       qwen32b:    { single: 45,   batched: 4570, source_id: "cloudrift_gpu",  confidence: "low",   estimated: true  }
@@ -634,7 +637,7 @@ window.SunStackData = (function () {
    * NSW: solar_fit_nsw low=4.8, high=7.3 → typical ~5; retail 33 from canstar_retail range.
    * QLD: solar_fit_qld_regional typical=8.66 → 5c for comparison floor; retail 24.
    * SA: solar_fit_sa low=2, high=5 → 5c typical; retail 40.
-   * WA: solar_fit_wa low=2, high=10 → 2.25c brief value; retail 34.
+   * WA: solar_fit_wa corrected off-peak min=2.0c (ex-GST); retail 34.
    * national: solar_fit_typical_range_national low=3, high=10 → 3.3c; retail 30.
    */
   const ENERGY_PRESETS = {
@@ -642,7 +645,8 @@ window.SunStackData = (function () {
       label: "Victoria",
       feedInTariff: 1.1,
       retailRate: 26.4,
-      source_id: "esc_vic_fit"
+      source_id: "esc_vic_fit",
+      note: "VIC feed-in tariff deregulated on 1 Jul 2025; 1.1 c/kWh is the average minimum per the dataset (no mandated single rate)."
     },
     NSW: {
       label: "New South Wales",
@@ -664,7 +668,7 @@ window.SunStackData = (function () {
     },
     WA: {
       label: "Western Australia",
-      feedInTariff: 2.25,
+      feedInTariff: 2.0,
       retailRate: 34,
       source_id: "synergy_wa_fit"
     },
