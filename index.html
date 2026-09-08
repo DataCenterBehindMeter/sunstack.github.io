@@ -214,7 +214,7 @@
           <p class="lead" data-anim style="--i:3;margin-top:16px">
             One or more small computers — say a DGX Spark and a Mac — linked together by a fast
             connection (our PAIR router) and sealed into a single quiet box, about the size of a large desktop.
-            Its own circuit, its own internet. It runs on spare solar and steps aside when the house needs power.
+            Its own circuit. Home Internet. It works only on spare solar/battery energy, and steps aside when the house needs power.
           </p>
           <div class="cards three" style="margin-top:26px">
             <div class="card" data-anim style="--i:4"><h3>No upfront cost</h3><p>Financed from what it earns.</p></div>
@@ -311,26 +311,26 @@ resp = client.chat.completions.create(
         <div class="card" data-anim style="--i:3">
           <div class="knum">Homeowner</div>
           <h3>A new income</h3>
-          <p>Spare solar runs the financed box — no upfront cost. About <strong>A$2,250/yr</strong> on a single DGX&nbsp;Spark node.</p>
+          <p>Spare solar runs the financed box — no upfront cost. About <strong>A$2,500/yr</strong> on a single DGX&nbsp;Spark node.</p>
         </div>
         <div class="card" data-anim style="--i:4">
           <div class="knum">Buyer</div>
           <h3>Lower prices</h3>
-          <p>Australian-hosted AI ~20% under cloud rates — saving <strong>~A$1,050/yr</strong> — and data never leaves home soil.</p>
+          <p>Australian-hosted AI ~20% under cloud rates — saving <strong>~A$1,150/yr</strong> — and data never leaves home soil.</p>
         </div>
         <div class="card" data-anim style="--i:5">
           <div class="knum">SunStack + university</div>
           <h3>A defensible business</h3>
-          <p>Recurring compute revenue no overseas rival can replicate — <strong>~A$570/yr</strong> margin per node, growing with the fleet.</p>
+          <p>Recurring compute revenue no overseas rival can replicate — <strong>~A$780/yr</strong> margin per node, growing with the fleet.</p>
         </div>
       </div>
       <p class="lead" data-anim style="--i:6;margin-top:28px;max-width:70ch">
         Every number in this model is sourced and auditable — open the interactive calculator to change the hardware,
         model, energy and split, and watch all three parties move.
         <!-- Computed from SunStackEngine.computeScenario with default state (neutral):
-             dgx_spark + minimax_m3 Q4, 90% solar / 10% grid, concurrency=16, activeHours=24,
-             homeownerShare=0.55, undercut=0.20, financed=true, utilization=0.60
-             → homeowner A$2,254/yr net, operator A$568/yr margin, buyer saves A$1,047/yr
+             dgx_spark + minimax_m3 Q4, 90% solar / 10% grid, concurrency=16,
+             hours/day running inference=16, homeownerShare=0.55, undercut=0.20, financed=true
+             → homeowner A$2,505/yr net, operator A$776/yr margin, buyer saves A$1,164/yr
              (rig cost A$6,532 AUD = US$4,699 × 1.39). -->
       </p>
       <div data-anim style="--i:7;margin-top:22px">
