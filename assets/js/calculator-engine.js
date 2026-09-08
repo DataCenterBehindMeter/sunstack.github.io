@@ -184,6 +184,25 @@ window.SunStackEngine = (function () {
     return (u >= 0 && u <= 1) ? u : null;
   }
 
+  /* ── PAIR hub layout helper ──────────────────────────────────────────────── */
+  function hubLayout(count, w, h) {
+    const pts = []; if (count <= 0) return pts;
+    const cx = w / 2, cy = h / 2;
+    const perRing = 6, maxR = Math.min(w, h) / 2 - 60;
+    const rings = Math.ceil(count / perRing);
+    let placed = 0;
+    for (let r = 1; r <= rings; r++) {
+      const onThis = Math.min(perRing, count - placed);
+      const radius = maxR * (r / rings);
+      for (let i = 0; i < onThis; i++) {
+        const ang = (2 * Math.PI * i) / onThis - Math.PI / 2 + (r % 2) * (Math.PI / perRing);
+        pts.push({ x: cx + radius * Math.cos(ang), y: cy + radius * Math.sin(ang) });
+        placed++;
+      }
+    }
+    return pts;
+  }
+
   return {
     SECONDS_PER_YEAR,
     poolMemoryGb,
@@ -195,6 +214,7 @@ window.SunStackEngine = (function () {
     computeScenario,
     applyPreset,
     breakevenUtilization,
+    hubLayout,
     UNCERTAINTY_INPUT_IDS
   };
 })();

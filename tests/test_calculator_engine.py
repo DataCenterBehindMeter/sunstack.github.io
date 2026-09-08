@@ -87,3 +87,11 @@ def test_breakeven_zeroes_net(page):
     if u is not None:
         net = page.evaluate(f"() => {{const s={BASE}; s.utilization={u}; return window.SunStackEngine.computeScenario(s).homeowner.netAud;}}")
         assert abs(net) < 1.0
+
+def test_hub_layout_bounds_and_count(page):
+    r = page.evaluate("() => window.SunStackEngine.hubLayout(9, 600, 400)")
+    assert len(r) == 9
+    assert all(0 <= p['x'] <= 600 and 0 <= p['y'] <= 400 for p in r)
+
+def test_hub_layout_empty(page):
+    assert page.evaluate("() => window.SunStackEngine.hubLayout(0, 600, 400)") == []
