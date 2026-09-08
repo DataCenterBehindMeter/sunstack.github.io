@@ -212,11 +212,15 @@ window.SunStackUI = (function () {
       });
       svg.appendChild(line);
 
-      // Node group
+      // Node group — keyboard-reachable: focusable + button semantics so it can
+      // be removed via Enter/Space, not just a mouse click.
       const nodeG = svgEl('g', {
-        class:     'rig-node' + (dev.uma ? '' : ' non-uma'),
-        transform: 'translate(' + (pt.x - NODE_W / 2) + ',' + (pt.y - NODE_H / 2) + ')',
-        style:     'cursor:pointer'
+        class:        'rig-node' + (dev.uma ? '' : ' non-uma'),
+        transform:    'translate(' + (pt.x - NODE_W / 2) + ',' + (pt.y - NODE_H / 2) + ')',
+        style:        'cursor:pointer',
+        tabindex:     '0',
+        role:         'button',
+        'aria-label': 'Remove ' + shortDeviceName(devId)
       });
 
       const rect = svgEl('rect', {
@@ -258,9 +262,18 @@ window.SunStackUI = (function () {
       nodeG.appendChild(removeEl);
 
       // Click removes this index
-      nodeG.addEventListener('click', () => {
+      const removeThisNode = () => {
         state.rig.splice(idx, 1);
         render();
+      };
+      nodeG.addEventListener('click', removeThisNode);
+
+      // Keyboard: Enter or Space removes it, mirroring the click action.
+      nodeG.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          removeThisNode();
+        }
       });
 
       svg.appendChild(nodeG);

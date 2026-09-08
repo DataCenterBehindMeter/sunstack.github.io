@@ -33,3 +33,13 @@ def test_controls_are_labelled(page):
           .filter(el => !el.getAttribute('aria-label') && !(el.labels && el.labels.length)).length"""
     )
     assert unlabelled == 0, f"{unlabelled} range/select element(s) lack a label"
+
+
+def test_rig_node_is_keyboard_focusable(page):
+    """Added rig nodes must be keyboard-reachable (tabindex=0, button role)."""
+    page.goto(CALC)
+    page.click("button[data-add-device='dgx_spark']")
+    node = page.locator(".rig-node").first
+    assert node.get_attribute("tabindex") == "0"
+    assert node.get_attribute("role") == "button"
+    assert node.get_attribute("aria-label")

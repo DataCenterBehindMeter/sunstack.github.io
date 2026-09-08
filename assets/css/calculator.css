@@ -816,7 +816,7 @@ input[type="range"]:focus-visible {
     padding: 24px 14px;
   }
 
-  /* Stack panel sections to single column */
+  /* Panel sections are already single-column; tighten the vertical gap. */
   #panels .panels-wrap {
     gap: 20px;
   }
@@ -852,21 +852,14 @@ input[type="range"]:focus-visible {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 
-  /* Sources table: allow horizontal scroll within its container */
+  /* Sources table: scroll horizontally within its section, not the whole page. */
   #sources {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .sources-table {
     min-width: 460px;
-  }
-
-  /* Prevent the sources section from bleeding the page width */
-  #sources > .sources-table {
-    display: block;
-    overflow-x: auto;
-    max-width: 100%;
-    -webkit-overflow-scrolling: touch;
   }
 
   /* Tables: allow horizontal scroll within container, not the whole page */
