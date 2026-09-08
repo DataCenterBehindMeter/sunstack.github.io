@@ -29,7 +29,7 @@ class OperatorSlideTests(unittest.TestCase):
                 page = self.browser.new_page(viewport=viewport)
                 try:
                     page.goto(PAGE_URL)
-                    self.assertEqual(page.locator(".tile").count(), 16)
+                    self.assertEqual(page.locator(".tile").count(), 19)
 
                     dispatch = page.locator(
                         'img[src="assets/shots/dispatch-scheduling.png"]'
@@ -80,16 +80,21 @@ class OperatorSlideTests(unittest.TestCase):
         page = self.browser.new_page(viewport={"width": 1440, "height": 900})
         try:
             page.goto(PAGE_URL)
-            self.assertIn("/ 16", page.locator("#counter").inner_text())
+            self.assertIn("/ 19", page.locator("#counter").inner_text())
 
             page.get_by_role("button", name="Go to section: Who wins").click()
             page.wait_for_function(
-                "document.querySelector('#counter').innerText.includes('12 / 16')"
+                "document.querySelector('#counter').innerText.includes('13 / 19')"
+            )
+
+            page.get_by_role("button", name="Go to section: The market").click()
+            page.wait_for_function(
+                "document.querySelector('#counter').innerText.includes('16 / 19')"
             )
 
             page.get_by_role("button", name="Go to section: The plan").click()
             page.wait_for_function(
-                "document.querySelector('#counter').innerText.includes('15 / 16')"
+                "document.querySelector('#counter').innerText.includes('18 / 19')"
             )
         finally:
             page.close()

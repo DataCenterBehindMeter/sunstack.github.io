@@ -582,3 +582,78 @@ h3.h { font-size: clamp(20px, 2vw, 26px); font-weight: 700; }
 .btn:active { transform: scale(.97); }
 .t-dark .btn { background: var(--gold); color: var(--dark-1); }
 .t-dark .btn:hover { background: #d4941e; }
+
+/* ============================================================
+   Investor tiles — value ladder, market metrics, citations
+   (value-adding services + the-market chapter)
+   ============================================================ */
+
+/* --- Value ladder (commodity → premium) --- */
+/* built on .cards.three; .card-hi flags the premium rung SunStack captures */
+.card.card-hi { border-color: var(--amber); background: var(--amber-soft); box-shadow: var(--shadow-soft); }
+.t-dark .card.card-hi { border-color: var(--gold); background: rgba(232,147,42,.14); }
+.card .tier { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.card.card-hi .tier, .card.card-hi .knum { color: var(--amber-strong); }
+.t-dark .card .tier { color: var(--on-dark-muted); }
+.t-dark .card.card-hi .tier, .t-dark .card.card-hi .knum { color: var(--gold); }
+
+/* the ascending value/margin axis under the ladder */
+.value-track { height: 6px; border-radius: var(--r-pill); margin: 28px 0 10px; background: linear-gradient(90deg, var(--line) 0%, var(--gold) 60%, var(--amber) 100%); }
+.t-dark .value-track { background: linear-gradient(90deg, var(--line-dark) 0%, var(--gold) 100%); }
+.value-track-labels { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; letter-spacing: 0.01em; color: var(--muted); }
+.value-track-labels .hi { color: var(--amber-strong); }
+.t-dark .value-track-labels { color: var(--on-dark-muted); }
+.t-dark .value-track-labels .hi { color: var(--gold); }
+
+/* --- Market metrics (a compact vertical stat list, used in .duo columns) ---
+   kept dense so a stat-heavy, fully-cited tile still fits one viewport. */
+.metrics { display: flex; flex-direction: column; gap: clamp(11px, 1.6vw, 18px); margin-top: 6px; }
+.metric .mv { font-size: clamp(24px, 2.7vw, 38px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.t-dark .metric .mv { color: #fff; }
+.metric .mv .accent { color: var(--amber); }
+.t-dark .metric .mv .accent { color: var(--gold); }
+.metric .ml { margin-top: 5px; font-size: clamp(13px, 1.1vw, 15px); color: var(--muted); line-height: 1.45; max-width: 34ch; }
+.t-dark .metric .ml { color: var(--on-dark-muted); }
+
+/* bottom-up build-up rows (share tile): "assumption → result" */
+.buildup { display: flex; flex-direction: column; gap: 14px; margin-top: 6px; }
+.buildup .row { display: flex; align-items: baseline; gap: 10px; font-size: clamp(14px, 1.35vw, 16.5px); color: var(--on-dark); }
+.t-light .buildup .row { color: var(--body); }
+.buildup .row .rv { font-weight: 800; letter-spacing: -0.02em; color: #fff; font-variant-numeric: tabular-nums; }
+.t-light .buildup .row .rv { color: var(--ink); }
+.buildup .row .rv.accent { color: var(--gold); }
+.t-light .buildup .row .rv.accent { color: var(--amber-strong); }
+.buildup .arrow { color: var(--gold); font-weight: 700; }
+.t-light .buildup .arrow { color: var(--amber); }
+
+/* --- Citations: superscript refs + a tidy source footer --- */
+sup.ref { font-size: 0.62em; font-weight: 700; color: var(--amber-strong); margin-left: 1px; }
+.t-dark sup.ref { color: var(--gold); }
+.sources { list-style: none; display: flex; flex-wrap: wrap; gap: 5px 22px; margin-top: clamp(16px, 2vw, 26px); padding-top: 12px; border-top: 1px solid var(--line); font-size: 12px; line-height: 1.4; color: var(--muted); }
+.t-dark .sources { border-color: var(--line-dark); color: var(--on-dark-muted); }
+.sources li { display: flex; gap: 6px; max-width: 46ch; }
+.sources .rn { color: var(--amber-strong); font-weight: 700; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.t-dark .sources .rn { color: var(--gold); }
+.sources a { color: inherit; transition: color .15s; }
+.sources a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+.t-dark .sources a:hover { color: #fff; }
+
+/* 7-chapter stepper: tighten between the full-list and compact breakpoints
+   so the extra "The market" chapter doesn't crowd the topbar */
+@media (min-width: 821px) and (max-width: 1180px) {
+  .chapters { gap: clamp(8px, 1.1vw, 15px); }
+  .chapter { font-size: 12px; }
+}
+
+/* Dense, fully-cited market tiles: compact them on shorter laptops (the
+   761-860px band the deck's ≤760px shrink rule doesn't reach) so the source
+   footer never clips under mandatory scroll-snap. */
+@media (min-width: 821px) and (max-height: 860px) {
+  #tile-16 h2.h, #tile-17 h2.h { font-size: clamp(26px, 3.2vw, 40px); }
+  #tile-16 .lead, #tile-17 .lead { font-size: clamp(15px, 1.6vw, 18px); margin-top: 12px; }
+  #tile-16 .duo, #tile-17 .duo { margin-top: 18px; }
+  #tile-16 .metric .mv { font-size: clamp(22px, 2.3vw, 32px); }
+  #tile-16 .metrics, #tile-17 .metrics { gap: clamp(9px, 1.2vw, 14px); }
+  #tile-17 .buildup { gap: 10px; }
+  #tile-16 .sources, #tile-17 .sources { margin-top: 12px; }
+}

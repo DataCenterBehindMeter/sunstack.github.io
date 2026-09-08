@@ -23,6 +23,6 @@ def test_teaser_tile_links_to_calculator(page):
 
 def test_tile_count_increased_and_counter_matches(page):
     tiles = page.locator("main#deck .tile").count()
-    assert tiles == 16
+    assert tiles == 19
     # counter denominator is dynamic from total; just assert no JS error and stepper built
-    assert page.locator("#chapters .chapter").count() == 6
+    assert page.locator("#chapters .chapter").count() == 7

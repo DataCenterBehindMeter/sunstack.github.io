@@ -36,7 +36,7 @@
   </a>
   <nav class="chapters" id="chapters" aria-label="Sections"></nav>
 </header>
-<div class="counter" id="counter" aria-hidden="true"><b>01</b> / 16</div>
+<div class="counter" id="counter" aria-hidden="true"><b>01</b> / 19</div>
 <div class="kbdhint" id="kbdhint"><kbd>↓</kbd> or <kbd>Space</kbd> to advance</div>
 
 <div class="lightbox" id="lightbox" aria-hidden="true">
@@ -339,8 +339,43 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 12 · BENEFITS: HOMEOWNERS =========================== -->
-  <section class="tile t-dark" id="tile-12" data-surface="dark" aria-label="Benefits for homeowners">
+  <!-- 12 · VALUE-ADDING SERVICES (beyond raw tokens) ===== -->
+  <section class="tile t-light" id="tile-12" data-surface="light" aria-label="Value-adding services">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">Beyond raw tokens</span>
+      <h2 class="h" data-anim style="--i:1">The margin is in the solution, not the token.</h2>
+      <p class="lead" data-anim style="--i:2;margin-top:16px;max-width:72ch">
+        Raw inference is a commodity — priced to the cent and racing to the floor. SunStack sits one layer up:
+        we turn cheap, local tokens into managed AI that does a real job, and price it on the value delivered.
+      </p>
+      <div class="cards three" style="margin-top:30px">
+        <div class="card" data-anim style="--i:3">
+          <div class="tier">Commodity</div>
+          <h3>Raw tokens</h3>
+          <p>A pay-as-you-go API that undercuts the big clouds. High volume, thin margin — the floor everyone competes on.</p>
+        </div>
+        <div class="card" data-anim style="--i:4">
+          <div class="tier">Higher margin</div>
+          <h3>Managed models</h3>
+          <p>Private, fine-tuned models run for a team — with service levels, monitoring and support. Priced for the service, not the token.</p>
+        </div>
+        <div class="card card-hi" data-anim style="--i:5">
+          <div class="tier">Highest margin</div>
+          <h3>Vertical solutions</h3>
+          <p>An assistant wired into a small business’s ERP, accounts and documents — automating real workflows. Sold as an outcome, at many times the token price.</p>
+        </div>
+      </div>
+      <div class="value-track" data-anim style="--i:6" aria-hidden="true"></div>
+      <div class="value-track-labels" data-anim style="--i:6">
+        <span>Commodity floor</span>
+        <span class="hi">Priced on the outcome →</span>
+      </div>
+      <p class="kicker" data-anim style="--i:7;text-align:center;margin-top:26px">Same solar-powered tokens underneath — sold as a solution, sovereign and local.</p>
+    </div>
+  </section>
+
+  <!-- 13 · BENEFITS: HOMEOWNERS =========================== -->
+  <section class="tile t-dark" id="tile-13" data-surface="dark" aria-label="Benefits for homeowners">
     <div class="tile-inner">
       <div class="split media-left">
         <div class="media">
@@ -370,8 +405,8 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 13 · BENEFITS: BUYERS =============================== -->
-  <section class="tile t-light" id="tile-13" data-surface="light" aria-label="Benefits for buyers">
+  <!-- 14 · BENEFITS: BUYERS =============================== -->
+  <section class="tile t-light" id="tile-14" data-surface="light" aria-label="Benefits for buyers">
     <div class="tile-inner">
       <div class="split">
         <div class="copy">
@@ -401,8 +436,8 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 14 · BENEFITS: SOCIETY & UNIVERSITY (merged) ======== -->
-  <section class="tile t-dark" id="tile-14" data-surface="dark" aria-label="Benefits for society and the university">
+  <!-- 15 · BENEFITS: SOCIETY & UNIVERSITY (merged) ======== -->
+  <section class="tile t-dark" id="tile-15" data-surface="dark" aria-label="Benefits for society and the university">
     <div class="tile-inner wide">
       <span class="eyebrow" data-anim style="--i:0">Who wins · 3 of 3</span>
       <h2 class="h" data-anim style="--i:1;color:#fff">For SunStack, the university, and the country.</h2>
@@ -427,8 +462,88 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 15 · ROADMAP ======================================= -->
-  <section class="tile t-parchment" id="tile-15" data-surface="light" aria-label="What's next">
+  <!-- 16 · MARKET SIZE (the opportunity, both sides) ====== -->
+  <section class="tile t-light" id="tile-16" data-surface="light" aria-label="Market size">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">The market</span>
+      <h2 class="h" data-anim style="--i:1">A big prize — from both sides.</h2>
+      <p class="lead" data-anim style="--i:2;margin-top:16px;max-width:76ch">
+        Generative AI could add up to <strong>A$115&nbsp;billion a year</strong> to the Australian economy by 2030.<sup class="ref">1</sup>
+        SunStack sits between fast-growing demand for AI and the largest pool of idle green energy on Earth.
+      </p>
+      <div class="duo" style="margin-top:28px">
+        <div class="duo-col" data-anim style="--i:3">
+          <h3 class="duo-h">Demand · the buyers</h3>
+          <div class="metrics">
+            <div class="metric"><div class="mv"><span class="accent">A$33.6</span>&nbsp;bn<sup class="ref">2</sup></div><div class="ml">Australian public-cloud spend in 2026, up 17.9% in a year — the pool SunStack undercuts.</div></div>
+            <div class="metric"><div class="mv"><span class="accent">A$946</span>&nbsp;M<sup class="ref">3</sup></div><div class="ml">Spent on AI-optimised cloud in 2026 (+128%) — the GPU-inference market we compete in head-on.</div></div>
+            <div class="metric"><div class="mv"><span class="accent">2.7</span>&nbsp;million<sup class="ref">4</sup></div><div class="ml">Australian businesses — 97% of them small — with AI adoption climbing fast.</div></div>
+            <div class="metric"><div class="mv"><span class="accent">+72–90%</span><sup class="ref">5</sup></div><div class="ml">More a business pays for grid power here than in the US. Behind-the-meter solar skips the premium.</div></div>
+          </div>
+        </div>
+        <div class="duo-col" data-anim style="--i:4">
+          <h3 class="duo-h">Supply · the homes</h3>
+          <div class="metrics">
+            <div class="metric"><div class="mv"><span class="accent">~4.3</span>&nbsp;million<sup class="ref">6</sup></div><div class="ml">Homes &amp; small businesses with rooftop solar — about 1 in 3 households, the world’s highest rate.</div></div>
+            <div class="metric"><div class="mv"><span class="accent">500,000+</span><sup class="ref">7</sup></div><div class="ml">Home batteries added since July 2025; the government targets 1&nbsp;million+ by 2030.</div></div>
+            <div class="metric"><div class="mv"><span class="accent">3×</span><sup class="ref">8</sup></div><div class="ml">Battery installs tripled in 2025 (221,000 vs 72,500) — a supply base that compounds every year.</div></div>
+            <div class="metric"><div class="mv"><span class="accent">~5¢ vs 35¢</span><sup class="ref">9</sup></div><div class="ml">What surplus solar earns exported vs costs at night — midday sun is near-worthless, and it’s a node’s fuel.</div></div>
+          </div>
+        </div>
+      </div>
+      <ol class="sources" data-anim style="--i:5">
+        <li><span class="rn">1</span> <a href="https://techcouncil.com.au/newsroom/generative-ai-could-contribute-115-billion-annually-to-australias-economy-by-2030/" target="_blank" rel="noopener">Tech Council of Australia / Microsoft, 2023</a></li>
+        <li><span class="rn">2</span> <a href="https://www.gartner.com/en/newsroom/press-releases/2026-05-11-gartner-forecasts-australian-organizations-will-spend-more-than-33-billion-on-public-cloud-in-2026" target="_blank" rel="noopener">Gartner, 2026</a></li>
+        <li><span class="rn">3</span> <a href="https://securitybrief.com.au/story/australian-ai-cloud-spending-set-to-jump-to-aud-1-5bn" target="_blank" rel="noopener">SecurityBrief AU (Gartner), 2026</a></li>
+        <li><span class="rn">4</span> <a href="https://www.abs.gov.au/statistics/economy/business-indicators/counts-australian-businesses-including-entries-and-exits/latest-release" target="_blank" rel="noopener">ABS, 2025</a></li>
+        <li><span class="rn">5</span> <a href="https://www.globalpetrolprices.com/Australia/electricity_prices/" target="_blank" rel="noopener">US EIA · GlobalPetrolPrices, 2025</a></li>
+        <li><span class="rn">6</span> <a href="https://cleanenergycouncil.org.au/news-resources/australia-powers-ahead-on-rooftop-solar-as-nation-set-to-achieve-2030-rooftop-target-new-report" target="_blank" rel="noopener">Clean Energy Council, 2025</a></li>
+        <li><span class="rn">7</span> <a href="https://www.pm.gov.au/media/half-million-cheaper-home-batteries-bringing-down-bills-australian-homes-and-businesses" target="_blank" rel="noopener">PM of Australia, 2026 · DCCEEW</a></li>
+        <li><span class="rn">8</span> <a href="https://www.businessnewsaustralia.com/articles/australias-home-battery-installations-triple-to-221000-in-2025-as-storage-goes-mainstream.html" target="_blank" rel="noopener">SunWiz, 2025</a></li>
+        <li><span class="rn">9</span> <a href="https://www.aemo.com.au/-/media/files/major-publications/qed/2025/qed-q4-2025.pdf" target="_blank" rel="noopener">AEMO, Q4 2025</a></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 17 · MARKET SHARE (our capture) ===================== -->
+  <section class="tile t-dark" id="tile-17" data-surface="dark" aria-label="Market share">
+    <div class="tile-inner wide">
+      <span class="eyebrow" data-anim style="--i:0">The market</span>
+      <h2 class="h" data-anim style="--i:1;color:#fff">A small share is a big business.</h2>
+      <p class="lead" data-anim style="--i:2;margin-top:14px;max-width:70ch">
+        We don’t need the whole market — just a sliver of the roofs. Here is the node economics from the calculator, scaled.
+      </p>
+      <div class="duo" style="margin-top:28px">
+        <div class="duo-col" data-anim style="--i:3">
+          <h3 class="duo-h">Bottom-up · the build</h3>
+          <div class="buildup">
+            <div class="row"><span class="rv accent">1–5%</span>&nbsp;of solar-battery homes signed over five years</div>
+            <div class="row"><span class="arrow">→</span> <span class="rv">10,000–50,000</span>&nbsp;home nodes</div>
+            <div class="row"><span class="arrow">→</span> <span class="rv accent">A$8–39M</span>&nbsp;/yr operator margin <span style="color:var(--on-dark-muted);font-size:.85em">(× A$780/node)</span></div>
+            <div class="row"><span class="arrow">→</span> <span class="rv">A$25–125M</span>&nbsp;/yr paid to households</div>
+            <div class="row"><span class="arrow">→</span> <span class="rv">A$12–58M</span>&nbsp;/yr saved by buyers</div>
+          </div>
+        </div>
+        <div class="duo-col" data-anim style="--i:4">
+          <h3 class="duo-h">Top-down · the headroom</h3>
+          <p style="color:var(--on-dark);font-size:clamp(14px,1.4vw,16.5px);margin:0 0 4px">Even the 50,000-node case barely registers against the demand pool:</p>
+          <div class="metrics" style="margin-top:14px">
+            <div class="metric"><div class="mv"><span class="accent">~4%</span></div><div class="ml">of Australia’s A$946M AI-optimised cloud segment.<sup class="ref">1</sup></div></div>
+            <div class="metric"><div class="mv"><span class="accent">~0.1%</span></div><div class="ml">of the A$33.6bn Australian public-cloud market.<sup class="ref">2</sup></div></div>
+          </div>
+          <p class="kicker" style="margin-top:20px">The limit is how fast we sign homes — not demand. Room to grow the fleet 10–20× before we touch 1% of cloud spend.</p>
+        </div>
+      </div>
+      <ol class="sources" data-anim style="--i:5">
+        <li><span class="rn">1</span> <a href="https://securitybrief.com.au/story/australian-ai-cloud-spending-set-to-jump-to-aud-1-5bn" target="_blank" rel="noopener">SecurityBrief AU (Gartner), 2026</a></li>
+        <li><span class="rn">2</span> <a href="https://www.gartner.com/en/newsroom/press-releases/2026-05-11-gartner-forecasts-australian-organizations-will-spend-more-than-33-billion-on-public-cloud-in-2026" target="_blank" rel="noopener">Gartner, 2026</a></li>
+        <li><span class="rn">†</span> Per-node economics from the SunStack revenue calculator (operator A$780/yr, homeowner A$2,505/yr net, buyer saves A$1,164/yr).</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 18 · ROADMAP ======================================= -->
+  <section class="tile t-parchment" id="tile-18" data-surface="light" aria-label="What's next">
     <div class="tile-inner wide">
       <span class="eyebrow" data-anim style="--i:0">What’s next</span>
       <h2 class="h" data-anim style="--i:1">Where we take it from here.</h2>
@@ -473,8 +588,8 @@ resp = client.chat.completions.create(
     </div>
   </section>
 
-  <!-- 16 · THANK YOU ===================================== -->
-  <section class="tile t-dark thanks" id="tile-16" data-surface="dark" aria-label="Thank you">
+  <!-- 19 · THANK YOU ===================================== -->
+  <section class="tile t-dark thanks" id="tile-19" data-surface="dark" aria-label="Thank you">
     <div class="scrim" style="background:radial-gradient(1000px 560px at 50% 120%, rgba(232,147,42,.26), transparent 60%)"></div>
     <div class="tile-inner narrow">
       <svg class="sunmark" viewBox="0 0 100 100" aria-hidden="true" data-anim style="--i:0;margin:0 auto 26px">

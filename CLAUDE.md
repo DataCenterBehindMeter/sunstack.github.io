@@ -9,7 +9,7 @@ The **SunStack pitch-deck website** — a static site deployed to GitHub Pages
 `https://datacenterbehindmeter.github.io/sunstack.github.io/`). It contains **two zero-build
 vanilla HTML/CSS/JS apps** that share the brand stylesheet:
 
-1. **The deck** (`index.html`) — a scroll-snap slide deck (currently **16** full-viewport
+1. **The deck** (`index.html`) — a scroll-snap slide deck (currently **19** full-viewport
    `<section class="tile">` tiles) for a university senior-management panel. Behaviour in
    `assets/js/deck.js`; design tokens + layout in `assets/css/styles.css`.
 2. **The revenue calculator** (`calculator.html`) — an interactive, source-cited model of
@@ -61,8 +61,10 @@ the globals the modules expose. So the engine must stay pure and reachable on `w
 - **The chapter stepper is driven by the `SECTIONS` array at the top of `deck.js`** — each
   entry is `{ name, start }` where `start` is the 1-based tile number that chapter begins on.
   **Inserting/removing/reordering a tile means renumbering all following `id="tile-N"` AND
-  updating `SECTIONS` starts.** `tests/test_operator_slides.py` hard-asserts the tile count
-  (16) and that clicking a chapter lands on a specific counter value — it will catch drift.
+  updating `SECTIONS` starts.** There are **7** chapters (Overview, Why now, How it works,
+  Prototype, Who wins, The market, The plan). `tests/test_operator_slides.py` and
+  `tests/test_deck_teaser_tile.py` hard-assert the tile count (19) and the chapter count (7),
+  and `tests/test_investor_tiles.py` covers the value-ladder + market tiles — they catch drift.
 - Copy/number changes live in `index.html`. Brand tokens (`--amber #e8932a`, `--ink`,
   `--parchment`, `--dark-2`, `--teal` secondary data hue, `--r-*`, `--shadow-soft`, `--ease`)
   live in `styles.css` and are reused by the calculator — **use tokens, not raw hex.**
@@ -122,4 +124,4 @@ Load order in `calculator.html` matters: `calculator-data.js` → `calculator-en
   implementation plans. `.superpowers/` is git-ignored scratch.
 
 The README covers viewing/presenting/deploy and the image generator in more detail; it
-predates the calculator and still says "20 tiles" (now 16) — trust this file for architecture.
+predates the calculator and still says "20 tiles" (now 19) — trust this file for architecture.

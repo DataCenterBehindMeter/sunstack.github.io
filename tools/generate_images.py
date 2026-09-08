@@ -91,12 +91,15 @@ FIGURES = [
     ),
     (
         "node-garage.png",
-        "A photorealistic product-photography shot of a small sealed matte-"
-        "finish compute appliance, about the size of a large desktop computer, "
-        "mounted cleanly on a bright white garage wall. Warm natural daylight "
-        "from the side, one soft shadow, a hint of a tidy solar inverter and "
-        "neat conduit nearby, shallow depth of field. A single subtle amber "
-        "status light glows on the device. Calm, premium, uncluttered. No "
+        "A photorealistic product-photography shot of a compact home AI compute "
+        "node on a bright white garage wall: two small matte-finish mini-"
+        "computers of slightly different shapes sitting side by side on a clean "
+        "floating wall shelf, joined by a single short braided cable so they "
+        "read as one sealed unit, together about the size of a large desktop "
+        "computer. Warm natural daylight from the side, one soft shadow, a hint "
+        "of a tidy solar inverter and neat electrical conduit on its own "
+        "dedicated circuit nearby, shallow depth of field. A single subtle "
+        "amber status light glows on one device. Calm, premium, uncluttered. No "
         "visible branding.",
     ),
     (
