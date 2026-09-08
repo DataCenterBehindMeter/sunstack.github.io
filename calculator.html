@@ -1,22 +1,38 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="calculator-page">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SunStack — Node Revenue Calculator</title>
-<meta name="description" content="Interactive, source-cited model of what a household earns hosting SunStack compute — and how homeowner, operator, and buyer each come out." />
+<meta name="description" content="Build a household compute rig and explore source-cited revenue estimates for homeowners, operators, and AI buyers." />
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
 <link rel="stylesheet" href="assets/css/styles.css" />
 <link rel="stylesheet" href="assets/css/calculator.css" />
 </head>
-<body>
+<body class="calculator-body">
+<a class="calc-skip" href="#rig-builder">Skip to rig builder</a>
+<header class="calc-topbar">
+  <a class="calc-brand" href="calculator.html" aria-label="SunStack calculator"><img src="assets/favicon.svg" width="30" height="30" alt="" />SunStack<span> / </span><span>Calculator</span></a>
+  <nav aria-label="Calculator sections"><a href="#rig-builder">Build your rig</a><a href="#charts">Insights</a><a href="#sources">Sources</a></nav>
+  <span class="currency-tag">AUD <span>· Annual estimates</span></span>
+</header>
 <main class="calc-wrap">
-  <header class="calc-head"><h1>Node Revenue Calculator</h1></header>
-  <section id="rig-builder"></section>
-  <section id="panels"></section>
-  <section id="results"></section>
-  <section id="sources"></section>
-  <footer id="references"></footer>
+  <header class="calc-head">
+    <div><p class="calc-eyebrow">HOUSEHOLD COMPUTE · SCENARIO MODELLER</p><h1>Your hardware. A clearer return.</h1><p>Build your node and see how the economics stack up.</p></div>
+    <div class="calc-head-note"><span class="estimate-dot"></span>Node Revenue Calculator<span>Adjust the assumptions. Explore the trade-offs.</span></div>
+  </header>
+  <section id="results" aria-label="Annual revenue estimates"></section>
+  <div class="calc-workspace">
+    <section id="rig-builder" aria-label="Rig assembler"></section>
+    <aside id="panels" aria-label="Scenario controls"></aside>
+  </div>
+  <section id="charts" aria-label="Revenue insights"></section>
+  <details class="calc-evidence" open>
+    <summary><span>Behind the numbers</span><span>Assumptions, sources & downloads</span></summary>
+    <section id="sources"></section>
+    <footer id="references"></footer>
+  </details>
+  <footer class="calc-footer"><span>SunStack <span> / </span> Compute closer to home.</span><span>Scenario estimates · All financial results in AUD</span></footer>
 </main>
 <script src="assets/js/calculator-data.js"></script>
 <script src="assets/js/calculator-engine.js"></script>

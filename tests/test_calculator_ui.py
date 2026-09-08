@@ -103,13 +103,14 @@ def test_rig_summary_present(page):
 
 
 def test_fits_badge_no_fit(page):
-    """After removing default device and adding only mac_mini_m4_16 (16 GB),
-    minimax_m3 (126 GB Q4) doesn't fit."""
+    """No catalog model fits a 16 GB Mac mini at FP16."""
     # Remove the default dgx_spark node first
     page.click("#rig-svg .rig-node")
     # Set model to minimax_m3 which needs 126 GB — won't fit in 16 GB
     page.evaluate("() => { window.SunStackUI.state.modelId = 'minimax_m3'; window.SunStackUI.render(); }")
     page.click("button[data-add-device='mac_mini_m4_16']")
+    # Q4 automatically selects a smaller model; FP16 exceeds 16 GB for every model.
+    page.select_option("#quant-select", "fp16")
     summary_text = page.inner_text("#rig-summary").lower()
     # should show a 'no fit' indicator
     assert "exceed" in summary_text or "✗" in summary_text or "no" in summary_text

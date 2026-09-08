@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160"><title>DGX Spark illustration</title><defs>
+<linearGradient id="top" x2="0.8" y2="1"><stop stop-color="#f1f1ed"/><stop offset="1" stop-color="#a9aca8"/></linearGradient>
+<linearGradient id="front" x2="0" y2="1"><stop stop-color="#c6c9c5"/><stop offset="1" stop-color="#787e7b"/></linearGradient>
+<linearGradient id="side" x2="1" y2="1"><stop stop-color="#959b97"/><stop offset="1" stop-color="#555e59"/></linearGradient>
+<linearGradient id="black" x2="0.9" y2="1"><stop stop-color="#555a54"/><stop offset="1" stop-color="#222722"/></linearGradient>
+<linearGradient id="bronze" x2="0.8" y2="1"><stop stop-color="#d4c4a0"/><stop offset="1" stop-color="#786e56"/></linearGradient>
+<pattern id="vents" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.8" fill="#232822"/></pattern>
+</defs><ellipse cx="120" cy="137" rx="82" ry="12" fill="#000" opacity=".16"/>
+<path d="M35 61 154 37 208 65 88 93Z" fill="url(#bronze)" stroke="#b0a386"/>
+<path d="M35 61 88 93 88 129 35 97Z" fill="#6e6755"/>
+<path d="M88 93 208 65 208 103 88 131Z" fill="#aaa083"/>
+<path d="M92 96 204 70 204 99 92 125Z" fill="url(#vents)"/>
+<path d="M43 71 78 92M43 77 78 98M43 83 78 104M43 89 78 110" stroke="#34392f" stroke-width="2"/>
+<path d="M74 60 146 46 169 59 97 73Z" fill="#77745e" opacity=".4"/>
+<circle cx="196" cy="100" r="2.2" fill="#b9db95"/><rect x="165" y="104" width="12" height="3" rx="1" fill="#363d31" transform="rotate(-13 165 104)"/>
+</svg>

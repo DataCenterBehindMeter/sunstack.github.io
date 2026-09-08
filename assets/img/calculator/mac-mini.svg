@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160"><title>Mac Mini illustration</title><defs>
+<linearGradient id="top" x2="0.8" y2="1"><stop stop-color="#f1f1ed"/><stop offset="1" stop-color="#a9aca8"/></linearGradient>
+<linearGradient id="front" x2="0" y2="1"><stop stop-color="#c6c9c5"/><stop offset="1" stop-color="#787e7b"/></linearGradient>
+<linearGradient id="side" x2="1" y2="1"><stop stop-color="#959b97"/><stop offset="1" stop-color="#555e59"/></linearGradient>
+<linearGradient id="black" x2="0.9" y2="1"><stop stop-color="#555a54"/><stop offset="1" stop-color="#222722"/></linearGradient>
+<linearGradient id="bronze" x2="0.8" y2="1"><stop stop-color="#d4c4a0"/><stop offset="1" stop-color="#786e56"/></linearGradient>
+<pattern id="vents" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.8" fill="#232822"/></pattern>
+</defs><ellipse cx="120" cy="137" rx="82" ry="12" fill="#000" opacity=".16"/>
+<path d="M39 78 Q35 73 47 70 L148 49 Q155 47 163 51 L201 72 Q211 78 198 82 L93 107 Q86 109 79 105Z" fill="url(#top)" stroke="#d8ddd7"/>
+<path d="M38 75 80 103 Q86 108 93 106 L203 79 V105 Q203 110 195 112 L95 135 Q87 138 79 132 L42 108 Q38 105 38 99Z" fill="url(#front)"/>
+<path d="M38 75 80 103 80 132 42 108 Q38 105 38 99Z" fill="url(#side)"/>
+<path d="M104 123 116 120 M125 118 137 115" stroke="#38413c" stroke-width="3.8" stroke-linecap="round"/>
+<circle cx="186" cy="109" r="2" fill="#e7f3df"/>
+<path d="M107 79 129 74 141 81 119 86Z" fill="#808b83" opacity=".5"/>
+</svg>

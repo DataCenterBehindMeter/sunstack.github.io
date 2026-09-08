@@ -39,12 +39,6 @@ window.SunStackUI = (function () {
     preset: 'neutral'
   };
 
-  /* ── SVG dimensions ─────────────────────────────────────────────────────── */
-  const SVG_W = 640, SVG_H = 380;
-  const HUB_CX = SVG_W / 2, HUB_CY = SVG_H / 2;
-  const HUB_R  = 28;   // hub circle radius
-  const NODE_W = 128, NODE_H = 52, NODE_R = 8;
-
   /* ── Uncertainty-input display labels ────────────────────────────────────────
    * One source of truth, shared by renderPanels, the sources table, and the
    * downloadable assumptions export.
@@ -146,6 +140,16 @@ window.SunStackUI = (function () {
       presetEl.textContent = displayPreset;
     }
 
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.preset === state.preset);
+      btn.setAttribute('aria-pressed', String(btn.dataset.preset === state.preset));
+    });
+    document.querySelectorAll('input[type="range"]').forEach(slider => {
+      const progress = (Number(slider.value) - Number(slider.min)) / (Number(slider.max) - Number(slider.min)) * 100;
+      slider.style.setProperty('--range-fill', progress + '%');
+    });
+    renderRigSummary();
+
     // Update model sell-price line (live — undercut or model may have changed)
     const sellPriceEl = document.getElementById('model-sell-price');
     if (sellPriceEl) _updateSellPriceLine(sellPriceEl, state);
@@ -160,10 +164,16 @@ window.SunStackUI = (function () {
    * financed toggle, preset-button clicks. Follows with renderOutputs().
    */
   function renderStructure() {
+    const focused = document.activeElement;
+    const focusId = focused?.id;
+    const focusPreset = focused?.dataset.preset;
     renderRigBuilder();
     const ui = window.SunStackUI;
     ui && ui._renderPanels    ? ui._renderPanels()    : renderPanels();
     renderOutputs();
+    const restoreFocus = focusId ? document.getElementById(focusId) :
+      focusPreset ? document.querySelector('[data-preset="' + focusPreset + '"]') : null;
+    if (restoreFocus) restoreFocus.focus({preventScroll: true});
   }
 
   /* ── Top-level render ───────────────────────────────────────────────────── */
@@ -171,213 +181,191 @@ window.SunStackUI = (function () {
     renderStructure();
   }
 
-  /* ── Rig-builder ─────────────────────────────────────────────────────────
-   * Renders: catalog buttons, SVG hub, summary bar.
-   * All DOM is written fresh into #rig-builder on each call.
-   */
+  /* Device families share illustrations across memory configurations. */
+  function deviceArtwork(id) {
+    if (id === 'dgx_spark') return 'dgx-spark';
+    if (id === 'strix_halo') return 'strix-halo';
+    if (id.startsWith('mac_studio')) return 'mac-studio';
+    if (id.startsWith('mac_mini')) return 'mac-mini';
+    return id.replace('_', '-');
+  }
+
   function renderRigBuilder() {
     const root = document.getElementById('rig-builder');
     if (!root) return;
+    const scrollTop = root.querySelector('.catalog-grid')?.scrollTop || 0;
+    root.innerHTML =
+      '<div class="section-heading"><div><span class="section-kicker">01 / CONFIGURE</span>' +
+      '<h2>Rig assembler</h2></div><span class="section-meta">' + state.rig.length +
+      (state.rig.length === 1 ? ' device' : ' devices') + '</span></div>' +
+      '<div class="rig-enclosure"><div class="enclosure-heading"><span><i></i> SUNSTACK / HOME NODE</span>' +
+      '<span>CONCEPT ENCLOSURE</span></div><div id="rig-stage"></div>' +
+      '<div class="enclosure-footer"><span>Illustrative layout · not to scale</span><span>Select a device to remove it</span></div></div>' +
+      '<div id="rig-summary"></div>' +
+      '<div class="catalog"><div class="catalog-heading"><h3>Add to your rig</h3>' +
+      '<span>Choose a device below <span aria-hidden="true">↙</span></span></div>' +
+      '<div class="catalog-legend"><span class="legend-swatch legend-uma"></span>Unified memory' +
+      '<span class="legend-swatch legend-nonuma"></span>Discrete GPU · host included</div>' +
+      '<div class="catalog-grid"></div></div>';
 
-    // Clear and rebuild
-    root.innerHTML = '';
-
-    // ── Catalog section ────────────────────────────────────────────────────
-    const catalogSection = document.createElement('div');
-    catalogSection.className = 'catalog';
-
-    const catalogTitle = document.createElement('h2');
-    catalogTitle.className = 'catalog-title';
-    catalogTitle.textContent = 'Add devices to your rig';
-    catalogSection.appendChild(catalogTitle);
-
-    // Legend
-    const legend = document.createElement('div');
-    legend.className = 'catalog-legend';
-    legend.innerHTML =
-      '<span class="legend-swatch legend-uma"></span><span>UMA (unified memory)</span>' +
-      '<span class="legend-swatch legend-nonuma"></span><span>Discrete GPU</span>';
-    catalogSection.appendChild(legend);
-
-    // Device buttons
-    const grid = document.createElement('div');
-    grid.className = 'catalog-grid';
+    const grid = root.querySelector('.catalog-grid');
     for (const [id, dev] of Object.entries(D.DEVICES)) {
       const btn = document.createElement('button');
+      const count = state.rig.filter(item => item === id).length;
+      btn.type = 'button';
       btn.dataset.addDevice = id;
       btn.className = dev.uma ? 'uma' : 'non-uma';
-      const priceAud = Math.round(dev.priceUsd.typical * D.FX_AUD_PER_USD);
+      btn.setAttribute('aria-label', 'Add ' + dev.label);
       btn.innerHTML =
-        '<span class="dev-label">' + dev.label + '</span>' +
-        '<span class="dev-mem">'   + dev.memoryGb + ' GB</span>' +
-        '<span class="dev-price">A$' + priceAud.toLocaleString('en-AU') + '</span>';
+        '<img class="device-illustration" src="assets/img/calculator/' + deviceArtwork(id) + '.svg" alt="" width="88" height="59" />' +
+        '<span class="dev-info"><span class="dev-label">' + shortDeviceName(id) + '</span>' +
+        '<span class="dev-mem">' + dev.memoryGb + ' GB · ' + (dev.uma ? 'unified' : 'VRAM') + '</span>' +
+        '<span class="dev-price">' + fmtAud(dev.priceUsd.typical * D.FX_AUD_PER_USD) + '</span></span>' +
+        '<span class="dev-add" aria-hidden="true">+</span>' +
+        (count ? '<span class="dev-count">' + count + ' in rig</span>' : '');
       btn.addEventListener('click', () => {
         state.rig.push(id);
         state.preset = 'custom';
         renderStructure();
+        root.querySelector('[data-add-device="' + id + '"]').focus({ preventScroll: true });
       });
       grid.appendChild(btn);
     }
-    catalogSection.appendChild(grid);
-    root.appendChild(catalogSection);
-
-    // ── SVG hub ─────────────────────────────────────────────────────────────
-    const svg = svgEl('svg', {
-      id:      'rig-svg',
-      viewBox: '0 0 ' + SVG_W + ' ' + SVG_H,
-      width:   SVG_W,
-      height:  SVG_H,
-      role:    'img',
-      'aria-label': 'PAIR hub rig diagram'
-    });
-
-    // Hub node — wrapped in an SVG <a> so it links to the NVIDIA PAIR product page
-    const hubAnchor = svgEl('a', {
-      href:             'https://www.nvidia.com/en-au/ai-on-rtx/personal-ai-router/',
-      target:           '_blank',
-      rel:              'noopener',
-      'aria-label':     'NVIDIA PAIR — Personal AI Router',
-      style:            'cursor:pointer'
-    });
-    const hubG = svgEl('g', { class: 'pair-hub' });
-    const hubCircle = svgEl('circle', {
-      cx: HUB_CX, cy: HUB_CY, r: HUB_R,
-      style: 'cursor:pointer'
-    });
-    const hubLabel = svgEl('text', {
-      x: HUB_CX, y: HUB_CY + 5,
-      'text-anchor': 'middle',
-      'font-size':   '12',
-      'font-weight': '600',
-      style:         'pointer-events:none'
-    });
-    hubLabel.textContent = 'PAIR';
-    hubG.appendChild(hubCircle);
-    hubG.appendChild(hubLabel);
-    hubAnchor.appendChild(hubG);
-    svg.appendChild(hubAnchor);
-
-    // Device nodes
-    const positions = E.hubLayout(state.rig.length, SVG_W, SVG_H);
-    state.rig.forEach((devId, idx) => {
-      const dev = D.DEVICES[devId];
-      const pt  = positions[idx];
-
-      // Line from hub to node
-      const line = svgEl('line', {
-        x1: HUB_CX, y1: HUB_CY,
-        x2: pt.x,   y2: pt.y,
-        class: 'rig-edge'
-      });
-      svg.appendChild(line);
-
-      // Node group — keyboard-reachable: focusable + button semantics so it can
-      // be removed via Enter/Space, not just a mouse click.
-      const nodeG = svgEl('g', {
-        class:        'rig-node' + (dev.uma ? '' : ' non-uma'),
-        transform:    'translate(' + (pt.x - NODE_W / 2) + ',' + (pt.y - NODE_H / 2) + ')',
-        style:        'cursor:pointer',
-        tabindex:     '0',
-        role:         'button',
-        'aria-label': 'Remove ' + shortDeviceName(devId)
-      });
-
-      const rect = svgEl('rect', {
-        width:  NODE_W, height: NODE_H,
-        rx: NODE_R,     ry: NODE_R
-      });
-
-      // Line 1: short device name so distinct devices are distinguishable.
-      const nameEl = svgEl('text', {
-        x: NODE_W / 2, y: NODE_H / 2 - 10,
-        'text-anchor': 'middle',
-        'font-size':   '9',
-        'font-weight': '700',
-        class: 'rig-node-name'
-      });
-      nameEl.textContent = shortDeviceName(devId);
-
-      // Line 2: memory.
-      const memEl = svgEl('text', {
-        x: NODE_W / 2, y: NODE_H / 2 + 3,
-        'text-anchor': 'middle',
-        'font-size':   '9',
-        'font-weight': '600'
-      });
-      memEl.textContent = dev.memoryGb + ' GB';
-
-      // Line 3: remove hint.
-      const removeEl = svgEl('text', {
-        x: NODE_W / 2, y: NODE_H / 2 + 16,
-        'text-anchor': 'middle',
-        'font-size':   '8',
-        class: 'rig-node-hint'
-      });
-      removeEl.textContent = '✕ click to remove';
-
-      nodeG.appendChild(rect);
-      nodeG.appendChild(nameEl);
-      nodeG.appendChild(memEl);
-      nodeG.appendChild(removeEl);
-
-      // Click removes this index
-      const removeThisNode = () => {
-        state.rig.splice(idx, 1);
-        renderStructure();
-      };
-      nodeG.addEventListener('click', removeThisNode);
-
-      // Keyboard: Enter or Space removes it, mirroring the click action.
-      nodeG.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          removeThisNode();
-        }
-      });
-
-      svg.appendChild(nodeG);
-    });
-
-    root.appendChild(svg);
-
-    // ── Summary bar ──────────────────────────────────────────────────────────
-    const summary = document.createElement('div');
-    summary.id = 'rig-summary';
-
-    if (state.rig.length === 0) {
-      summary.innerHTML = '<span class="summary-empty">Add a device above to start building your rig.</span>';
-    } else {
-      // Use computeScenario as single source of truth for rigCostAud (no separate sum)
-      const out        = E.computeScenario(state);
-      const pooledGb   = E.poolMemoryGb(state.rig);
-      const totalLoadW = state.rig.reduce((acc, id) => acc + D.DEVICES[id].loadW.typical, 0);
-      const rigCostAud = out.rigCostAud;
-      const okFit      = E.fits(state.rig, state.modelId, state.quant);
-      let tpsHtml = '';
-      if (okFit) {
-        const tput = E.aggThroughput(state);
-        const ss   = Math.round(tput.singleStreamMin);
-        const srv  = Math.round(tput.aggServedTps);
-        const conc = state.concurrency != null ? state.concurrency : 12;
-        tpsHtml =
-          '<span class="summary-stat"><span class="stat-val">' + ss + ' t/s</span><span class="stat-lbl">single-stream</span></span>' +
-          '<span class="summary-stat"><span class="stat-val">' + srv + ' t/s</span><span class="stat-lbl">served (' + conc + ' concurrent)</span></span>';
-      }
-
-      const fitBadge = okFit
-        ? '<span class="fit-badge fit-ok">fits ✓</span>'
-        : '<span class="fit-badge fit-no">exceeds pool ✗</span>';
-
-      summary.innerHTML =
-        '<span class="summary-stat"><span class="stat-val">' + pooledGb + ' GB</span><span class="stat-lbl">pooled memory</span></span>' +
-        '<span class="summary-stat"><span class="stat-val">' + fmtKw(totalLoadW) + '</span><span class="stat-lbl">total load</span></span>' +
-        '<span class="summary-stat"><span class="stat-val">' + fmtAud(rigCostAud) + '</span><span class="stat-lbl">rig cost</span></span>' +
-        tpsHtml +
-        '<span class="summary-badge">' + fitBadge + '</span>';
-    }
-
-    root.appendChild(summary);
+    grid.scrollTop = scrollTop;
+    renderEnclosure();
   }
+
+  function renderEnclosure() {
+    const stage = document.getElementById('rig-stage');
+    if (!stage) return;
+    const mobile = window.matchMedia('(max-width: 600px)').matches;
+    const cols = mobile ? 2 : 3;
+    const width = mobile ? 440 : 720;
+    const gap = mobile ? 28 : 34;
+    const nodeW = (width - 104 - gap * (cols - 1)) / cols;
+    const nodeH = 166;
+    const rowStep = 206;
+    const rows = Math.max(1, Math.ceil(state.rig.length / cols));
+    const hubY = rows * rowStep + 38;
+    const height = hubY + 96;
+    const svg = svgEl('svg', {
+      id: 'rig-svg', class: mobile ? 'rig-svg-mobile' : '', viewBox: '0 0 ' + width + ' ' + height,
+      role: 'group', 'aria-label': 'Rig enclosure with ' + state.rig.length + ' devices connected to PAIR'
+    });
+    svg.innerHTML = '<defs><linearGradient id="rack-metal" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="var(--dark-2)"/><stop offset="1" stop-color="var(--dark-3)"/>' +
+      '</linearGradient><pattern id="rack-perforation" width="8" height="8" patternUnits="userSpaceOnUse">' +
+      '<circle cx="2" cy="2" r="1" fill="var(--line-dark)"/></pattern></defs>';
+    svg.appendChild(svgEl('rect', {x: 10, y: 8, width: width - 20, height: height - 16, rx: 14, class: 'rack-shell'}));
+    svg.appendChild(svgEl('rect', {x: 28, y: 25, width: width - 56, height: hubY - 34, rx: 6, fill: 'url(#rack-perforation)'}));
+    [27, width - 27].forEach(x => {
+      svg.appendChild(svgEl('rect', {x: x - 6, y: 26, width: 12, height: height - 52, rx: 3, class: 'rack-rail'}));
+      for (let y = 44; y < height - 24; y += 38) {
+        svg.appendChild(svgEl('circle', {cx: x, cy: y, r: 2, class: 'rack-screw'}));
+      }
+    });
+    const cables = svgEl('g', {'aria-hidden': 'true'});
+    const bays = svgEl('g');
+    for (let idx = 0; idx < rows * cols; idx++) {
+      const row = Math.floor(idx / cols), col = idx % cols;
+      const x = 52 + col * (nodeW + gap), y = 42 + row * rowStep;
+      if (col === 0) {
+        svg.appendChild(svgEl('path', {d: 'M42 ' + (y + nodeH + 7) + 'H' + (width - 42), class: 'rack-shelf'}));
+      }
+      const id = state.rig[idx];
+      if (!id) {
+        const empty = svgEl('g', {class: 'rig-empty-bay', transform: 'translate(' + x + ',' + y + ')', 'aria-hidden': 'true'});
+        empty.innerHTML = '<rect width="' + nodeW + '" height="' + nodeH + '" rx="10"/>' +
+          '<text x="' + nodeW / 2 + '" y="75" class="bay-plus">+</text>' +
+          '<text x="' + nodeW / 2 + '" y="104">AVAILABLE BAY</text>';
+        bays.appendChild(empty);
+        continue;
+      }
+      const dev = D.DEVICES[id];
+      // Each column has a cable channel beside its bays; cable stays clear of hardware.
+      const portX = 92 + col * (width - 184) / Math.max(1, cols - 1);
+      const laneX = x + nodeW + 8 + (row % 3) * 3;
+      const plugY = y + nodeH - 15;
+      const cableY = hubY - 16 + col * 4;
+      cables.appendChild(svgEl('path', {
+        d: 'M' + (x + nodeW - 8) + ' ' + plugY + 'H' + laneX + 'V' + cableY + 'H' + portX + 'V' + (hubY + 15),
+        class: 'rig-edge' + (dev.uma ? '' : ' discrete')
+      }));
+      const node = svgEl('g', {
+        class: 'rig-node' + (dev.uma ? '' : ' non-uma'), transform: 'translate(' + x + ',' + y + ')',
+        tabindex: '0', role: 'button', 'aria-label': 'Remove ' + dev.label + ' from bay ' + (idx + 1)
+      });
+      const deviceName = shortDeviceName(id);
+      const nameLines = mobile && deviceName.startsWith('Mac ')
+        ? deviceName.replace(/ (M[34])/, '|$1').split('|') : [deviceName];
+      const nameMarkup = nameLines.map((line, index) => '<tspan x="' + nodeW / 2 + '" y="' +
+        (nameLines.length > 1 ? 121 + index * 16 : 131) + '">' + line + '</tspan>').join('');
+      node.innerHTML = '<title>Remove ' + dev.label + '</title>' +
+        '<rect class="device-bay" width="' + nodeW + '" height="' + nodeH + '" rx="10"/>' +
+        '<text x="12" y="19" class="bay-number">' + String(idx + 1).padStart(2, '0') + '</text>' +
+        '<circle cx="' + (nodeW - 17) + '" cy="16" r="9" class="node-remove-bg"/>' +
+        '<text x="' + (nodeW - 17) + '" y="20" class="node-remove">×</text>' +
+        '<image class="device-illustration" href="assets/img/calculator/' + deviceArtwork(id) + '.svg" x="10" y="18" width="' + (nodeW - 20) + '" height="100"/>' +
+        '<text x="' + nodeW / 2 + '" y="131" class="rig-node-name">' + nameMarkup + '</text>' +
+        '<text x="' + nodeW / 2 + '" y="155" class="rig-node-memory">' + dev.memoryGb + ' GB ' + (dev.uma ? 'UNIFIED' : 'VRAM') + '</text>' +
+        '<circle cx="' + (nodeW - 8) + '" cy="' + (nodeH - 15) + '" r="3" class="device-port"/>';
+      const remove = () => {
+        state.rig.splice(idx, 1);
+        state.preset = 'custom';
+        renderStructure();
+        const next = document.querySelectorAll('.rig-node')[Math.min(idx, state.rig.length - 1)] ||
+          document.querySelector('[data-add-device="' + id + '"]');
+        next.focus({preventScroll: true});
+      };
+      node.addEventListener('click', remove);
+      node.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); remove(); }
+      });
+      bays.appendChild(node);
+    }
+    svg.appendChild(cables);
+    svg.appendChild(bays);
+    const hub = svgEl('a', {
+      href: 'https://www.nvidia.com/en-au/ai-on-rtx/personal-ai-router/',
+      target: '_blank', rel: 'noopener', class: 'pair-hub',
+      'aria-label': 'NVIDIA PAIR — Personal AI Router', transform: 'translate(52,' + hubY + ')'
+    });
+    hub.innerHTML = '<rect width="' + (width - 104) + '" height="60" rx="8"/>' +
+      '<circle cx="20" cy="30" r="4" class="hub-light"/>' +
+      '<text x="34" y="34" class="hub-name">PAIR</text>' +
+      '<text x="91" y="34" class="hub-caption">PERSONAL AI ROUTER</text>' +
+      '<text x="' + (width - 124) + '" y="35" class="hub-link">↗</text>';
+    for (let col = 0; col < cols; col++) {
+      hub.appendChild(svgEl('rect', {x: 40 + col * (width - 184) / Math.max(1, cols - 1) - 7, y: -3, width: 14, height: 6, rx: 1, class: 'hub-port'}));
+    }
+    svg.appendChild(hub);
+    stage.replaceChildren(svg);
+  }
+
+  function renderRigSummary() {
+    const summary = document.getElementById('rig-summary');
+    if (!summary) return;
+    if (!state.rig.length) {
+      summary.innerHTML = '<span class="summary-empty">Your enclosure is ready. Add a device below to get started.</span>';
+      return;
+    }
+    const out = E.computeScenario(state);
+    const throughput = E.aggThroughput(state);
+    const stat = (value, label) => '<span class="summary-stat"><span class="stat-val">' + value +
+      '</span><span class="stat-lbl">' + label + '</span></span>';
+    summary.innerHTML = stat(out.pooledMemoryGb + ' GB', 'pooled memory') +
+      stat(fmtKw(out.totalLoadKw * 1000), 'inference load') + stat(fmtAud(out.rigCostAud), 'hardware cost') +
+      stat(Math.round(out.singleStreamTps) + ' t/s', 'single-stream') +
+      stat(Math.round(out.aggServedTps) + ' t/s', 'served (' + state.concurrency + ' concurrent)') +
+      '<span class="summary-badge"><span class="fit-badge ' + (out.fits ? 'fit-ok' : 'fit-no') + '">' +
+      (out.fits ? 'Model fits ✓' : 'Exceeds pool ✗') + '</span><span class="rig-mode">' +
+      (out.fits ? (throughput.pooled ? '1 pooled instance' : out.replicaCount + (out.replicaCount === 1 ? ' replica' : ' replicas')) : 'Choose a smaller model') + '</span></span>';
+  }
+
+  window.matchMedia('(max-width: 600px)').addEventListener('change', () => {
+    renderEnclosure();
+    window.SunStackUI?._renderResults?.();
+  });
 
   /* ── Panels (input controls) ─────────────────────────────────────────────
    * Renders into #panels: preset toggle, model/quant selects, uncertainty
@@ -401,7 +389,7 @@ window.SunStackUI = (function () {
       // If none fit (empty rig or all exceed), leave unchanged
     }
 
-    root.innerHTML = '';
+    root.innerHTML = '<div class="section-heading"><div><span class="section-kicker">02 / FINE-TUNE</span><h2>Your scenario</h2></div></div>';
 
     // ── Section wrapper ────────────────────────────────────────────────────
     const wrap = document.createElement('div');
@@ -422,6 +410,7 @@ window.SunStackUI = (function () {
     ['pessimistic', 'neutral', 'optimistic'].forEach(mode => {
       const btn = document.createElement('button');
       btn.dataset.preset = mode;
+      btn.setAttribute('aria-pressed', String(state.preset === mode));
       btn.className = 'preset-btn' + (state.preset === mode ? ' active' : '');
       btn.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
       btn.addEventListener('click', () => {
