@@ -22,8 +22,8 @@ window.SunStackUI = (function () {
     feedInTariff:            ID.feedInTariff.value,
     retailRate:              ID.retailRate.value,
 
-    // energy mix (fractions sum to 1; default: 60% free/off-peak, 30% solar, 10% grid)
-    energyMix: { free: 0.6, solar: 0.3, grid: 0.1 },
+    // energy source (fractions sum to 1; one slider trades solar ↔ grid; default 90% solar)
+    energyMix: { solar: 0.9, grid: 0.1 },
 
     // concurrency — batching lever (NOT in INPUT_DEFAULTS; presets do not change it)
     concurrency: 16,
@@ -51,7 +51,7 @@ window.SunStackUI = (function () {
    * downloadable assumptions export.
    */
   const INPUT_LABELS = {
-    utilization:           'Utilization',
+    utilization:           'Utilisation (% time serving jobs)',
     activeHours:           'Active hours/day',
     poolEfficiency:        'Pool efficiency',
     feedInTariff:          'Solar feed-in (c/kWh)',
@@ -132,16 +132,12 @@ window.SunStackUI = (function () {
       if (disp && def) disp.textContent = fmtVal(def, state[inputId]);
     });
 
-    // Update in-place value labels for energy-mix sliders
-    const ENERGY_KEYS = ['free', 'solar', 'grid'];
-    const rawTot = ENERGY_KEYS.reduce((s, k) => s + (state.energyMix[k] || 0), 0) || 1;
-    ENERGY_KEYS.forEach(key => {
-      const disp = document.getElementById('val-energy-' + key);
-      if (disp) {
-        const pct = Math.round(((state.energyMix[key] || 0) / rawTot) * 100);
-        disp.textContent = pct + '%';
-      }
-    });
+    // Update in-place value label for the solar↔grid slider
+    const solarDisp = document.getElementById('val-solar-share');
+    if (solarDisp) {
+      const solarPct = Math.round((state.energyMix.solar || 0) * 100);
+      solarDisp.textContent = solarPct + '% solar / ' + (100 - solarPct) + '% grid';
+    }
 
     // Update preset-state indicator
     const presetEl = document.getElementById('preset-state');
@@ -623,68 +619,52 @@ window.SunStackUI = (function () {
 
     const energyTitle = document.createElement('h2');
     energyTitle.className = 'panel-section-title';
-    energyTitle.textContent = 'Energy mix';
+    energyTitle.textContent = 'Energy source';
     energySection.appendChild(energyTitle);
 
     const energyGrid = document.createElement('div');
     energyGrid.className = 'slider-grid';
 
-    const ENERGY_KEYS = ['free', 'solar', 'grid'];
-    const ENERGY_LABELS = { free: 'Free / off-peak', solar: 'Solar', grid: 'Grid' };
+    // One slider trades solar ↔ grid. Left = all grid (retail, dear); right = all solar (feed-in, cheap).
+    const solarPct0 = Math.round((state.energyMix.solar || 0) * 100);
 
-    // Normalise totals for display (raw mix values stored, display as %)
-    const rawTot = ENERGY_KEYS.reduce((s, k) => s + (state.energyMix[k] || 0), 0) || 1;
+    const eGroup = document.createElement('div');
+    eGroup.className = 'slider-group';
 
-    ENERGY_KEYS.forEach(key => {
-      const rawVal = state.energyMix[key] || 0;
-      const pct = Math.round((rawVal / rawTot) * 100);
+    const eLabel = document.createElement('label');
+    eLabel.setAttribute('for', 'in-solar-share');
+    eLabel.className = 'slider-label';
 
-      const group = document.createElement('div');
-      group.className = 'slider-group';
+    const eText = document.createElement('span');
+    eText.textContent = 'Solar-powered share';
 
-      const label = document.createElement('label');
-      label.setAttribute('for', 'in-energy-' + key);
-      label.className = 'slider-label';
+    const eVal = document.createElement('span');
+    eVal.className = 'slider-val';
+    eVal.id = 'val-solar-share';
+    eVal.textContent = solarPct0 + '% solar / ' + (100 - solarPct0) + '% grid';
 
-      const labelText = document.createElement('span');
-      labelText.textContent = ENERGY_LABELS[key];
+    eLabel.appendChild(eText);
+    eLabel.appendChild(eVal);
 
-      const valDisplay = document.createElement('span');
-      valDisplay.className = 'slider-val';
-      valDisplay.id = 'val-energy-' + key;
-      valDisplay.textContent = pct + '%';
+    const eSlider = document.createElement('input');
+    eSlider.type = 'range';
+    eSlider.id = 'in-solar-share';
+    eSlider.min = 0;
+    eSlider.max = 100;
+    eSlider.step = 1;
+    eSlider.value = solarPct0;
+    eSlider.setAttribute('aria-label', 'Solar-powered share of energy (remainder drawn from the grid)');
 
-      label.appendChild(labelText);
-      label.appendChild(valDisplay);
-
-      const slider = document.createElement('input');
-      slider.type = 'range';
-      slider.id = 'in-energy-' + key;
-      slider.min = 0;
-      slider.max = 100;
-      slider.step = 1;
-      slider.value = pct;
-      slider.setAttribute('aria-label', ENERGY_LABELS[key] + ' energy share');
-
-      slider.addEventListener('input', () => {
-        // Read ALL three sliders' current 0–100 values, then normalise to
-        // fractions. Reading every slider (not just the changed key) keeps
-        // normalisation independent of the keys' prior stored scale.
-        const raw = {};
-        ENERGY_KEYS.forEach(k => {
-          const el = document.getElementById('in-energy-' + k);
-          raw[k] = el ? parseInt(el.value, 10) : 0;
-        });
-        const tot = ENERGY_KEYS.reduce((s, k) => s + (raw[k] || 0), 0) || 1;
-        ENERGY_KEYS.forEach(k => { state.energyMix[k] = raw[k] / tot; });
-        state.preset = 'custom';
-        renderOutputs();
-      });
-
-      group.appendChild(label);
-      group.appendChild(slider);
-      energyGrid.appendChild(group);
+    eSlider.addEventListener('input', () => {
+      const solar = parseInt(eSlider.value, 10) / 100;
+      state.energyMix = { solar: solar, grid: 1 - solar };
+      state.preset = 'custom';
+      renderOutputs();
     });
+
+    eGroup.appendChild(eLabel);
+    eGroup.appendChild(eSlider);
+    energyGrid.appendChild(eGroup);
 
     energySection.appendChild(energyGrid);
     wrap.appendChild(energySection);

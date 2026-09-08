@@ -361,28 +361,28 @@ def test_slider_drag_does_not_recreate_element(page):
 
 
 def test_energy_slider_drag_does_not_recreate_element(page):
-    """Dragging #in-energy-solar must NOT destroy and recreate that slider."""
-    slider_el = page.query_selector("#in-energy-solar")
-    assert slider_el is not None, "#in-energy-solar not found"
+    """Dragging #in-solar-share must NOT destroy and recreate that slider."""
+    slider_el = page.query_selector("#in-solar-share")
+    assert slider_el is not None, "#in-solar-share not found"
 
     before_card = page.inner_text("#card-homeowner-net")
 
     page.evaluate(
         """() => {
-            const el = document.getElementById('in-energy-solar');
-            el.value = 60;
+            const el = document.getElementById('in-solar-share');
+            el.value = 20;
             el.dispatchEvent(new Event('input', { bubbles: true }));
         }"""
     )
 
     still_connected = page.evaluate("(el) => el.isConnected", slider_el)
     assert still_connected, (
-        "#in-energy-solar was replaced in the DOM during slider input"
+        "#in-solar-share was replaced in the DOM during slider input"
     )
 
     after_card = page.inner_text("#card-homeowner-net")
     assert before_card != after_card, (
-        "#card-homeowner-net did not update after energy-mix slider input"
+        "#card-homeowner-net did not update after solar-share slider input"
     )
 
 

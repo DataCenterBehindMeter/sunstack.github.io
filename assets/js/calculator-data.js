@@ -771,7 +771,7 @@ window.SunStackData = (function () {
    */
   const INPUT_DEFAULTS = {
     utilization: {
-      value: 0.45, low: 0.20, high: 0.65,
+      value: 0.60, low: 0.20, high: 0.75,
       unit: "fraction",
       source_id: "messari_akash", confidence: "medium", polarity: "+"
     },

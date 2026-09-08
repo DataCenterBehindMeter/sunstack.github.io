@@ -139,24 +139,23 @@ def test_pair_link_opens_new_tab(page):
     assert rel is not None and "noopener" in rel, f"Expected rel='noopener', got {rel!r}"
 
 
-# ── Refinement 6: energy cost card ───────────────────────────────────────────
+# ── Energy source: single solar↔grid slider ──────────────────────────────────
 
-def test_energy_cost_card_present(page):
-    """#card-energy-cost is present in #results."""
-    assert page.locator("#card-energy-cost").count() == 1, \
-        "#card-energy-cost card should exist in results"
+def test_solar_share_slider_present(page):
+    """The single solar↔grid slider is present (no more 3-way energy mix)."""
+    assert page.locator("#in-solar-share").count() == 1, \
+        "#in-solar-share slider should exist"
 
 
-def test_energy_cost_card_updates_on_slider(page):
-    """Changing a grid energy slider updates the energy cost card."""
-    before = page.inner_text("#card-energy-cost")
-    # Push grid to 100%, solar/free to 0 — maximises energy cost
+def test_solar_share_updates_net(page):
+    """Dragging solar share to mostly-grid raises energy cost and changes net."""
+    before = page.inner_text("#card-homeowner-net")
     page.evaluate("""() => {
-      const el = document.getElementById('in-energy-grid');
-      if (el) { el.value = 100; el.dispatchEvent(new Event('input')); }
+      const el = document.getElementById('in-solar-share');
+      if (el) { el.value = 10; el.dispatchEvent(new Event('input')); }
     }""")
-    after = page.inner_text("#card-energy-cost")
-    assert before != after, "Energy cost card did not update when grid slider changed"
+    after = page.inner_text("#card-homeowner-net")
+    assert before != after, "Homeowner net did not change when solar share dropped to 10%"
 
 
 # ── Refinement 7: default model + both parties positive ──────────────────────

@@ -117,16 +117,6 @@
       '<div class="card-sub">vs cloud API (' + Math.round(out.buyer.savePct * 100) + '% cheaper)</div>';
     grid.appendChild(buyCard);
 
-    // ── Energy cost card — surfaces the value so energy-mix sliders visibly matter
-    const energyCard = document.createElement('div');
-    energyCard.className = 'result-card';
-    energyCard.id = 'card-energy-cost';
-    energyCard.innerHTML =
-      '<div class="card-label">Energy A$/yr</div>' +
-      '<div class="card-val">' + fmtAudVal(out.homeowner.energyCostAud) + '</div>' +
-      '<div class="card-sub">homeowner inference electricity cost</div>';
-    grid.appendChild(energyCard);
-
     root.appendChild(grid);
 
     // ── Stacked bar (split-bar) — total = buyer's cloud-equivalent spend ──────

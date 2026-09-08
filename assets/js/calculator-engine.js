@@ -103,10 +103,9 @@ window.SunStackEngine = (function () {
   /* ── Effective energy price (AUD/kWh) ────────────────────────────────── */
   function effEnergyPriceAudPerKwh(state) {
     const m = state.energyMix;
-    const tot = ((m.free || 0) + (m.solar || 0) + (m.grid || 0)) || 1;
-    // feedInTariff / retailRate are in AUD c/kWh → divide by 100 for AUD/kWh
+    const tot = ((m.solar || 0) + (m.grid || 0)) || 1;
+    // solar = opportunity cost (feed-in tariff foregone); grid = retail. Both AUD c/kWh → /100.
     const cPerKwh = (
-      (m.free  || 0) * 0 +
       (m.solar || 0) * state.feedInTariff +
       (m.grid  || 0) * state.retailRate
     ) / tot;
