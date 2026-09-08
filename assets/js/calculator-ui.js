@@ -17,8 +17,7 @@ window.SunStackUI = (function () {
 
     // uncertainty inputs — seeded from INPUT_DEFAULTS typical values
     poolEfficiency:          ID.poolEfficiency.value,
-    utilization:             ID.utilization.value,
-    activeHours:             24,
+    activeHours:             ID.activeHours.value,
     feedInTariff:            ID.feedInTariff.value,
     retailRate:              ID.retailRate.value,
 
@@ -51,8 +50,7 @@ window.SunStackUI = (function () {
    * downloadable assumptions export.
    */
   const INPUT_LABELS = {
-    utilization:           'Utilisation (% time serving jobs)',
-    activeHours:           'Active hours/day',
+    activeHours:           'Hours/day running inference',
     poolEfficiency:        'Pool efficiency',
     feedInTariff:          'Solar feed-in (c/kWh)',
     retailRate:            'Grid retail (c/kWh)'
@@ -610,64 +608,52 @@ window.SunStackUI = (function () {
       sliderGrid.appendChild(group);
     });
 
+    // Solar↔grid energy slider — lives under "Assumptions" (one slider trades solar ↔ grid;
+    // left = all grid at retail, right = all solar at the feed-in opportunity cost).
+    {
+      const solarPct0 = Math.round((state.energyMix.solar || 0) * 100);
+
+      const eGroup = document.createElement('div');
+      eGroup.className = 'slider-group';
+
+      const eLabel = document.createElement('label');
+      eLabel.setAttribute('for', 'in-solar-share');
+      eLabel.className = 'slider-label';
+
+      const eText = document.createElement('span');
+      eText.textContent = 'Solar-powered share';
+
+      const eVal = document.createElement('span');
+      eVal.className = 'slider-val';
+      eVal.id = 'val-solar-share';
+      eVal.textContent = solarPct0 + '% solar / ' + (100 - solarPct0) + '% grid';
+
+      eLabel.appendChild(eText);
+      eLabel.appendChild(eVal);
+
+      const eSlider = document.createElement('input');
+      eSlider.type = 'range';
+      eSlider.id = 'in-solar-share';
+      eSlider.min = 0;
+      eSlider.max = 100;
+      eSlider.step = 1;
+      eSlider.value = solarPct0;
+      eSlider.setAttribute('aria-label', 'Solar-powered share of energy (remainder drawn from the grid)');
+
+      eSlider.addEventListener('input', () => {
+        const solar = parseInt(eSlider.value, 10) / 100;
+        state.energyMix = { solar: solar, grid: 1 - solar };
+        state.preset = 'custom';
+        renderOutputs();
+      });
+
+      eGroup.appendChild(eLabel);
+      eGroup.appendChild(eSlider);
+      sliderGrid.appendChild(eGroup);
+    }
+
     sliderSection.appendChild(sliderGrid);
     wrap.appendChild(sliderSection);
-
-    // ── Energy-mix sliders ─────────────────────────────────────────────────
-    const energySection = document.createElement('div');
-    energySection.className = 'panel-section energy-section';
-
-    const energyTitle = document.createElement('h2');
-    energyTitle.className = 'panel-section-title';
-    energyTitle.textContent = 'Energy source';
-    energySection.appendChild(energyTitle);
-
-    const energyGrid = document.createElement('div');
-    energyGrid.className = 'slider-grid';
-
-    // One slider trades solar ↔ grid. Left = all grid (retail, dear); right = all solar (feed-in, cheap).
-    const solarPct0 = Math.round((state.energyMix.solar || 0) * 100);
-
-    const eGroup = document.createElement('div');
-    eGroup.className = 'slider-group';
-
-    const eLabel = document.createElement('label');
-    eLabel.setAttribute('for', 'in-solar-share');
-    eLabel.className = 'slider-label';
-
-    const eText = document.createElement('span');
-    eText.textContent = 'Solar-powered share';
-
-    const eVal = document.createElement('span');
-    eVal.className = 'slider-val';
-    eVal.id = 'val-solar-share';
-    eVal.textContent = solarPct0 + '% solar / ' + (100 - solarPct0) + '% grid';
-
-    eLabel.appendChild(eText);
-    eLabel.appendChild(eVal);
-
-    const eSlider = document.createElement('input');
-    eSlider.type = 'range';
-    eSlider.id = 'in-solar-share';
-    eSlider.min = 0;
-    eSlider.max = 100;
-    eSlider.step = 1;
-    eSlider.value = solarPct0;
-    eSlider.setAttribute('aria-label', 'Solar-powered share of energy (remainder drawn from the grid)');
-
-    eSlider.addEventListener('input', () => {
-      const solar = parseInt(eSlider.value, 10) / 100;
-      state.energyMix = { solar: solar, grid: 1 - solar };
-      state.preset = 'custom';
-      renderOutputs();
-    });
-
-    eGroup.appendChild(eLabel);
-    eGroup.appendChild(eSlider);
-    energyGrid.appendChild(eGroup);
-
-    energySection.appendChild(energyGrid);
-    wrap.appendChild(energySection);
 
     // ── Business split controls ────────────────────────────────────────────
     const bizSection = document.createElement('div');

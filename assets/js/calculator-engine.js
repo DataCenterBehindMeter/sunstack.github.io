@@ -125,9 +125,9 @@ window.SunStackEngine = (function () {
     const thr      = aggThroughput(state);
     const aggTokps = thr.aggServedTps;
 
-    // tokensPerYear = aggregate tok/s * seconds per active hour * active hours/day * 365 days * utilization
+    // tokensPerYear = aggregate tok/s * 3600 s/h * hours/day running inference * 365 days
     const tokensPerYear = okFit
-      ? aggTokps * 3600 * state.activeHours * 365 * state.utilization
+      ? aggTokps * 3600 * state.activeHours * 365
       : 0;
 
     // ── Pricing ────────────────────────────────────────────────────────────
@@ -146,7 +146,7 @@ window.SunStackEngine = (function () {
     // A node that can't fit the model does no work (tokens=0), so charging it
     // energy would be a phantom cost.
     const energyCostAud = okFit
-      ? totalLoadKw * state.activeHours * 365 * state.utilization
+      ? totalLoadKw * state.activeHours * 365
         * effEnergyPriceAudPerKwh(state)
       : 0;
 
@@ -242,16 +242,6 @@ window.SunStackEngine = (function () {
     return s;
   }
 
-  // net is linear in utilization: net(u) = A*u - B  => breakeven u* = B/A
-  function breakevenUtilization(state) {
-    const at = (u) => { const s = Object.assign({}, state, { utilization: u }); return computeScenario(s).homeowner.netAud; };
-    const n0 = at(0), n1 = at(1);
-    const A = n1 - n0;
-    if (A === 0) return null;
-    const u = -n0 / A;
-    return (u >= 0 && u <= 1) ? u : null;
-  }
-
   /* ── PAIR hub layout helper ──────────────────────────────────────────────── */
   function hubLayout(count, w, h) {
     const pts = []; if (count <= 0) return pts;
@@ -283,7 +273,6 @@ window.SunStackEngine = (function () {
     effEnergyPriceAudPerKwh,
     computeScenario,
     applyPreset,
-    breakevenUtilization,
     hubLayout,
     UNCERTAINTY_INPUT_IDS
   };

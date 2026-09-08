@@ -33,7 +33,7 @@ def test_default_state_dgx_minimax(page):
     assert s["rig"] == ["dgx_spark"]
     assert s["modelId"] == "minimax_m3"
     assert s["quant"] == "q4"
-    assert s["activeHours"] == 24
+    assert s["activeHours"] == 16
     assert s["concurrency"] == 16
     assert s["financed"] is True
     assert abs(s["homeownerShare"] - 0.55) < 1e-6
@@ -145,10 +145,10 @@ def test_page_no_throw_on_load(page):
 
 
 def test_preset_toggle_moves_slider(page):
-    """Clicking the optimistic preset changes the utilization slider value."""
-    before = page.eval_on_selector("#in-utilization", "el => el.value")
+    """Clicking the optimistic preset changes the hours/day slider value."""
+    before = page.eval_on_selector("#in-activeHours", "el => el.value")
     page.click("button[data-preset='optimistic']")
-    after = page.eval_on_selector("#in-utilization", "el => el.value")
+    after = page.eval_on_selector("#in-activeHours", "el => el.value")
     assert before != after
 
 
@@ -161,13 +161,10 @@ def test_model_gating_disables_unfittable(page):
 
 def test_manual_edit_sets_custom(page):
     """Manually changing a slider sets state.preset to 'custom'."""
-    if page.get_attribute("#in-utilization", "type") == "number":
-        page.fill("#in-utilization", "0.55")
-    else:
-        page.eval_on_selector(
-            "#in-utilization",
-            "el => { el.value = 0.55; el.dispatchEvent(new Event('input')); }"
-        )
+    page.eval_on_selector(
+        "#in-activeHours",
+        "el => { el.value = 20; el.dispatchEvent(new Event('input')); }"
+    )
     assert "custom" in page.inner_text("#preset-state").lower()
 
 
@@ -206,11 +203,11 @@ def test_headline_cards_render(page):
 
 
 def test_negative_net_flagged(page):
-    """A config with tiny utilisation produces a card flagged negative (.neg or '-' in text)."""
+    """A config with almost no running hours produces a card flagged negative (.neg or '-' in text)."""
     page.click("button[data-add-device='gpu_5090']")
     page.eval_on_selector(
-        "#in-utilization",
-        "el => { el.value = 0.01; el.dispatchEvent(new Event('input')); }"
+        "#in-activeHours",
+        "el => { el.value = 1; el.dispatchEvent(new Event('input')); }"
     )
     # Disable financing so hardware cost hits the homeowner
     if page.locator("#in-financed").count():
@@ -334,23 +331,23 @@ def test_payback_card_shows_operator_payback_when_financed(page):
 
 
 def test_slider_drag_does_not_recreate_element(page):
-    """Dragging #in-utilization must NOT destroy and recreate the element."""
-    slider_el = page.query_selector("#in-utilization")
-    assert slider_el is not None, "#in-utilization not found"
+    """Dragging #in-activeHours must NOT destroy and recreate the element."""
+    slider_el = page.query_selector("#in-activeHours")
+    assert slider_el is not None, "#in-activeHours not found"
 
     before_card = page.inner_text("#card-homeowner-net")
 
     page.evaluate(
         """() => {
-            const el = document.getElementById('in-utilization');
-            el.value = 0.75;
+            const el = document.getElementById('in-activeHours');
+            el.value = 20;
             el.dispatchEvent(new Event('input', { bubbles: true }));
         }"""
     )
 
     still_connected = page.evaluate("(el) => el.isConnected", slider_el)
     assert still_connected, (
-        "#in-utilization was replaced in the DOM during slider input — "
+        "#in-activeHours was replaced in the DOM during slider input — "
         "the render-loop split is not working correctly"
     )
 

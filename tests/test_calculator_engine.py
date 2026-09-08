@@ -10,7 +10,7 @@ def page():
 
 BASE = """{
   preset:'neutral', rig:['dgx_spark'], modelId:'gpt_oss_120b', quant:'q4',
-  poolEfficiency:0.75, utilization:0.4, activeHours:16, concurrency:12,
+  poolEfficiency:0.75, activeHours:16, concurrency:12,
   energyMix:{free:0.6,solar:0.3,grid:0.1}, feedInTariff:3.3, retailRate:30,
   undercut:0.3, homeownerShare:0.5, financed:true,
   platformCostUsdPerMTok:0.002 }"""
@@ -37,9 +37,9 @@ def test_free_energy_is_zero_component(page):
     o = calc(page, "s.energyMix={free:1,solar:0,grid:0}")
     assert o["homeowner"]["energyCostAud"] == 0
 
-def test_net_increases_with_utilization(page):
-    lo = calc(page, "s.utilization=0.2")["homeowner"]["netAud"]
-    hi = calc(page, "s.utilization=0.8")["homeowner"]["netAud"]
+def test_net_increases_with_hours(page):
+    lo = calc(page, "s.activeHours=8")["homeowner"]["netAud"]
+    hi = calc(page, "s.activeHours=24")["homeowner"]["netAud"]
     assert hi > lo
 
 def test_buyer_saves_equals_tokens_times_gap(page):
@@ -71,12 +71,12 @@ def test_financed_moves_hardware_off_homeowner(page):
     assert fin == 0 and own > 0
 
 def test_preset_sets_uncertainty_by_polarity(page):
-    # optimistic: utilization -> high (polarity +), feedInTariff -> low (polarity -)
+    # optimistic: activeHours -> high (polarity +), feedInTariff -> low (polarity -)
     r = page.evaluate(f"""() => {{
       const s = {BASE};
       const o = window.SunStackEngine.applyPreset(s, 'optimistic');
       const D = window.SunStackData.INPUT_DEFAULTS;
-      return [o.utilization, D.utilization.high, o.feedInTariff, D.feedInTariff.low];
+      return [o.activeHours, D.activeHours.high, o.feedInTariff, D.feedInTariff.low];
     }}""")
     assert r[0] == r[1] and r[2] == r[3]
 
@@ -89,24 +89,6 @@ def test_optimistic_beats_pessimistic(page):
     lo = page.evaluate(f"() => {{const s={BASE}; return window.SunStackEngine.computeScenario(window.SunStackEngine.applyPreset(s,'pessimistic')).homeowner.netAud;}}")
     assert hi > lo
 
-def test_breakeven_zeroes_net(page):
-    u = page.evaluate(f"() => {{const s={BASE}; return window.SunStackEngine.breakevenUtilization(s);}}")
-    if u is not None:
-        net = page.evaluate(f"() => {{const s={BASE}; s.utilization={u}; return window.SunStackEngine.computeScenario(s).homeowner.netAud;}}")
-        assert abs(net) < 1.0
-
-def test_breakeven_null_when_zero_slope(page):
-    # model does not fit => tokens=0 at every utilization => net is constant => slope 0 => null
-    u = page.evaluate(f"() => {{const s={BASE}; s.rig=['mac_mini_m4_16']; s.modelId='kimi_k26'; return window.SunStackEngine.breakevenUtilization(s);}}")
-    assert u is None
-
-def test_breakeven_null_when_out_of_range(page):
-    # When not financed and homeownerShare is tiny, the fixed hardware amortization
-    # cost exceeds any revenue at utilization ≤ 1 → breakeven is > 1 → null.
-    # Use financed=false so amortized hardware cost is always present;
-    # set homeownerShare very low so revenue never covers hardware cost at u≤1.
-    u = page.evaluate(f"() => {{const s={BASE}; s.financed=false; s.homeownerShare=0.001; return window.SunStackEngine.breakevenUtilization(s);}}")
-    assert u is None
 
 def test_hub_layout_bounds_and_count(page):
     r = page.evaluate("() => window.SunStackEngine.hubLayout(9, 600, 400)")

@@ -770,13 +770,8 @@ window.SunStackData = (function () {
    * Invariant: low <= value <= high (enforced by test).
    */
   const INPUT_DEFAULTS = {
-    utilization: {
-      value: 0.60, low: 0.20, high: 0.75,
-      unit: "fraction",
-      source_id: "messari_akash", confidence: "medium", polarity: "+"
-    },
     activeHours: {
-      value: 16, low: 4, high: 24,
+      value: 16, low: 0, high: 24,
       unit: "h/day",
       source_id: "messari_akash", confidence: "low", polarity: "+"
     },
