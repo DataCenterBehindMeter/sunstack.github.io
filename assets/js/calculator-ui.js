@@ -11,14 +11,14 @@ window.SunStackUI = (function () {
 
   /* ── State ──────────────────────────────────────────────────────────────── */
   const state = {
-    rig: ['mac_studio_m3ultra_256'],
+    rig: ['dgx_spark'],
     modelId:  'minimax_m3',
     quant:    'q4',
 
     // uncertainty inputs — seeded from INPUT_DEFAULTS typical values
     poolEfficiency:          ID.poolEfficiency.value,
     utilization:             ID.utilization.value,
-    activeHours:             ID.activeHours.value,
+    activeHours:             24,
     feedInTariff:            ID.feedInTariff.value,
     retailRate:              ID.retailRate.value,
 
@@ -26,7 +26,7 @@ window.SunStackUI = (function () {
     energyMix: { free: 0.6, solar: 0.3, grid: 0.1 },
 
     // concurrency — batching lever (NOT in INPUT_DEFAULTS; presets do not change it)
-    concurrency: 12,
+    concurrency: 16,
 
     // pricing + shares
     undercut:             0.20,   // 20% below market

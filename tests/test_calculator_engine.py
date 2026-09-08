@@ -164,13 +164,14 @@ def test_fitting_rig_has_nonzero_tps(page):
     assert result['ok'], f"Fitting rig has zero tps: fits={result['fits']}, aggServedTps={result['aggServedTps']}"
 
 def test_both_parties_can_be_positive(page):
-    """Default config (minimax_m3, mac_studio_m3ultra_256) yields homeowner.netAud > 0 AND operator.marginAud > 0."""
+    """Default config (dgx_spark + minimax_m3, financed) yields homeowner.netAud > 0,
+    operator.marginAud > 0, and buyer.savesAud > 0."""
     result = page.evaluate("""() => {
       const E = window.SunStackEngine;
       const state = {
-        rig: ['mac_studio_m3ultra_256'], modelId: 'minimax_m3', quant: 'q4',
-        poolEfficiency: 0.75, concurrency: 12,
-        utilization: 0.4, activeHours: 16,
+        rig: ['dgx_spark'], modelId: 'minimax_m3', quant: 'q4',
+        poolEfficiency: 0.75, concurrency: 16,
+        utilization: 0.45, activeHours: 24,
         energyMix: {free:0.6, solar:0.3, grid:0.1},
         feedInTariff: 3.3, retailRate: 30,
         undercut: 0.2, homeownerShare: 0.55, financed: true,
@@ -180,10 +181,13 @@ def test_both_parties_can_be_positive(page):
       return {
         homeownerNet: out.homeowner.netAud,
         operatorMargin: out.operator.marginAud,
-        ok: out.homeowner.netAud > 0 && out.operator.marginAud > 0
+        buyerSaves: out.buyer.savesAud,
+        ok: out.homeowner.netAud > 0 && out.operator.marginAud > 0 && out.buyer.savesAud > 0
       };
     }""")
     assert result['ok'], (
-        f"Default config not both-positive: "
-        f"homeowner={result['homeownerNet']:.0f}, operator={result['operatorMargin']:.0f}"
+        f"Default not all-positive: "
+        f"homeowner={result['homeownerNet']:.0f}, "
+        f"operator={result['operatorMargin']:.0f}, "
+        f"buyer={result['buyerSaves']:.0f}"
     )

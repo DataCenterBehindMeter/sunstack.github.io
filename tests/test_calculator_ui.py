@@ -22,9 +22,22 @@ def test_state_initialized(page):
     )
     assert has_state
     rig = page.evaluate("() => window.SunStackUI.state.rig")
-    assert rig == ["mac_studio_m3ultra_256"]
+    assert rig == ["dgx_spark"]
     model_id = page.evaluate("() => window.SunStackUI.state.modelId")
     assert model_id == "minimax_m3"
+
+
+def test_default_state_dgx_minimax(page):
+    """Default state is DGX Spark + MiniMax M3 with correct knobs."""
+    s = page.evaluate("() => window.SunStackUI.state")
+    assert s["rig"] == ["dgx_spark"]
+    assert s["modelId"] == "minimax_m3"
+    assert s["quant"] == "q4"
+    assert s["activeHours"] == 24
+    assert s["concurrency"] == 16
+    assert s["financed"] is True
+    assert abs(s["homeownerShare"] - 0.55) < 1e-6
+    assert abs(s["undercut"] - 0.20) < 1e-6
 
 
 def test_render_exposed(page):
@@ -65,10 +78,10 @@ def test_add_device_updates_summary_and_svg(page):
     """Adding two dgx_spark devices to the default rig shows 3 SVG nodes total."""
     page.click("button[data-add-device='dgx_spark']")
     page.click("button[data-add-device='dgx_spark']")
-    # default rig has 1 node (mac_studio_m3ultra_256, 256 GB) + 2 dgx_spark (128 GB each) = 512 GB
+    # default rig has 1 dgx_spark (128 GB) + 2 more dgx_spark (128 GB each) = 384 GB
     assert page.locator("#rig-svg .rig-node").count() == 3
     summary_text = page.inner_text("#rig-summary")
-    assert "512" in summary_text
+    assert "384" in summary_text
 
 
 def test_uma_vs_nonuma_class(page):
@@ -91,10 +104,10 @@ def test_rig_summary_present(page):
 
 def test_fits_badge_no_fit(page):
     """After removing default device and adding only mac_mini_m4_16 (16 GB),
-    minimax_m3 (130 GB Q4) doesn't fit."""
-    # Remove the default mac_studio_m3ultra_256 node first
+    minimax_m3 (126 GB Q4) doesn't fit."""
+    # Remove the default dgx_spark node first
     page.click("#rig-svg .rig-node")
-    # Set model to minimax_m3 which needs 130 GB — won't fit in 16 GB
+    # Set model to minimax_m3 which needs 126 GB — won't fit in 16 GB
     page.evaluate("() => { window.SunStackUI.state.modelId = 'minimax_m3'; window.SunStackUI.render(); }")
     page.click("button[data-add-device='mac_mini_m4_16']")
     summary_text = page.inner_text("#rig-summary").lower()
@@ -103,16 +116,16 @@ def test_fits_badge_no_fit(page):
 
 
 def test_fits_badge_fit(page):
-    """Default rig (mac_studio_m3ultra_256, 256 GB) fits minimax_m3 (130 GB Q4) — badge shows fits."""
+    """Default rig (dgx_spark, 128 GB) fits minimax_m3 (126 GB Q4) — badge shows fits."""
     summary_text = page.inner_text("#rig-summary")
     assert "fit" in summary_text.lower() or "✓" in summary_text
 
 
 def test_state_rig_updated_on_add(page):
-    """state.rig reflects added devices (default rig already has mac_studio_m3ultra_256)."""
+    """state.rig reflects added devices (default rig already has dgx_spark)."""
     page.click("button[data-add-device='dgx_spark']")
     rig = page.evaluate("() => window.SunStackUI.state.rig")
-    assert rig == ["mac_studio_m3ultra_256", "dgx_spark"]
+    assert rig == ["dgx_spark", "dgx_spark"]
 
 
 def test_state_preset_becomes_custom(page):
@@ -239,18 +252,18 @@ def test_strategy_control_homeowner_share(page):
 def test_model_gating_large_models_disabled_for_small_rig(page):
     """With mac_mini_m4_16 (16 GB) rig, larger models are disabled."""
     # Set up a tiny 16 GB rig
-    page.click("#rig-svg .rig-node")   # remove default mac_studio_m3ultra_256
+    page.click("#rig-svg .rig-node")   # remove default dgx_spark
     page.click("button[data-add-device='mac_mini_m4_16']")
     # gpt_oss_120b needs 63 GB — disabled for 16 GB rig
     assert page.get_attribute("#model-select option[value='gpt_oss_120b']", "disabled") is not None
-    # minimax_m3 needs 130 GB — also disabled
+    # minimax_m3 needs 126 GB — also disabled
     assert page.get_attribute("#model-select option[value='minimax_m3']", "disabled") is not None
     # kimi_k26 needs 630 GB — also disabled
     assert page.get_attribute("#model-select option[value='kimi_k26']", "disabled") is not None
 
 
 def test_model_gating_qwen32b_enabled_for_default_rig(page):
-    """With default rig (mac_studio_m3ultra_256, 256 GB), gpt_oss_120b (63 GB Q4) is selectable."""
+    """With default rig (dgx_spark, 128 GB), gpt_oss_120b (63 GB Q4) is selectable."""
     disabled = page.get_attribute("#model-select option[value='gpt_oss_120b']", "disabled")
     assert disabled is None
 
@@ -258,11 +271,11 @@ def test_model_gating_qwen32b_enabled_for_default_rig(page):
 def test_model_gating_enabled_for_big_rig(page):
     """Adding DGX Spark (128 GB) to a 16 GB rig enables models that were previously disabled."""
     # Set up a tiny 16 GB rig
-    page.click("#rig-svg .rig-node")   # remove default mac_studio_m3ultra_256
+    page.click("#rig-svg .rig-node")   # remove default dgx_spark
     page.click("button[data-add-device='mac_mini_m4_16']")
-    # minimax_m3 (130 GB) disabled for 16 GB rig
+    # minimax_m3 (126 GB) disabled for 16 GB rig
     assert page.get_attribute("#model-select option[value='minimax_m3']", "disabled") is not None
-    # Add DGX Spark (128 GB) → pool = 16 + 128 = 144 GB → minimax_m3 (130 GB) fits
+    # Add DGX Spark (128 GB) → pool = 16 + 128 = 144 GB → minimax_m3 (126 GB) fits
     page.click("button[data-add-device='dgx_spark']")
     disabled_after = page.get_attribute("#model-select option[value='minimax_m3']", "disabled")
     assert disabled_after is None
@@ -296,10 +309,10 @@ def test_concurrency_slider_present(page):
     assert int(el.get_attribute("max")) == 64
 
 
-def test_concurrency_default_12(page):
-    """Concurrency slider starts at 12 (state default)."""
+def test_concurrency_default_16(page):
+    """Concurrency slider starts at 16 (state default)."""
     val = page.evaluate("() => window.SunStackUI.state.concurrency")
-    assert val == 12
+    assert val == 16
 
 
 def test_concurrency_slider_updates_state(page):

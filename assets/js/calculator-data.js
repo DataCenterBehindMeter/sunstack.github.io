@@ -641,11 +641,12 @@ window.SunStackData = (function () {
     },
     minimax_m3: {
       label: "MiniMax M3 (MoE 230B/10B, text+image+video)",
-      minGbQ4: 130,
+      minGbQ4: 126,
+      // fits a single 128 GB node at Q4 (tight, short context)
       activeParamsB: 10,
       multimodal: true,
       priceOutUsdPerM: D(0.96, 0.60, 1.20, "USD/1M", "minimax_m3_pricing", "medium"),
-      note: "MiniMax's flagship multimodal MoE (text, image, video). Needs 256 GB Mac Studio or 2-box pool. 'MiniMax H3' is their companion multimodal video generation model."
+      note: "Fits a single 128 GB node at Q4 (tight, short context). MiniMax's flagship multimodal MoE (text, image, video). Needs 256 GB Mac Studio or 2-box pool for Q8/FP16. 'MiniMax H3' is their companion multimodal video generation model."
     },
     qwen3_vl_235b_a22b: {
       label: "Qwen3-VL 235B-A22B (MoE)",
@@ -770,7 +771,7 @@ window.SunStackData = (function () {
    */
   const INPUT_DEFAULTS = {
     utilization: {
-      value: 0.40, low: 0.20, high: 0.65,
+      value: 0.45, low: 0.20, high: 0.65,
       unit: "fraction",
       source_id: "messari_akash", confidence: "medium", polarity: "+"
     },
