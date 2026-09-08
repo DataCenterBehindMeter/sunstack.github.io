@@ -781,3 +781,124 @@
   background: var(--amber);
   color: var(--canvas);
 }
+
+/* ── Focus-visible rings on interactive elements ───────────────────────────── */
+.catalog-grid button:focus-visible,
+.preset-btn:focus-visible,
+.dl-btn:focus-visible,
+.rig-node:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.calc-select:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+  border-color: var(--amber);
+}
+
+input[type="range"]:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ── Responsive: mobile (≤820px) ──────────────────────────────────────────── */
+@media (max-width: 820px) {
+  .calc-wrap {
+    padding: 24px 14px;
+  }
+
+  /* Stack panel sections to single column */
+  #panels .panels-wrap {
+    gap: 20px;
+  }
+
+  /* Slider grid: single column on mobile */
+  .slider-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Model row: stack model/quant selects vertically */
+  .model-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Catalog grid: wrap tighter */
+  .catalog-grid {
+    gap: 8px;
+  }
+
+  .catalog-grid button {
+    min-width: 130px;
+  }
+
+  /* SVG rig diagram: constrain to viewport */
+  #rig-svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Results grid: 2 columns on narrow screens */
+  .results-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  /* Sources table: allow horizontal scroll within its container */
+  #sources {
+    overflow-x: auto;
+  }
+
+  .sources-table {
+    min-width: 460px;
+  }
+
+  /* Prevent the sources section from bleeding the page width */
+  #sources > .sources-table {
+    display: block;
+    overflow-x: auto;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Tables: allow horizontal scroll within container, not the whole page */
+  .chart-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Preset row: wrap on very small screens */
+  .preset-row {
+    flex-wrap: wrap;
+  }
+
+  /* Summary bar: tighter layout */
+  #rig-summary {
+    gap: 12px;
+    padding: 12px 14px;
+  }
+}
+
+/* ── Responsive: very narrow (≤420px) ─────────────────────────────────────── */
+@media (max-width: 420px) {
+  .calc-head h1 {
+    font-size: 1.5rem;
+  }
+
+  .catalog-grid button {
+    min-width: 110px;
+    padding: 8px 10px;
+  }
+
+  .panel-section {
+    padding: 16px 12px;
+  }
+}
